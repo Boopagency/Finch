@@ -13,6 +13,7 @@
     "test:e2e": "for f in tests/e2e/*.e2e.mjs; do NODE_PATH=$(npm root -g) node \"$f\" || exit 1; done"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0",
     "@date-fns/tz": "^1.5.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.2",

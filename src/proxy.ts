@@ -24,6 +24,8 @@ export async function proxy(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const path = request.nextUrl.pathname;
   if (!data?.claims && !PUBLIC.some((p) => path.startsWith(p))) {
+    // API sem sessão: 401 em JSON (redirecionar daria HTML de login para quem espera dados)
+    if (path.startsWith("/api/")) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     const url = request.nextUrl.clone();
     url.pathname = "/entrar";
     url.search = "";

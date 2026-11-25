@@ -42,7 +42,7 @@ Despensa, rotinas domésticas (sobre tarefas), ativos, manutenções, documentos
 ## Etapa 6 — Vida a dois e metas ✅ (datas, lugares/viagens, memórias, metas; fotos depois)
 Metas vinculadas, viagens, memórias, datas, lugares, desejos, conquistas, desafios, recompensas.
 
-## Etapa 7 — IA
+## Etapa 7 — IA ✅ (assistente com ferramentas; falta a chave; fotos de comprovante e relatório automático depois)
 Assistente com ferramentas, imagens/comprovantes, relatórios automáticos, sugestões proativas.
 
 ## Etapa 8 — Refinamento

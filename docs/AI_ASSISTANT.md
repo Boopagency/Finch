@@ -1,5 +1,7 @@
 # Assistente IA ("Finch")
 
+> **Estado (25/11):** implementado conforme D-035 — ferramentas `get_today`, `get_finances_month`, `create_task`, `log_water`, `add_shopping_items`, `propose_expense` (confirma). Sem chave configurada a aba explica e a API responde 503. O desenho abaixo é o alvo completo.
+
 ## 1. Papel
 
 O assistente consulta e age nos módulos por **ferramentas tipadas**. Números vêm sempre de funções determinísticas do backend; a IA interpreta, resume e conversa.

@@ -18,7 +18,7 @@ Siga o [roteiro de testes no iPhone](TESTES_IPHONE.md). Me conte o que falhou ou
 | Decisão | Recomendação | Por quê |
 |---|---|---|
 | **Backup** (D-009) | Agora que há dados financeiros reais: **Supabase Pro** (~US$ 25/mês, backup diário) | O plano grátis não faz backup e pausa após ~7 dias sem uso |
-| **IA** (D-012) | Anthropic (Claude). Gerar uma chave em console.anthropic.com e colar na Vercel como `AI_API_KEY` (Sensitive) | Necessário só para a Etapa 7 (assistente) |
+| **IA** (D-012, D-035) | **O assistente já está pronto**, só falta a chave. Em console.anthropic.com → API Keys → criar; na Vercel → Settings → Environment Variables: `AI_API_KEY` (**Sensitive**). Opcionais (config): `AI_MODEL` (padrão `claude-opus-5-5`), `AI_DAILY_LIMIT` (padrão 60 conversas/pessoa/dia). Depois, Redeploy. Defina também um limite de gasto mensal no console da Anthropic. | Sem a chave, a aba Finch explica e o resto do app funciona normal |
 | **Domínio próprio** | Opcional. Se quiser, configure na Vercel e me avise para trocar a URL no Supabase (README → "Trocar URL") | Hoje `finch-ecru.vercel.app` funciona |
 
 ## 5. Opcionais de segurança (2 min cada, no painel do Supabase)

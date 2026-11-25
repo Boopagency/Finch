@@ -141,7 +141,8 @@ h1, h2, h3 { text-wrap: balance; }
 .tab-indicator { transition: transform var(--dur-slow) var(--ease-soft), opacity var(--dur-fast); will-change: transform; }
 
 /* tela nova entra subindo de leve (template.tsx remonta a cada navegação) */
-.page-enter { animation: rise var(--dur-base) var(--ease-out) both; }
+/* backwards (não "both"): depois de entrar, a animação solta o elemento — senão ele vira referência de position: fixed */
+.page-enter { animation: rise var(--dur-base) var(--ease-out) backwards; }
 
 /* listas: itens chegam em cascata curta */
 .stagger > * { animation: rise var(--dur-base) var(--ease-out) both; }

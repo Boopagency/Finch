@@ -36,3 +36,14 @@ E2E_PASSWORD=... npm run test:e2e
 delete from public.fin_entries where workspace_id in (select workspace_id from public.workspace_members where user_id::text like 'e2e%');
 delete from auth.users where email like '%@finch.test';
 ```
+
+## Assistente com API falsa (sem custo)
+O teste `assistant.e2e.mjs` sobe uma API falsa na porta 3199. Rode um segundo servidor apontado para ela e passe a URL:
+```bash
+AI_API_KEY=fake-local-test ANTHROPIC_BASE_URL=http://127.0.0.1:3199 npx next start -p 3101
+```
+```bash
+E2E_AI_BASE=http://localhost:3101 E2E_PASSWORD=... npm run test:e2e
+```
+Sem `E2E_AI_BASE`, só a parte "sem chave" roda. `E2E_VERBOSE=1` mostra o log completo das falhas.
+

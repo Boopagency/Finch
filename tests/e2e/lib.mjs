@@ -21,7 +21,7 @@ export async function test(name, fn) {
     console.log(`  ✓ ${name} (${Date.now() - t0} ms)`);
   } catch (e) {
     results.push({ name, ok: false, err: e });
-    console.log(`  ✗ ${name}\n    ${String(e?.message ?? e).split("\n").slice(0, 6).join("\n    ")}`);
+    console.log(`  ✗ ${name}\n    ${String(e?.message ?? e).split("\n").slice(0, process.env.E2E_VERBOSE ? 60 : 6).join("\n    ")}`);
   }
 }
 export function summary() {

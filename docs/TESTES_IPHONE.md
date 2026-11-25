@@ -59,6 +59,12 @@ Marque ✅ ou ❌ e me mande os ❌ com print.
 - [ ] Memórias → uma memória → a Duda vê no celular dela.
 - [ ] Metas → meta do casal em R$ com prazo → cada um soma um valor → ao bater, fica verde e o álbum ganha pontos.
 
+## Assistente (aba do passarinho, depois da chave de IA)
+- [ ] "Como está meu dia?" → responde com suas tarefas, água e agenda de verdade.
+- [ ] "Bebi 500 ml" → a água sobe no Hoje.
+- [ ] "Gastei 45 no uber" → aparece um cartão; só lança ao tocar Confirmar.
+- [ ] Ditado do teclado (microfone) funciona no campo.
+
 ## Finanças (Vida → Finanças)
 - [ ] Cadastrar conta corrente (com saldo de hoje) e o cartão (limite, fecha, vence).
 - [ ] `180 mercado crédito` → vai para o cartão, categoria Mercado.
