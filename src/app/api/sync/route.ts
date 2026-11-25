@@ -38,6 +38,20 @@ export async function POST(request: Request) {
       case "habit.clear":
         ({ error } = await supabase.from("habit_logs").delete().eq("habit_id", op.habit_id).eq("local_date", op.local_date));
         break;
+      case "shop.add":
+        ({ error } = await supabase
+          .from("shopping_items")
+          .upsert({ id: op.id, list_id: op.list_id, name: op.name, qty: op.qty, unit: op.unit, category: op.category }, { onConflict: "id", ignoreDuplicates: true }));
+        break;
+      case "shop.check":
+        ({ error } = await supabase
+          .from("shopping_items")
+          .update({ checked: op.checked, checked_by: op.checked ? userId : null, checked_at: op.checked ? new Date().toISOString() : null })
+          .eq("id", op.item_id));
+        break;
+      case "shop.remove":
+        ({ error } = await supabase.from("shopping_items").delete().eq("id", op.item_id));
+        break;
       case "task.toggle": {
         const patch = { completed_at: op.done ? new Date().toISOString() : null, completed_by: op.done ? userId : null };
         ({ error } = op.occurrence_id

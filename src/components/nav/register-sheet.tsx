@@ -1,11 +1,12 @@
 "use client";
 
-import { CalendarPlus, Dumbbell, Receipt, Scale, ShoppingBasket, Wallet } from "lucide-react";
+import { CalendarPlus, Dumbbell, Receipt, Scale, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { HabitList } from "@/features/health/components/habit-list";
 import { WaterQuick } from "@/features/health/components/water-quick";
 import type { Habit, HabitLog } from "@/features/health/habits";
+import { QuickItems } from "@/features/shopping/components/shopping-list";
 import { QuickAdd } from "@/features/tasks/components/quick-add";
 
 export type QuickData = {
@@ -14,12 +15,11 @@ export type QuickData = {
   habits: Habit[];
   habitLogs: HabitLog[];
   spaces: { id: string; kind: string; name: string }[];
+  shoppingList: { id: string; name: string } | null;
 };
 
 // Atalhos que ligam quando cada módulo existir (ver docs/ROADMAP.md).
 const later = [
-  { label: "Evento", Icon: CalendarPlus, stage: 2 },
-  { label: "Mercado", Icon: ShoppingBasket, stage: 2 },
   { label: "Despesa", Icon: Receipt, stage: 3 },
   { label: "Receita", Icon: Wallet, stage: 3 },
   { label: "Treino", Icon: Dumbbell, stage: 4 },
@@ -48,6 +48,12 @@ export function RegisterSheet({ open, onClose, data }: { open: boolean; onClose:
         <h2 className="font-display text-[28px] font-extrabold tracking-[-0.03em]">Registrar</h2>
 
         <QuickAdd today={data.today} spaces={data.spaces} onCreated={onClose} />
+        {data.shoppingList && (
+          <section aria-label={`Adicionar ao ${data.shoppingList.name}`} className="flex flex-col gap-1.5">
+            <h3 className="px-1 text-[13px] font-semibold text-ink-2">{data.shoppingList.name}</h3>
+            <QuickItems listId={data.shoppingList.id} onAdded={onClose} />
+          </section>
+        )}
         <WaterQuick serverLogs={data.water.logs} goal={data.water.goal} presets={data.water.presets} onLogged={onClose} />
 
         {data.habits.length > 0 ? (
@@ -63,6 +69,10 @@ export function RegisterSheet({ open, onClose, data }: { open: boolean; onClose:
             Criar o primeiro hábito →
           </Link>
         )}
+
+        <Link href="/agenda" onClick={onClose} className="flex items-center gap-2 rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
+          <CalendarPlus className="size-5 text-lavender" /> Novo compromisso na agenda
+        </Link>
 
         <section aria-label="Em breve">
           <h3 className="mb-2 px-1 text-[13px] font-semibold text-ink-3">Em breve</h3>

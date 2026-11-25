@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mergeHabitLogs, mergeWater, opSchema, type Op } from "@/features/sync/ops";
+import { mergeHabitLogs, mergeShopping, mergeWater, opSchema, type Op } from "@/features/sync/ops";
 import { consistency, habitStatus, weekStart, type Habit } from "./habits";
 import { formatWater, localDate, localToInstant, waterSlots } from "./water";
 
@@ -76,5 +76,20 @@ describe("fila offline", () => {
   it("limpa o dia do hábito", () => {
     const server = [{ id: id(30), habit_id: id(1), value: 1, local_date: "2026-11-25" }];
     expect(mergeHabitLogs(server, [{ id: id(31), type: "habit.clear", habit_id: id(1), local_date: "2026-11-25" }], "2026-11-25")).toHaveLength(0);
+  });
+});
+
+describe("mercado offline", () => {
+  const L = id(90);
+  it("item novo, marcado e removido", () => {
+    const server = [{ id: id(91), name: "Leite", qty: 1, unit: null, category: "laticinios", checked: false, est_price_cents: null, note: null }];
+    const ops: Op[] = [
+      { id: id(92), type: "shop.add", list_id: L, name: "Ovos", qty: 12, unit: "un", category: "mercearia" },
+      { id: id(93), type: "shop.check", item_id: id(91), checked: true },
+      { id: id(94), type: "shop.add", list_id: id(99), name: "Outra lista", qty: 1, unit: null, category: "outros" },
+    ];
+    const m = mergeShopping(server, ops, L);
+    expect(m.map((i) => [i.name, i.checked])).toEqual([["Leite", true], ["Ovos", false]]);
+    expect(mergeShopping(server, [...ops, { id: id(95), type: "shop.remove", item_id: id(92) }], L)).toHaveLength(1);
   });
 });

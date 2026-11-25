@@ -10,6 +10,17 @@ export const opSchema = z.discriminatedUnion("type", [
   z.object({ id: z.uuid(), type: z.literal("habit.add"), habit_id: z.uuid(), value: z.number().int().min(1).max(1000), logged_at: z.iso.datetime({ offset: true }) }),
   z.object({ id: z.uuid(), type: z.literal("habit.remove"), target_id: z.uuid() }),
   z.object({ id: z.uuid(), type: z.literal("habit.clear"), habit_id: z.uuid(), local_date: z.iso.date() }),
+  z.object({
+    id: z.uuid(),
+    type: z.literal("shop.add"),
+    list_id: z.uuid(),
+    name: z.string().trim().min(1).max(80),
+    qty: z.number().positive().max(9999),
+    unit: z.string().max(10).nullable(),
+    category: z.string().max(20),
+  }),
+  z.object({ id: z.uuid(), type: z.literal("shop.check"), item_id: z.uuid(), checked: z.boolean() }),
+  z.object({ id: z.uuid(), type: z.literal("shop.remove"), item_id: z.uuid() }),
   z.object({ id: z.uuid(), type: z.literal("task.toggle"), task_id: z.uuid(), occurrence_id: z.uuid().nullable(), done: z.boolean() }),
 ]);
 export type Op = z.infer<typeof opSchema>;
@@ -47,4 +58,19 @@ export function taskDoneOverrides(ops: Op[]): Map<string, boolean> {
   const m = new Map<string, boolean>();
   for (const o of ops) if (o.type === "task.toggle") m.set(o.occurrence_id ?? o.task_id, o.done);
   return m;
+}
+
+export type ShopItem = { id: string; name: string; qty: number; unit: string | null; category: string; checked: boolean; est_price_cents: number | null; note: string | null };
+
+/** Lista otimista: itens novos da fila, marcações (última vence) e remoções. */
+export function mergeShopping(server: ShopItem[], ops: Op[], listId: string): ShopItem[] {
+  const known = new Set(server.map((i) => i.id));
+  let items = [...server];
+  for (const o of ops) {
+    if (o.type === "shop.add" && o.list_id === listId && !known.has(o.id))
+      items.push({ id: o.id, name: o.name, qty: o.qty, unit: o.unit, category: o.category, checked: false, est_price_cents: null, note: null });
+    if (o.type === "shop.check") items = items.map((i) => (i.id === o.item_id ? { ...i, checked: o.checked } : i));
+    if (o.type === "shop.remove") items = items.filter((i) => i.id !== o.item_id);
+  }
+  return items;
 }

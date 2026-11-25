@@ -53,6 +53,30 @@ export type Database = {
         Update: { avatar_path?: string | null; created_at?: string; display_name?: string; id?: string; tz?: string; updated_at?: string }
         Relationships: []
       }
+      products: {
+        Row: { category: string; favorite: boolean; id: string; last_price_cents: number | null; name: string; times_bought: number; unit: string | null; updated_at: string; workspace_id: string }
+        Insert: { category?: string; favorite?: boolean; id?: string; last_price_cents?: number | null; name: string; times_bought?: number; unit?: string | null; updated_at?: string; workspace_id: string }
+        Update: { category?: string; favorite?: boolean; id?: string; last_price_cents?: number | null; name?: string; times_bought?: number; unit?: string | null; updated_at?: string; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "products_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      purchases: {
+        Row: { created_at: string; created_by: string; id: string; items_count: number; list_id: string | null; paid_by: string | null; payment: string; purchased_on: string; store: string | null; total_cents: number; workspace_id: string }
+        Insert: { created_at?: string; created_by?: string; id?: string; items_count?: number; list_id?: string | null; paid_by?: string | null; payment?: string; purchased_on: string; store?: string | null; total_cents: number; workspace_id: string }
+        Update: { created_at?: string; created_by?: string; id?: string; items_count?: number; list_id?: string | null; paid_by?: string | null; payment?: string; purchased_on?: string; store?: string | null; total_cents?: number; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "purchases_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      shopping_items: {
+        Row: { category: string; checked: boolean; checked_at: string | null; checked_by: string | null; created_at: string; added_by: string | null; est_price_cents: number | null; id: string; list_id: string; name: string; note: string | null; qty: number; unit: string | null; workspace_id: string }
+        Insert: { category?: string; checked?: boolean; checked_at?: string | null; checked_by?: string | null; created_at?: string; added_by?: string | null; est_price_cents?: number | null; id?: string; list_id: string; name: string; note?: string | null; qty?: number; unit?: string | null; workspace_id?: string }
+        Update: { category?: string; checked?: boolean; checked_at?: string | null; checked_by?: string | null; created_at?: string; added_by?: string | null; est_price_cents?: number | null; id?: string; list_id?: string; name?: string; note?: string | null; qty?: number; unit?: string | null; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "shopping_items_list_id_fkey"; columns: ["list_id"]; isOneToOne: false; referencedRelation: "shopping_lists"; referencedColumns: ["id"] }, { foreignKeyName: "shopping_items_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      shopping_lists: {
+        Row: { budget_cents: number | null; created_at: string; created_by: string; done_at: string | null; id: string; name: string; status: string; workspace_id: string }
+        Insert: { budget_cents?: number | null; created_at?: string; created_by?: string; done_at?: string | null; id?: string; name: string; status?: string; workspace_id: string }
+        Update: { budget_cents?: number | null; created_at?: string; created_by?: string; done_at?: string | null; id?: string; name?: string; status?: string; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "shopping_lists_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
       push_subscriptions: {
         Row: { auth: string; created_at: string; device_label: string; endpoint: string; id: string; last_success_at: string | null; p256dh: string; revoked_at: string | null; user_agent: string | null; user_id: string }
         Insert: { auth: string; created_at?: string; device_label?: string; endpoint: string; id?: string; last_success_at?: string | null; p256dh: string; revoked_at?: string | null; user_agent?: string | null; user_id: string }
@@ -114,6 +138,10 @@ export type Database = {
         SetofOptions: { from: "*"; to: "notification_jobs"; isOneToOne: false; isSetofReturn: true }
       }
       create_shared_workspace: { Args: { p_name: string }; Returns: string }
+      finish_shopping: {
+        Args: { p_list_id: string; p_store: string; p_total_cents: number; p_purchased_on: string; p_paid_by: string | null; p_payment: string; p_carry_over: boolean }
+        Returns: string
+      }
       is_member: { Args: { ws: string }; Returns: boolean }
       is_owner: { Args: { ws: string }; Returns: boolean }
       register_push_subscription: {
