@@ -1,15 +1,17 @@
 import { PageHeader } from "@/components/ui/page-header";
 import { BodyForm } from "@/features/training/components/body-form";
 import { BodyLogList } from "@/features/training/components/body-log-list";
-import { getBodyLogs } from "@/features/training/server/queries";
+import { BodyPhotos } from "@/features/training/components/body-photos";
+import { getBodyLogs, getBodyPhotos } from "@/features/training/server/queries";
+import { todayFor } from "@/features/health/server/queries";
 import { formatKg, formatSleep } from "@/features/training/training";
 import { requireViewer } from "@/lib/supabase/server";
 
 export const metadata = { title: "Saúde" };
 
 export default async function HealthPage() {
-  await requireViewer();
-  const logs = await getBodyLogs();
+  const viewer = await requireViewer();
+  const [logs, photos] = await Promise.all([getBodyLogs(), getBodyPhotos(viewer)]);
   const weights = logs.filter((l) => l.weight_g).slice(0, 30).reverse();
   const sleeps = logs.filter((l) => l.sleep_min != null).slice(0, 7);
   const avgSleep = sleeps.length ? Math.round(sleeps.reduce((n, l) => n + l.sleep_min!, 0) / sleeps.length) : null;
@@ -47,6 +49,8 @@ export default async function HealthPage() {
         <h2 id="registrar" className="mb-4 text-[15px] font-semibold">Registrar</h2>
         <BodyForm />
       </section>
+
+      <BodyPhotos photos={photos.photos} spaceId={photos.spaceId} today={todayFor(viewer)} />
 
       <BodyLogList logs={logs} />
       <p className="px-1 text-[13px] text-ink-3">Dados de saúde ficam só no seu espaço pessoal e nunca vão em notificações.</p>

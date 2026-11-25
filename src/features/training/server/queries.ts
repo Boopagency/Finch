@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { signedPhotoUrls } from "@/features/core/server/photos";
 import { createClient, type Viewer } from "@/lib/supabase/server";
 import { todayFor } from "@/features/health/server/queries";
 import { bestByExercise, volume } from "../training";
@@ -82,4 +83,15 @@ export async function getBodyLogs() {
     .order("logged_at", { ascending: false })
     .limit(60);
   return data ?? [];
+}
+
+/** Fotos de evolução (mais nova primeiro) com links temporários, e o espaço pessoal para novos envios. */
+export async function getBodyPhotos(viewer: Viewer) {
+  const supabase = await createClient();
+  const [{ data: photos }, { data: ws }] = await Promise.all([
+    supabase.from("body_photos").select("id, path, taken_on").order("taken_on", { ascending: false }).order("created_at", { ascending: false }).limit(60),
+    supabase.from("workspaces").select("id").eq("kind", "personal").eq("created_by", viewer.id).single(),
+  ]);
+  const urls = await signedPhotoUrls((photos ?? []).map((p) => p.path));
+  return { spaceId: ws?.id ?? null, photos: (photos ?? []).map((p) => ({ id: p.id, taken_on: p.taken_on, url: urls.get(p.path) ?? null })) };
 }

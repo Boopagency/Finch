@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, requireViewer } from "@/lib/supabase/server";
+import { PHOTO_PATH, removePhoto } from "@/features/core/server/photos";
 import { parseKg, parseSleep } from "../training";
 
 type Result = { ok: boolean; message: string };
@@ -122,5 +123,27 @@ export async function saveBodyLog(_prev: Result | null, form: FormData): Promise
 export async function deleteBodyLog(id: string) {
   await requireViewer();
   await (await createClient()).from("body_logs").delete().eq("id", z.uuid().parse(id));
+  revalidatePath("/vida/saude");
+}
+
+// ---------- fotos de evolução (sempre no espaço pessoal) ----------
+export async function addBodyPhoto(path: string, takenOn: string): Promise<Result> {
+  const viewer = await requireViewer();
+  const supabase = await createClient();
+  const { data: ws } = await supabase.from("workspaces").select("id").eq("kind", "personal").eq("created_by", viewer.id).single();
+  if (!ws || !PHOTO_PATH.test(path) || !path.startsWith(`${ws.id}/`)) return { ok: false, message: "Foto inválida." };
+  const { error } = await supabase.from("body_photos").insert({ path, taken_on: z.iso.date().parse(takenOn) });
+  if (error) {
+    await removePhoto(path);
+    return { ok: false, message: "Não consegui salvar a foto." };
+  }
+  revalidatePath("/vida/saude");
+  return { ok: true, message: "Foto guardada (só você vê)." };
+}
+
+export async function deleteBodyPhoto(id: string) {
+  await requireViewer();
+  const { data } = await (await createClient()).from("body_photos").delete().eq("id", z.uuid().parse(id)).select("path").maybeSingle();
+  await removePhoto(data?.path);
   revalidatePath("/vida/saude");
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { homeSpace } from "@/features/core/server/home-space";
+import { PHOTO_PATH, removePhoto } from "@/features/core/server/photos";
 import { createClient, requireViewer } from "@/lib/supabase/server";
 
 type Result = { ok: boolean; message: string };
@@ -76,20 +77,24 @@ const memorySchema = z.object({
   title: z.string().trim().min(1, "Dê um título.").max(80),
   body: z.string().trim().max(4000),
   happened_on: z.iso.date(),
+  photo_path: z.string().regex(PHOTO_PATH).or(z.literal("")),
 });
 
 export async function saveMemory(_prev: Result | null, form: FormData): Promise<Result> {
   const viewer = await requireViewer();
-  const p = memorySchema.safeParse({ title: form.get("title"), body: form.get("body") ?? "", happened_on: form.get("happened_on") });
+  const p = memorySchema.safeParse({ title: form.get("title"), body: form.get("body") ?? "", happened_on: form.get("happened_on"), photo_path: form.get("photo_path") ?? "" });
   if (!p.success) return { ok: false, message: issue(p.error) };
   const space = await homeSpace(viewer);
-  const { error } = await (await createClient()).from("memories").insert({ workspace_id: space.id, ...p.data });
+  if (p.data.photo_path && !p.data.photo_path.startsWith(`${space.id}/`)) return { ok: false, message: "Foto inválida." };
+  const { error } = await (await createClient()).from("memories").insert({ workspace_id: space.id, ...p.data, photo_path: p.data.photo_path || null });
   return error ? { ok: false, message: "Não consegui salvar." } : done("/vida/nos", "Memória guardada.");
 }
 
 export async function deleteMemory(id: string) {
   await requireViewer();
-  await (await createClient()).from("memories").delete().eq("id", uuid.parse(id));
+  const supabase = await createClient();
+  const { data } = await supabase.from("memories").delete().eq("id", uuid.parse(id)).select("photo_path").maybeSingle();
+  await removePhoto(data?.photo_path);
   revalidatePath("/vida/nos");
 }
 

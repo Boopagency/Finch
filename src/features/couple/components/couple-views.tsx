@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
+import { uploadPhoto } from "@/lib/photos";
 import { countdownLabel, PLACE_KINDS, sinceLabel } from "../couple";
 import type { Memory, Place, SpecialDate } from "../server/queries";
 import { deleteDate, deleteMemory, deletePlace, markVisited, saveDate, saveMemory, savePlace } from "../server/actions";
@@ -132,9 +133,21 @@ export function PlacesView({ places }: { places: Place[] }) {
 }
 
 // ---------- memórias ----------
-export function MemoriesView({ memories, today }: { memories: Memory[]; today: string }) {
+export function MemoriesView({ memories, today, spaceId }: { memories: Memory[]; today: string; spaceId: string }) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useSave(saveMemory, () => setOpen(false));
+  // foto vai direto do aparelho para o bucket privado; a memória guarda só o caminho
+  const [state, action, pending] = useSave(async (prev, f) => {
+    const file = f.get("photo");
+    f.delete("photo");
+    if (file instanceof File && file.size > 0) {
+      try {
+        f.set("photo_path", await uploadPhoto(spaceId, file));
+      } catch (e) {
+        return { ok: false, message: e instanceof Error ? e.message : "Não consegui enviar a foto." };
+      }
+    }
+    return saveMemory(prev, f);
+  }, () => setOpen(false));
   const [busy, start] = useTransition();
   return (
     <div className="flex flex-col gap-3">
@@ -144,6 +157,9 @@ export function MemoriesView({ memories, today }: { memories: Memory[]; today: s
           <Field id="m-date" name="happened_on" type="date" label="Quando" defaultValue={today} max={today} required />
           <label className="flex flex-col gap-1.5" htmlFor="m-body"><span className="text-[13px] font-semibold text-ink-2">Como foi</span>
             <textarea id="m-body" name="body" rows={4} maxLength={4000} className="rounded-[14px] border border-line bg-surface px-4 py-3 text-[16px]" />
+          </label>
+          <label className="flex flex-col gap-1.5" htmlFor="m-photo"><span className="text-[13px] font-semibold text-ink-2">Foto (opcional)</span>
+            <input id="m-photo" name="photo" type="file" accept="image/*" className="text-[15px] file:mr-3 file:min-h-11 file:rounded-full file:border-0 file:bg-surface-2 file:px-4 file:font-semibold" />
           </label>
           <Err s={state} />
           <div className="flex gap-2"><Button type="submit" disabled={pending}>Guardar</Button><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button></div>
@@ -161,6 +177,10 @@ export function MemoriesView({ memories, today }: { memories: Memory[]; today: s
               </span>
               <button disabled={busy} onClick={() => start(async () => { await deleteMemory(m.id); toast("Memória apagada"); })} aria-label={`Apagar ${m.title}`} className="grid size-10 place-items-center text-ink-3"><Trash2 className="size-4" /></button>
             </div>
+            {m.photo_url && (
+              // eslint-disable-next-line @next/next/no-img-element -- link assinado e temporário, sem otimização de imagem
+              <img src={m.photo_url} alt={m.title} loading="lazy" className="mt-2 max-h-80 w-full rounded-[14px] object-cover" />
+            )}
             {m.body && <p className="mt-1 whitespace-pre-line text-[15px] leading-relaxed text-ink-2">{m.body}</p>}
           </li>
         ))}

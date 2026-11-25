@@ -264,9 +264,9 @@ export type Database = {
         Relationships: [{ foreignKeyName: "places_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
       }
       memories: {
-        Row: { id: string; workspace_id: string; title: string; body: string; happened_on: string; created_by: string; created_at: string }
-        Insert: { id?: string; workspace_id: string; title: string; body?: string; happened_on?: string; created_by?: string; created_at?: string }
-        Update: { id?: string; workspace_id?: string; title?: string; body?: string; happened_on?: string; created_by?: string; created_at?: string }
+        Row: { id: string; workspace_id: string; title: string; body: string; happened_on: string; photo_path: string | null; created_by: string; created_at: string }
+        Insert: { id?: string; workspace_id: string; title: string; body?: string; happened_on?: string; photo_path?: string | null; created_by?: string; created_at?: string }
+        Update: { id?: string; workspace_id?: string; title?: string; body?: string; happened_on?: string; photo_path?: string | null; created_by?: string; created_at?: string }
         Relationships: [{ foreignKeyName: "memories_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
       }
       goals: {
@@ -286,6 +286,12 @@ export type Database = {
         Insert: { user_id: string; day: string; requests?: number; input_tokens?: number; output_tokens?: number }
         Update: { user_id?: string; day?: string; requests?: number; input_tokens?: number; output_tokens?: number }
         Relationships: [{ foreignKeyName: "ai_usage_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      body_photos: {
+        Row: { id: string; user_id: string; path: string; taken_on: string; note: string | null; created_at: string }
+        Insert: { id?: string; user_id?: string; path: string; taken_on?: string; note?: string | null; created_at?: string }
+        Update: { id?: string; user_id?: string; path?: string; taken_on?: string; note?: string | null; created_at?: string }
+        Relationships: [{ foreignKeyName: "body_photos_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
       }
       workspace_members: {
         Row: { joined_at: string; reference_income_cents: number | null; role: string; user_id: string; workspace_id: string }

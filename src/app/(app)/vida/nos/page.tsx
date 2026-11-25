@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { DatesView, MemoriesView, PlacesView } from "@/features/couple/components/couple-views";
-import { getCouple } from "@/features/couple/server/queries";
+import { getCouple, withPhotoUrls } from "@/features/couple/server/queries";
 import { requireViewer } from "@/lib/supabase/server";
 
 export const metadata = { title: "Nós" };
@@ -26,7 +26,7 @@ export default async function CouplePage({ searchParams }: PageProps<"/vida/nos"
       </nav>
       {tab === "datas" && <DatesView dates={c.dates} today={c.today} />}
       {tab === "lugares" && <PlacesView places={c.places} />}
-      {tab === "memorias" && <MemoriesView memories={c.memories} today={c.today} />}
+      {tab === "memorias" && <MemoriesView memories={await withPhotoUrls(c.memories)} today={c.today} spaceId={c.space.id} />}
     </main>
   );
 }
