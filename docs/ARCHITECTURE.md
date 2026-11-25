@@ -24,7 +24,7 @@ Supabase
   ├─ Postgres + RLS — fonte da verdade
   ├─ Funções SQL transacionais (finanças, XP, idempotência)
   ├─ Realtime — listas, tarefas, mercado, pote
-  ├─ Auth — e-mail + código OTP, cadastro público desligado
+  ├─ Auth — e-mail + senha, cadastro público desligado (contas só por convite)
   ├─ Storage — buckets privados, URLs assinadas
   ├─ Cron (pg_cron + pg_net) — chama a Vercel a cada minuto
   └─ Vault — segredo do cron
@@ -38,7 +38,7 @@ Um único app Next.js. Sem microsserviços, sem filas externas: a fila é uma ta
 
 | Camada | Escolha | Por quê |
 |---|---|---|
-| Framework | Next.js (App Router, versão estável atual no setup) + React + TypeScript strict | pedido do projeto |
+| Framework | Next.js 16.4 (App Router, `cacheComponents` desligado, D-016) + React 19 + TypeScript strict | pedido do projeto |
 | Estilo | Tailwind CSS v4 com tokens em CSS variables | tokens centralizados, dark mode por variável |
 | Componentes | shadcn/ui só como ponto de partida (Dialog, Sheet, Popover), restilizado | acessibilidade pronta, visual próprio |
 | Ícones | Lucide | traço consistente com a marca |
@@ -51,7 +51,7 @@ Um único app Next.js. Sem microsserviços, sem filas externas: a fila é uma ta
 | IndexedDB | `idb` (~1 KB) | wrapper fino, sem ORM |
 | Push | `web-push` (servidor) | VAPID e criptografia do payload |
 | Service Worker | escrito à mão (`public/sw.js`) | controle total do ciclo de vida, sem plugin de build |
-| Testes | Vitest (unidade, domínio, finanças), testes SQL de RLS via Supabase CLI, Playwright (fluxos críticos) | |
+| Testes | Vitest (unidade, domínio, finanças), testes SQL de RLS em Postgres efêmero (`scripts/test-db.sh`), Playwright (fluxos críticos) | |
 
 Bibliotecas novas só entram com justificativa em DECISIONS.md.
 
@@ -80,7 +80,7 @@ Regras de dependência: UI chama `features/*/server` (via Server Action ou route
 ## 4. Fluxos-chave
 
 ### 4.1 Mutação comum
-Server Action → valida com Zod → serviço de domínio → Supabase com o **token do usuário** (RLS ativo) → grava `domain_events` na mesma transação quando há efeito colateral → retorna → TanStack Query atualiza; o outro aparelho recebe via Realtime.
+Server Action → `requireViewer()` (JWT validado com `getClaims`) → valida com Zod → serviço de domínio → Supabase com o **token do usuário** (RLS ativo) → grava `domain_events` na mesma transação quando há efeito colateral → retorna → TanStack Query atualiza; o outro aparelho recebe via Realtime.
 
 `service_role` só é usado em: cron, envio de push, aceitação de convite e processamento de eventos. Nunca em código que roda por ação direta do usuário sem checar o membro antes.
 
@@ -97,7 +97,7 @@ View SQL `calendar_items` = `events` ∪ `task_occurrences` com horário ∪ lan
 
 - RLS em **todas** as tabelas com dados de usuário. Funções auxiliares `is_member(workspace_id)` e `owns(row)` em `SECURITY DEFINER` com `search_path` fixo.
 - Cadastro público desligado no Supabase Auth. Novos usuários só via convite (servidor cria o usuário).
-- Login por **e-mail + código de 6 dígitos** (OTP). Link mágico não serve: no iOS ele abre no Safari, não no app instalado, e o app instalado tem armazenamento separado. Passkeys podem vir depois.
+- Login por **e-mail + senha** (D-004): sem envio de e-mail, compatível com o app Senhas/Face ID. Link mágico não serve no PWA do iOS. Passkeys podem vir depois.
 - Segredos só em variáveis de ambiente do servidor (Vercel) e no Vault (segredo do cron). `.env*` no `.gitignore`.
 - Storage: buckets privados, caminho `/{workspace_id}/{...}`, policies por membro, URLs assinadas de curta duração.
 - Notificações: payload sem valores financeiros ou de saúde por padrão.

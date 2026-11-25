@@ -30,7 +30,7 @@ Princípios do produto:
 
 - O vínculo é feito por **convite privado** (token de uso único, expira em 7 dias, revogável).
 - Compartilhar é sempre explícito: o item é criado no workspace "Nós" ou movido para ele.
-- Na interface há uma **lente** `Tudo · Eu · Nós` (ver DECISIONS D-011). "Tudo" mistura os dois workspaces que o usuário pode ver, sem nunca mostrar dados pessoais do parceiro.
+- Na interface haverá uma **lente** `Tudo · Eu · Nós` (ver DECISIONS D-011). "Tudo" mistura os dois workspaces que o usuário pode ver, sem nunca mostrar dados pessoais do parceiro.
 
 ## 4. Navegação
 
@@ -50,7 +50,7 @@ Requisitos completos estão na especificação original do projeto. Este PRD reg
 - Frase-resumo do dia no topo, gerada por **regras** (sem IA): compromissos, contas próximas, treino, pedidos do parceiro. Máximo de 3 itens; o resto vira "e mais N".
 - Blocos ordenados por urgência e momento do dia (manhã: agenda e água; noite: treino e planejamento de amanhã).
 - Blocos personalizáveis: ocultar, reordenar (salvo em `user_settings.home_layout`).
-- Pote de sementes da semana (gamificação, seção 6).
+- Figurinhas recém-ganhas e pacotinhos fechados (gamificação, seção 6).
 
 ### 5.2 Tarefas
 - Um único sistema de tarefas para tudo (casa, contas, projetos). Módulos como Casa usam tarefas com categoria, nunca um sistema paralelo.
@@ -120,13 +120,7 @@ Fora do escopo inicial: Open Finance. Importação CSV/OFX: estrutura preparada,
 
 ## 6. Gamificação
 
-Metáfora (direção B "Alpiste", pendente de aprovação): cada ação concluída solta uma **semente** da cor da área no **pote semanal do casal**.
-
-- **XP** (evolução, por pessoa) e **sementes** (visual coletivo) vêm do mesmo evento. **Pontos resgatáveis** ficam num razão separado, se recompensas forem ativadas.
-- Valores iniciais configuráveis (`xp_rules`): tarefa 10, hábito 15, meta de água 20, treino 30, rotina doméstica 25, planejamento semanal 30, desafio semanal 75, objetivo importante 100.
-- Anti-exploração: chave única por `(usuário, regra, origem, período)`. Desfazer revoga; refazer não concede de novo.
-- Sem penalidade: sequências têm "dias de descanso" e pausas (doença, viagem). Nunca se perde XP.
-- Sem placar entre vocês. Desafios compartilhados somam os dois.
+**Álbum de figurinhas do casal** (D-017). Ações rendem pontos, pontos viram pacotinhos, pacotinhos revelam figurinhas originais do Finch, repetidas são trocadas entre vocês, e conquistas dão figurinhas especiais. Sem placar entre vocês, sem penalidade por ausência. Detalhes em [GAMIFICATION.md](GAMIFICATION.md).
 
 ## 7. Notificações
 Ver [NOTIFICATIONS.md](NOTIFICATIONS.md).
@@ -138,7 +132,7 @@ Ver [AI_ASSISTANT.md](AI_ASSISTANT.md).
 
 A **v1** = Etapas 0 a 3 do [ROADMAP.md](ROADMAP.md) mais a lista de mercado (puxada para a Etapa 2). Ela está pronta quando, **nos dois iPhones reais**:
 
-1. Os dois instalam o app, fazem login por código e ficam vinculados por convite; RLS testado impede cada um de ler dados pessoais do outro.
+1. Os dois instalam o app, fazem login com e-mail e senha e ficam vinculados por convite; RLS testado impede cada um de ler dados pessoais do outro.
 2. Push chega com o app fechado nos dois aparelhos, respeitando horário silencioso, e para quando a atividade foi resolvida.
 3. Registrar água leva ≤ 3 s a partir do Hoje; funciona offline e sincroniza sem duplicar.
 4. Item adicionado ao mercado por um aparece no outro em ≤ 2 s com ambos online.

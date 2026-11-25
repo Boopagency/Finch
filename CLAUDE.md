@@ -2,7 +2,9 @@
 
 App PWA pessoal e do casal (Jabez e Duda). Interface em pt-BR, BRL, fuso por usuário.
 
-Leia antes de mudar algo: `docs/PROGRESS.md` (estado real), `docs/ROADMAP.md` (etapa atual) e o doc do domínio (`docs/DATABASE.md`, `docs/NOTIFICATIONS.md`, `docs/AI_ASSISTANT.md`, `docs/DESIGN_SYSTEM.md`). Decisões em `docs/DECISIONS.md`.
+Next.js 16.4: leia o guia em `node_modules/next/dist/docs/` antes de usar uma API (Proxy no lugar de middleware, `cacheComponents` desligado — D-016).
+
+Leia antes de mudar algo: `docs/PROGRESS.md` (estado real), `docs/ROADMAP.md` (etapa atual) e o doc do domínio (`docs/DATABASE.md`, `docs/NOTIFICATIONS.md`, `docs/AI_ASSISTANT.md`, `docs/DESIGN_SYSTEM.md`, `docs/GAMIFICATION.md`). Decisões em `docs/DECISIONS.md`.
 
 Regras inegociáveis:
 - Stack: Next.js App Router + TS strict + Tailwind + Supabase + Vercel + provedor de IA. Sem Firebase, Expo, React Native.
@@ -16,3 +18,6 @@ Regras inegociáveis:
 - Sem dados mockados silenciosos; demo é explicitamente marcada.
 - Não declarar teste que não rodou. Atualizar `docs/PROGRESS.md` ao fim de cada entrega.
 - Lógica de negócio em `src/features/<domínio>/server`, nunca em componentes.
+
+Antes de entregar: `npm run lint && npm run typecheck && npm test && npm run test:db && npm run build`.
+Após migration: aplicar no Supabase e regenerar `src/types/database.ts`.

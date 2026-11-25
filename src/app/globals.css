@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+/*
+  Finch · tokens (marca "Canto", ver docs/DESIGN_SYSTEM.md).
+  Regra: componentes usam só estas variáveis/utilitários; nada de hex solto no código.
+*/
+:root {
+  /* neutros */
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --surface-2: #eeede8;
+  --ink: #111110;
+  --ink-2: #57564f;
+  --ink-3: #8c8b85;
+  --line: #e4e3dd;
+  /* palco escuro (tela Hoje) */
+  --stage: #111110;
+  --stage-ink: #f4f3ef;
+  --stage-muted: #6f6e69;
+  /* marca e balões */
+  --coral: #ff6a5c;
+  --sunflower: #ffd02e;
+  --tangerine: #ff9a1f;
+  --cobalt: #3a6bf5;
+  --lavender: #c3aef5;
+  --frog: #9adb3c;
+  /* semânticas (independentes da marca) */
+  --success: #1f9d55;
+  --warning: #b86e00;
+  --danger: #d92d20;
+  --focus: #3a6bf5;
+  --on-color: #111110;
+  --on-cobalt: #ffffff;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e0d;
+    --surface: #1a1a18;
+    --surface-2: #242422;
+    --ink: #f4f3ef;
+    --ink-2: #b4b3ad;
+    --ink-3: #85847e;
+    --line: #2c2c29;
+    --stage: #0e0e0d;
+    --danger: #ff6b5f;
+    --success: #4cc77f;
+    --warning: #f0a53a;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-stage: var(--stage);
+  --color-stage-ink: var(--stage-ink);
+  --color-stage-muted: var(--stage-muted);
+  --color-coral: var(--coral);
+  --color-sunflower: var(--sunflower);
+  --color-tangerine: var(--tangerine);
+  --color-cobalt: var(--cobalt);
+  --color-lavender: var(--lavender);
+  --color-frog: var(--frog);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-on-color: var(--on-color);
+  --color-on-cobalt: var(--on-cobalt);
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-schibsted), var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-chip: 10px;
+  --radius-card: 20px;
+  --radius-sheet: 28px;
+
+  --shadow-float: 0 10px 30px rgb(0 0 0 / 0.14);
+
+  --ease-spring: cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+h1, h2, h3 { text-wrap: balance; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* safe areas */
+.pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.px-gutter {
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

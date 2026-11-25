@@ -1,7 +1,8 @@
 # Design system
 
-> Estudo visual com as três direções: [docs/brand/finch-identidade.html](brand/finch-identidade.html) (publicado como artifact privado).
-> Estado: **direção recomendada B "Alpiste" + frase-resumo de C, aguardando aprovação.** Tokens abaixo assumem B.
+> Estudo visual com as três direções: [docs/brand/finch-identidade.html](brand/finch-identidade.html).
+> **Decidido (D-010):** marca e personalidade **Canto**; Hoje no estilo Canto; demais telas pela usabilidade. Gamificação: álbum (D-017).
+> Fonte única dos tokens: `src/app/globals.css`.
 
 ## 1. Leitura das referências
 
@@ -29,37 +30,34 @@
 5. Navegação flutuante e discreta.
 6. Registro transformado em coleção visível.
 
-## 2. Direção proposta (B "Alpiste")
+## 2. Direção adotada
 
-Branco e cinza-casca fazem a estrutura; preto para ações e o título; **cada área da vida tem uma cor de semente** usada em chips, barras de progresso, pontos e no pote. Título de tela em condensada caixa alta, só uma vez por tela. O resto em Geist, calmo e legível. Microinterações: semente cai no pote ao concluir algo; feedback háptico não existe na web, então a resposta é visual e sonora curta (opcional).
+- **Marca**: o pássaro-balão coral (o finch que "canta"). A IA é a voz da marca.
+- **Hoje**: palco escuro (`--stage`), título "Hoje", data com ponto coral, frase do dia em cinza com trechos importantes em claro e figurinhas coloridas no meio do texto; embaixo, folha clara com balões (novidades, coisas do casal).
+- **Demais telas**: fundo papel (`--bg`), cartões brancos (`--surface`), um título grande por tela (`PageHeader`), corpo calmo em Geist. Densidade pensada para finanças e treino.
+- **Cor**: neutros fazem a estrutura; as seis cores de balão marcam áreas e conteúdo, nunca decoração. Semânticas (sucesso/alerta/erro) são separadas da marca.
+- **Barra flutuante**: pílula branca, item ativo em pílula preta, + coral no centro, o pássaro leva ao assistente.
 
-## 3. Tokens (rascunho)
+## 3. Tokens
 
-```css
-/* cores base */
---c-bg: #FFFFFF;      --c-surface: #F3F3F0;  --c-surface-2: #E9E9E4;
---c-ink: #0B0B0B;     --c-ink-2: #5E5E59;    --c-ink-3: #8A8A85;  --c-line: #E2E2DD;
-/* áreas (sementes) */
---c-health: #36C46B;  --c-routine: #6FB6E8;  --c-home: #F5A68C;
---c-money: #FFB020;   --c-workout: #3B2A26;  --c-us: #E8352B;
-/* semânticas (independentes das áreas) */
---c-success: #1F9D55; --c-warning: #C77700;  --c-danger: #D92D20;  --c-info: #2563EB;
-/* dark */
---c-bg: #0B0B0B; --c-surface: #171716; --c-surface-2: #222220; --c-ink: #F5F5F2; …
-```
+| Grupo | Tokens |
+|---|---|
+| Neutros | `--bg #F6F5F1`, `--surface #FFF`, `--surface-2 #EEEDE8`, `--ink #111110`, `--ink-2`, `--ink-3`, `--line` |
+| Palco | `--stage #111110`, `--stage-ink #F4F3EF`, `--stage-muted #6F6E69` |
+| Balões | `--coral #FF6A5C` (marca), `--sunflower #FFD02E`, `--tangerine #FF9A1F`, `--cobalt #3A6BF5`, `--lavender #C3AEF5`, `--frog #9ADB3C` |
+| Semânticas | `--success`, `--warning`, `--danger`, `--focus` |
+| Tipo | `--font-display` Schibsted Grotesk 600–800 (títulos, frase do Hoje), `--font-sans` Geist (texto, números `tabular`) |
+| Raios | chip 10, cartão 20, sheet 28, pílula 999 |
+| Sombra | só `--shadow-float` (barra e sheets) |
+| Movimento | 150 ms toque, 240 ms sheet (`--ease-spring`), tudo desligado com `prefers-reduced-motion` |
 
-- **Tipografia**: `--font-display: Archivo (wdth 62, 900, caixa alta)`; `--font-sans: Geist`. Escala: 12 / 13 / 15 (corpo) / 17 / 22 / 30 / 44 / 76 (título de tela). Números com `tabular-nums`.
-- **Espaçamento** (base 4): 4, 8, 12, 16, 20, 24, 32, 48.
-- **Raios**: 10 (chip), 18 (cartão), 24 (sheet), 999 (pílula).
-- **Elevação**: 0 por padrão; 1 só para barra flutuante e sheets (`0 10px 30px rgb(0 0 0 / .12)`).
-- **Movimento**: 150 ms (toque), 240 ms (sheet), mola curta para semente; tudo desligado com `prefers-reduced-motion`.
-- **Toque**: alvo mínimo 44×44.
-
-Fontes servidas por `next/font` (baixadas no build, sem chamada a terceiros em runtime).
+Dark mode: neutros redefinidos por `prefers-color-scheme`; o palco do Hoje é escuro nos dois temas. Alvo de toque mínimo 44 px. Safe areas via utilitários `pt-safe`, `pb-safe`, `px-gutter`.
 
 ## 4. Componentes
 
-Button (primário preto, secundário casca, fantasma, destrutivo), IconButton, Pill/Segmented (lente Tudo/Eu/Nós), Input, MoneyInput (centavos, teclado numérico), Sheet (bottom sheet com arrasto), Dialog (desktop), Tile (bento), ListRow, ProgressBar, ProgressRing, SeedJar, Chip de área, EmptyState, Skeleton, ErrorState, Toast com desfazer, TabBar flutuante, Avatar/Par de avatares, gráficos (linha, barra, rosca) com tokens.
+Prontos: `Button` (primary, secondary, ghost, danger, coral), `Field`, `PageHeader`, `EmptyState`, `TabBar`, `RegisterSheet` (dialog nativo como bottom sheet), `BrandMark`, balões do Hoje.
+
+A fazer: Pill/Segmented (lente), MoneyInput (centavos), Tile, ListRow, ProgressBar/Ring, Figurinha e Pacotinho (álbum), Skeleton, Toast com desfazer, Avatar/par de avatares, gráficos.
 
 Regras: nenhum hex fora de `globals.css`/tokens; shadcn só via componentes de `components/ui` já restilizados.
 

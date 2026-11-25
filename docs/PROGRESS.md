@@ -2,21 +2,39 @@
 
 _Atualizado em 2026-11-25._
 
-## Estado atual: Etapa 0 — planejamento
+## Estado atual: Etapa 0 (prova técnica) + base da Etapa 1
 
 | Item | Status |
 |---|---|
-| Documentação inicial (PRD, arquitetura, banco, notificações, IA, design, roadmap, decisões) | implementado (aguarda aprovação) |
-| Estudo de identidade visual (3 direções) | implementado (aguarda escolha) |
-| Projeto Next.js | planejado |
-| Supabase / Vercel | planejado, depende de acesso |
-| Prova de Web Push nos iPhones | planejado |
+| Documentação, identidade (Canto), decisões | implementado |
+| Next.js 16.4 + TS strict + Tailwind v4 + ESLint + Vitest | implementado, testado localmente |
+| CI no GitHub Actions (lint, tipos, testes, build, testes de RLS) | implementado, **não executado ainda no GitHub** |
+| Migrations `core`, `notifications`, `harden_helpers` | aplicadas no Supabase de produção; testadas em Postgres local |
+| RLS: pessoal × compartilhado × anônimo, convites, aparelhos, fila | testado localmente (17 asserções); mutação confirmou que o teste falha se a policy quebrar |
+| Login e-mail + senha, proxy de sessão, `requireViewer` | implementado; **sem teste com usuário real** (falta criar o 1º usuário) |
+| Convite por link (criar, aceitar criando senha, revogar, expira em 7 dias) | implementado; aceite testado só no SQL |
+| Espaço "Nós" (criar), perfil, fuso, horário silencioso | implementado, não testado com usuário real |
+| PWA: manifest, ícones, SW (cache estático, offline, push, deep link, atualização) | implementado; manifest e página offline conferidos localmente |
+| Web Push: inscrição, aparelhos, teste imediato e agendado, dispatcher com silêncio/retry/revogação | implementado; **validação nos iPhones pendente** |
+| Rota do cron protegida por segredo | testado localmente (401 sem segredo) |
+| Supabase Cron agendado | SQL pronto em `supabase/setup/cron.sql`; **não executado** (precisa da URL da Vercel) |
+| Projeto na Vercel | **bloqueado**: sem permissão para criar projeto no time "Boop" via API |
+| Hoje (palco escuro, frase por regras, balões com dados reais) | implementado; frase testada; tela não vista com login real |
+| Agenda, Vida, Finch, Registrar | telas honestas de "chega na Etapa X" |
 
-## Testes executados
-Nenhum teste de código ainda (não há código). A página de identidade foi renderizada localmente em desktop e 390 px sem rolagem horizontal.
+## Testes executados (25/11)
+- `npm test`: 6 testes (frase do Hoje, horário silencioso) — passando.
+- `npm run test:db`: migrations do zero + testes de RLS — passando.
+- `npm run lint`, `npm run typecheck`, `npm run build` — passando.
+- Navegador headless (tamanho iPhone 15): `/entrar`, `/offline` renderizam; `/` sem login redireciona para `/entrar`; manifest servido.
 
-## Bloqueios / decisões pendentes
-D-009 backup, D-010 direção visual, D-011 lente, D-012 provedor de IA (ver DECISIONS.md).
+## Problemas conhecidos
+- `/convite/<token>` retorna erro 500 se `SUPABASE_SERVICE_ROLE_KEY` não estiver configurada (esperado; em produção a variável existe).
+- Tipos do banco (`src/types/database.ts`) foram gerados via MCP e colados; regenerar após cada migration.
+- `npm audit` aponta avisos em dependências de desenvolvimento; revisar na Etapa 8.
 
 ## Próximo passo
-Após aprovação: scaffold Next.js, CI, migration `core`, login por código, PWA e prova de push.
+1. Configurações do Jabez (README → "Primeira configuração").
+2. Validar no iPhone: instalar, entrar, ativar lembretes, "Enviar teste agora", "Testar em 2 min" com app fechado. Registrar atraso aqui.
+3. Convidar a Duda e repetir no iPhone dela.
+4. Etapa 2: tarefas + recorrência, água, hábitos, mercado, álbum.

@@ -4,7 +4,7 @@ Status possíveis: `planejado` · `em desenvolvimento` · `implementado` · `tes
 
 Mudanças em relação à sequência original (justificativa em DECISIONS.md):
 - **Lista de mercado** sobe para a Etapa 2 (uso diário compartilhado, ótima prova de realtime + offline, baixo risco).
-- **Gamificação básica** (XP + pote) entra na Etapa 2 em vez da 6: dá vida ao app cedo e é barata sobre `domain_events`.
+- **Álbum de figurinhas** (gamificação) entra na Etapa 2 em vez da 6: dá vida ao app cedo e é barato sobre `domain_events`.
 - **Parser determinístico do Registrar** entra na Etapa 2; IA conversacional continua na 7.
 
 ## Etapa 0 — Planejamento e prova técnica
@@ -14,7 +14,7 @@ Mudanças em relação à sequência original (justificativa em DECISIONS.md):
 | Next.js + TS strict + Tailwind + lint + Vitest + CI no GitHub | `build`, `lint`, `test` verdes no CI |
 | Supabase (projeto, CLI, primeira migration `core`) | migration aplica do zero |
 | Vercel ligada ao GitHub | deploy de preview por PR, produção na `main` |
-| Login por e-mail + código | login no iPhone instalado |
+| Login por e-mail + senha | login no iPhone instalado |
 | PWA instalável | abre standalone nos dois iPhones |
 | Web Push | push de teste chega com app fechado nos dois |
 | Supabase Cron → Vercel | push agendado chega; atraso medido |
@@ -24,7 +24,7 @@ Perfis, onboarding (nome, foto, fuso, meta de água), workspaces, convite (criar
 **Aceite:** os dois vinculados, testes de RLS cobrindo pessoal × compartilhado, preferências de push funcionando.
 
 ## Etapa 2 — Rotina diária
-Tarefas (+ subtarefas, projetos, etiquetas), recorrência com ocorrências e rodízio, agenda (dia/semana/mês, `calendar_items`), hábitos, água, **mercado**, Registrar (sheet + parser), notificações dessas categorias, offline (fila + sync), XP + pote de sementes, frase-resumo do Hoje.
+Tarefas (+ subtarefas, projetos, etiquetas), recorrência com ocorrências e rodízio, agenda (dia/semana/mês, `calendar_items`), hábitos, água, **mercado**, Registrar (sheet + parser), notificações dessas categorias, offline (fila + sync), álbum de figurinhas (pontos, pacotinhos, trocas), frase-resumo do Hoje com itens reais.
 **Aceite:** critérios 3, 4, 5 e 8 da v1 (PRD §9).
 
 ## Etapa 3 — Financeiro
