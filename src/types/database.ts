@@ -233,6 +233,24 @@ export type Database = {
         Update: { id?: string; session_id?: string; user_id?: string; exercise_id?: string; weight_g?: number | null; reps?: number | null; duration_s?: number | null; done_at?: string }
         Relationships: [{ foreignKeyName: "workout_sets_session_id_fkey"; columns: ["session_id"]; isOneToOne: false; referencedRelation: "workout_sessions"; referencedColumns: ["id"] }, { foreignKeyName: "workout_sets_exercise_id_fkey"; columns: ["exercise_id"]; isOneToOne: false; referencedRelation: "exercises"; referencedColumns: ["id"] }, { foreignKeyName: "workout_sets_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
       }
+      pantry_items: {
+        Row: { id: string; workspace_id: string; name: string; qty: number; unit: string | null; min_qty: number; category: string; expires_on: string | null; updated_at: string }
+        Insert: { id?: string; workspace_id: string; name: string; qty?: number; unit?: string | null; min_qty?: number; category?: string; expires_on?: string | null; updated_at?: string }
+        Update: { id?: string; workspace_id?: string; name?: string; qty?: number; unit?: string | null; min_qty?: number; category?: string; expires_on?: string | null; updated_at?: string }
+        Relationships: [{ foreignKeyName: "pantry_items_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      recipes: {
+        Row: { id: string; workspace_id: string; created_by: string; title: string; servings: number; prep_min: number | null; ingredients: string; steps: string; created_at: string }
+        Insert: { id?: string; workspace_id: string; created_by?: string; title: string; servings?: number; prep_min?: number | null; ingredients?: string; steps?: string; created_at?: string }
+        Update: { id?: string; workspace_id?: string; created_by?: string; title?: string; servings?: number; prep_min?: number | null; ingredients?: string; steps?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "recipes_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      meal_plan: {
+        Row: { id: string; workspace_id: string; day: string; slot: string; recipe_id: string | null; title: string; created_by: string }
+        Insert: { id?: string; workspace_id: string; day: string; slot: string; recipe_id?: string | null; title: string; created_by?: string }
+        Update: { id?: string; workspace_id?: string; day?: string; slot?: string; recipe_id?: string | null; title?: string; created_by?: string }
+        Relationships: [{ foreignKeyName: "meal_plan_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }, { foreignKeyName: "meal_plan_recipe_id_fkey"; columns: ["recipe_id"]; isOneToOne: false; referencedRelation: "recipes"; referencedColumns: ["id"] }]
+      }
       workspace_members: {
         Row: { joined_at: string; reference_income_cents: number | null; role: string; user_id: string; workspace_id: string }
         Insert: { joined_at?: string; reference_income_cents?: number | null; role?: string; user_id: string; workspace_id: string }

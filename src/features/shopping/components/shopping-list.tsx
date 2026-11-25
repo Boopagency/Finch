@@ -257,7 +257,7 @@ function FinishSheet({ listId, members, viewerId, today, estimate, pendingCount,
             <input type="checkbox" name="carry_over" defaultChecked className="size-6 accent-[var(--frog)]" />
           </label>
         )}
-        <p className="text-[13px] text-ink-3">Quando o financeiro chegar (Etapa 3), a compra vira despesa automaticamente, sem duplicar.</p>
+        <p className="text-[13px] text-ink-3">A compra entra nas finanças como despesa (sem duplicar) e repõe o que a despensa acompanha.</p>
         {state && !state.ok && <p role="alert" className="text-sm text-danger">{state.message}</p>}
         <Button type="submit" variant="coral" disabled={pending}>Registrar compra</Button>
       </form>

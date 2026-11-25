@@ -15,7 +15,7 @@ const areas = [
   { label: "Finanças", Icon: Wallet, tone: "bg-coral text-on-color", href: "/financas" },
   { label: "Treino", Icon: Dumbbell, tone: "bg-ink text-bg", href: "/vida/treino" },
   { label: "Saúde", Icon: HeartPulse, tone: "bg-cobalt text-on-cobalt", href: "/vida/saude" },
-  { label: "Alimentação", Icon: Utensils, tone: "bg-frog text-on-color", stage: 5 },
+  { label: "Cozinha", Icon: Utensils, tone: "bg-frog text-on-color", href: "/vida/cozinha" },
   { label: "Nós", Icon: Users, tone: "bg-lavender text-on-color", stage: 6 },
   { label: "Metas", Icon: Target, tone: "bg-sunflower text-on-color", stage: 6 },
 ] as const;
