@@ -115,6 +115,74 @@ h1, h2, h3 { text-wrap: balance; }
   padding-right: max(20px, env(safe-area-inset-right, 0px));
 }
 
+/* ---------------- movimento ----------------
+   Uma linguagem só: entra subindo de leve, sai descendo rápido, toque afunda.
+   Tudo some com "Reduzir movimento" (regra no fim do arquivo). */
+:root {
+  --dur-tap: 120ms;
+  --dur-fast: 180ms;
+  --dur-base: 280ms;
+  --dur-slow: 420ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.34, 1.26, 0.64, 1);
+}
+
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { 0% { transform: scale(0.6); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes check { 0% { transform: scale(0.7); } 55% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes word { from { opacity: 0; transform: translateY(6px); filter: blur(2px); } to { opacity: 1; transform: none; filter: none; } }
+
+/* toque: afunda sem mexer no layout */
+.press { transition: transform var(--dur-tap) var(--ease-out), background-color var(--dur-fast), color var(--dur-fast); }
+.press:active { transform: scale(0.94); }
+
+/* barra: destaque desliza; ícones não se movem */
+.tab-indicator { transition: transform var(--dur-slow) var(--ease-soft), opacity var(--dur-fast); will-change: transform; }
+
+/* tela nova entra subindo de leve (template.tsx remonta a cada navegação) */
+.page-enter { animation: rise var(--dur-base) var(--ease-out) both; }
+
+/* listas: itens chegam em cascata curta */
+.stagger > * { animation: rise var(--dur-base) var(--ease-out) both; }
+.stagger > *:nth-child(2) { animation-delay: 30ms; }
+.stagger > *:nth-child(3) { animation-delay: 60ms; }
+.stagger > *:nth-child(4) { animation-delay: 90ms; }
+.stagger > *:nth-child(5) { animation-delay: 120ms; }
+.stagger > *:nth-child(6) { animation-delay: 150ms; }
+.stagger > *:nth-child(n + 7) { animation-delay: 180ms; }
+
+/* marcar/concluir: o círculo dá um pulinho */
+.check-on { animation: check var(--dur-base) var(--ease-soft); }
+
+/* frase do Hoje: palavras chegam em sequência, figurinhas estalam */
+.sentence > span { animation: word var(--dur-slow) var(--ease-out) both; }
+.sentence > .sticker { animation: pop var(--dur-slow) var(--ease-soft) both; }
+
+/* folhas (bottom sheets): sobem com mola e descem ao fechar (dialog nativo + @starting-style) */
+dialog.sheet {
+  translate: 0 100%;
+  transition: translate var(--dur-base) var(--ease-out), overlay var(--dur-base) allow-discrete, display var(--dur-base) allow-discrete;
+}
+dialog.sheet[open] { translate: 0 0; transition-timing-function: var(--ease-soft); transition-duration: var(--dur-slow); }
+@starting-style { dialog.sheet[open] { translate: 0 100%; } }
+dialog.sheet::backdrop, dialog.pop::backdrop {
+  background: rgb(0 0 0 / 0);
+  transition: background var(--dur-base), overlay var(--dur-base) allow-discrete, display var(--dur-base) allow-discrete;
+}
+dialog.sheet[open]::backdrop { background: rgb(0 0 0 / 0.4); }
+dialog.pop[open]::backdrop { background: rgb(0 0 0 / 0.7); }
+@starting-style { dialog.sheet[open]::backdrop, dialog.pop[open]::backdrop { background: rgb(0 0 0 / 0); } }
+dialog.pop {
+  opacity: 0; scale: 0.92;
+  transition: opacity var(--dur-fast), scale var(--dur-base) var(--ease-soft), overlay var(--dur-base) allow-discrete, display var(--dur-base) allow-discrete;
+}
+dialog.pop[open] { opacity: 1; scale: 1; }
+@starting-style { dialog.pop[open] { opacity: 0; scale: 0.92; } }
+
+/* barras de progresso crescem suave */
+[role="progressbar"] > div { transition: width var(--dur-slow) var(--ease-out); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

@@ -7,57 +7,76 @@ import { useState } from "react";
 import { BrandMark } from "@/components/brand/mark";
 import { RegisterSheet, type QuickData } from "./register-sheet";
 
-const tabs = [
+// 5 posições fixas: nada muda de tamanho ao tocar. Só o destaque desliza por trás.
+const SLOTS = [
   { href: "/", label: "Hoje", Icon: Sun },
   { href: "/agenda", label: "Agenda", Icon: CalendarDays },
+  null, // botão +
   { href: "/vida", label: "Vida", Icon: LayoutGrid },
+  { href: "/finch", label: "Assistente Finch", Icon: null },
 ] as const;
+
+function slotOf(path: string): number {
+  if (path === "/") return 0;
+  if (path.startsWith("/agenda")) return 1;
+  if (path.startsWith("/finch")) return 4;
+  if (path.startsWith("/ajustes")) return -1;
+  return 3; // Vida e tudo que mora nela (tarefas, mercado, finanças…)
+}
 
 export function TabBar({ quick }: { quick: QuickData }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
-  const active = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
-
-  const item = (href: string, label: string, Icon: typeof Sun) => (
-    <Link
-      key={href}
-      href={href}
-      aria-label={label}
-      aria-current={active(href) ? "page" : undefined}
-      className={`grid h-11 place-items-center rounded-full transition ${active(href) ? "w-14 bg-ink text-bg" : "w-11 text-ink"}`}
-    >
-      <Icon className="size-5" strokeWidth={2.2} />
-    </Link>
-  );
+  // destaque se move no toque, sem esperar a tela nova (vale até a rota mudar)
+  const [tapped, setTapped] = useState<{ idx: number; from: string } | null>(null);
+  const idx = tapped && tapped.from === path ? tapped.idx : slotOf(path);
 
   return (
     <>
       <nav
         aria-label="Principal"
-        className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-gutter"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-gutter"
         style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}
       >
-        <div className="flex h-[60px] w-full max-w-md items-center justify-around rounded-full bg-surface px-2 shadow-[var(--shadow-float)]">
-          {item(tabs[0].href, tabs[0].label, tabs[0].Icon)}
-          {item(tabs[1].href, tabs[1].label, tabs[1].Icon)}
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label="Registrar"
-            aria-haspopup="dialog"
-            className="grid size-11 place-items-center rounded-full bg-coral text-on-color transition active:scale-95"
-          >
-            <Plus className="size-6" strokeWidth={2.6} />
-          </button>
-          {item(tabs[2].href, tabs[2].label, tabs[2].Icon)}
-          <Link
-            href="/finch"
-            aria-label="Assistente Finch"
-            aria-current={active("/finch") ? "page" : undefined}
-            className={`grid h-11 place-items-center rounded-full transition ${active("/finch") ? "w-14 bg-ink" : "w-11"}`}
-          >
-            <BrandMark className="size-7" eye={active("/finch") ? "var(--ink)" : "var(--stage)"} />
-          </Link>
+        <div className="pointer-events-auto relative grid h-[62px] w-full max-w-md grid-cols-5 items-center rounded-full bg-surface p-1.5 shadow-[var(--shadow-float)]">
+          <span
+            aria-hidden="true"
+            className="tab-indicator absolute inset-y-1.5 left-1.5 rounded-full bg-ink"
+            style={{
+              width: "calc((100% - 12px) / 5)",
+              transform: `translateX(${Math.max(0, idx) * 100}%)`,
+              opacity: idx < 0 || idx === 2 ? 0 : 1,
+            }}
+          />
+          {SLOTS.map((s, i) =>
+            s === null ? (
+              <button
+                key="add"
+                type="button"
+                onClick={() => setOpen(true)}
+                aria-label="Registrar"
+                aria-haspopup="dialog"
+                className="press relative z-10 mx-auto grid size-12 place-items-center rounded-full bg-coral text-on-color shadow-[0_6px_16px_rgb(255_106_92/.35)]"
+              >
+                <Plus className={`size-6 transition-transform duration-300 ${open ? "rotate-45" : ""}`} strokeWidth={2.6} />
+              </button>
+            ) : (
+              <Link
+                key={s.href}
+                href={s.href}
+                aria-label={s.label}
+                aria-current={idx === i ? "page" : undefined}
+                onClick={() => setTapped({ idx: i, from: path })}
+                className={`press relative z-10 grid h-full place-items-center rounded-full transition-colors duration-200 ${idx === i ? "text-bg" : "text-ink"}`}
+              >
+                {s.Icon ? (
+                  <s.Icon className="size-[22px]" strokeWidth={2.2} />
+                ) : (
+                  <BrandMark className="size-7" eye={idx === i ? "var(--ink)" : "var(--stage)"} />
+                )}
+              </Link>
+            ),
+          )}
         </div>
       </nav>
       <RegisterSheet open={open} onClose={() => setOpen(false)} data={quick} />

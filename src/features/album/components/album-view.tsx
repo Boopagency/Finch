@@ -210,7 +210,7 @@ function Reveal({ reveal, sticker, isNew, onPaste, onClose, pending }: {
   }, []);
   const seen = new Set<string>();
   return (
-    <dialog ref={ref} onClose={onClose} aria-label="Pacotinho aberto" className="m-auto w-[min(92vw,420px)] rounded-[28px] bg-stage p-6 text-stage-ink backdrop:bg-black/70">
+    <dialog ref={ref} onClose={() => setTimeout(onClose, 260)} aria-label="Pacotinho aberto" className="pop m-auto w-[min(92vw,420px)] rounded-[28px] bg-stage p-6 text-stage-ink">
       <h2 className="mb-5 text-center font-display text-[26px] font-extrabold">Pacotinho aberto!</h2>
       <ul className="flex justify-center gap-3">
         {reveal.codes.map((c, i) => {

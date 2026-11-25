@@ -136,10 +136,10 @@ export default async function TodayPage() {
         </div>
       </header>
 
-      <p className="max-w-xl px-gutter pb-8 pt-6 font-display text-[26px] font-semibold leading-[1.28] tracking-[-0.02em] text-stage-muted">
+      <p className="sentence max-w-xl px-gutter pb-8 pt-6 font-display text-[26px] font-semibold leading-[1.28] tracking-[-0.02em] text-stage-muted">
         {sentence.map((s, i) =>
           s.sticker ? (
-            <span key={i} className={`mx-1 inline-grid h-7 w-9 -rotate-6 place-items-center rounded-[9px] align-[-4px] ${toneBg[s.sticker.tone]}`}>
+            <span key={i} style={{ animationDelay: `${i * 45}ms` }} className={`sticker mx-1 inline-grid h-7 w-9 -rotate-6 place-items-center rounded-[9px] align-[-4px] ${toneBg[s.sticker.tone]}`}>
               {s.sticker.icon === "drop" ? (
                 <Droplet className="size-4" strokeWidth={2.6} />
               ) : s.sticker.icon === "calendar" ? (
@@ -149,7 +149,7 @@ export default async function TodayPage() {
               )}
             </span>
           ) : (
-            <span key={i} className={s.strong ? "text-stage-ink" : undefined}>
+            <span key={i} style={{ animationDelay: `${i * 45}ms` }} className={s.strong ? "text-stage-ink" : undefined}>
               {s.text}
             </span>
           ),
@@ -208,7 +208,7 @@ export default async function TodayPage() {
               </div>
             );
             return b.href ? (
-              <Link key={b.key} href={b.href} className="block transition active:scale-[.98]">
+              <Link key={b.key} href={b.href} className="press block">
                 {body}
               </Link>
             ) : (

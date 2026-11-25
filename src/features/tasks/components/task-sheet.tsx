@@ -24,7 +24,7 @@ export function TaskSheet({ item, spaces, today, onClose }: { item: TaskItem; sp
     const r = await saveTask(prev, form);
     if (r.ok) {
       toast(r.message);
-      onClose();
+      ref.current?.close();
     }
     return r;
   }, null);
@@ -38,16 +38,16 @@ export function TaskSheet({ item, spaces, today, onClose }: { item: TaskItem; sp
     start(async () => {
       await snoozeTask(item.task_id, item.occurrence_id, to);
       toast(`Adiada para ${label}`);
-      onClose();
+      ref.current?.close();
     });
 
   return (
     <dialog
       ref={ref}
-      onClose={onClose}
+      onClose={() => setTimeout(onClose, 260)}
       onClick={(e) => e.target === e.currentTarget && ref.current?.close()}
       aria-label={item.title}
-      className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[92dvh] w-full max-w-none bg-transparent p-0 backdrop:bg-black/40"
+      className="sheet fixed inset-x-0 bottom-0 top-auto m-0 max-h-[92dvh] w-full max-w-none bg-transparent p-0"
     >
       <div className="mx-auto flex max-h-[92dvh] max-w-md flex-col gap-4 overflow-y-auto rounded-t-[28px] bg-bg px-gutter pt-3" style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom, 0px))" }}>
         <div className="flex items-center justify-between">
@@ -203,7 +203,7 @@ export function TaskSheet({ item, spaces, today, onClose }: { item: TaskItem; sp
             start(async () => {
               await deleteTask(item.task_id);
               toast(item.repeat ? "Rotina apagada" : "Tarefa apagada");
-              onClose();
+              ref.current?.close();
             })
           }
           className="self-start"

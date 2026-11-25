@@ -40,7 +40,7 @@ export function RegisterSheet({ open, onClose, data }: { open: boolean; onClose:
       onClose={onClose}
       onClick={(e) => e.target === e.currentTarget && onClose()}
       aria-label="Registrar"
-      className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[88dvh] w-full max-w-none bg-transparent p-0 backdrop:bg-black/40 open:animate-[sheet_240ms_var(--ease-spring)]"
+      className="sheet fixed inset-x-0 bottom-0 top-auto m-0 max-h-[88dvh] w-full max-w-none bg-transparent p-0"
     >
       <div className="mx-auto flex max-h-[88dvh] max-w-md flex-col gap-4 overflow-y-auto rounded-t-[28px] bg-bg px-gutter pt-3" style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom, 0px))" }}>
         <div className="mx-auto h-1.5 w-10 shrink-0 rounded-full bg-line" />

@@ -58,7 +58,7 @@ export function WaterQuick({ serverLogs, goal, presets, onLogged }: { serverLogs
           <button
             key={ml}
             onClick={() => logWater(ml, total, goal, onLogged)}
-            className="min-h-11 flex-1 rounded-full bg-surface-2 text-[15px] font-semibold transition active:scale-95 active:bg-cobalt active:text-on-cobalt"
+            className="press min-h-11 flex-1 rounded-full bg-surface-2 text-[15px] font-semibold active:bg-cobalt active:text-on-cobalt"
           >
             +{formatWater(ml)}
           </button>

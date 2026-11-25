@@ -25,7 +25,7 @@ export function EntrySheet({ data, onClose, preset }: { data: FinanceData; onClo
     const r = await recordEntry(prev, f);
     if (r.ok) {
       toast(r.message);
-      onClose();
+      ref.current?.close();
     }
     return r;
   }, null);
@@ -41,7 +41,7 @@ export function EntrySheet({ data, onClose, preset }: { data: FinanceData; onClo
   const sharedWs = data.spaces.find((s) => s.id === ws)?.kind === "shared";
 
   return (
-    <dialog ref={ref} onClose={onClose} onClick={(e) => e.target === e.currentTarget && ref.current?.close()} aria-label="Novo lançamento" className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[92dvh] w-full max-w-none bg-transparent p-0 backdrop:bg-black/40">
+    <dialog ref={ref} onClose={() => setTimeout(onClose, 260)} onClick={(e) => e.target === e.currentTarget && ref.current?.close()} aria-label="Novo lançamento" className="sheet fixed inset-x-0 bottom-0 top-auto m-0 max-h-[92dvh] w-full max-w-none bg-transparent p-0">
       <div className="mx-auto flex max-h-[92dvh] max-w-md flex-col gap-3 overflow-y-auto rounded-t-[28px] bg-bg px-gutter pt-3" style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom, 0px))" }}>
         <div className="flex items-center justify-between">
           <h2 className="font-display text-[22px] font-bold">Novo lançamento</h2>

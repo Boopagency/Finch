@@ -5,10 +5,12 @@ const run = Date.now() % 100000;
 // os testes de pacote usam quem tiver pacote fechado (A ou B); em execuções repetidas no mesmo dia pode não haver
 let { page } = await phone();
 await page.goto(`${BASE}/vida/album`);
+await page.getByText("Próximo pacotinho").waitFor(); // espera a tela real (não o esqueleto)
 let packPage = page;
 if (!(await page.getByRole("button", { name: /Abrir pacotinho/ }).count())) {
   packPage = (await phone(B)).page;
   await packPage.goto(`${BASE}/vida/album`);
+  await packPage.getByText("Próximo pacotinho").waitFor();
 }
 const hasPack = (await packPage.getByRole("button", { name: /Abrir pacotinho/ }).count()) > 0;
 

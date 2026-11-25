@@ -125,11 +125,11 @@ export function ShoppingList({ listId, serverItems, products, members, superMode
       {ordered.map((g) => (
         <section key={g.key} aria-label={g.label} className="flex flex-col gap-1.5">
           <h2 className="px-2 text-[13px] font-semibold text-ink-2">{g.label}</h2>
-          <ul className="flex flex-col gap-1.5">
+          <ul className="stagger flex flex-col gap-1.5">
             {g.list.map((i) => (
               <li key={i.id} className={`flex items-center gap-2 rounded-[18px] bg-surface pr-2 ${superMode ? "min-h-16" : ""}`}>
                 <button onClick={() => check(i)} aria-pressed={i.checked} aria-label={i.checked ? `Tirar ${i.name} do carrinho` : `Pegar ${i.name}`} className={`flex min-h-12 flex-1 items-center gap-3 py-2 pl-3 text-left ${superMode ? "text-[19px]" : "text-[16px]"}`}>
-                  <span className={`grid size-7 shrink-0 place-items-center rounded-full border-2 transition ${i.checked ? "border-frog bg-frog text-on-color" : "border-ink-3"}`}>
+                  <span className={`grid size-7 shrink-0 place-items-center rounded-full border-2 transition ${i.checked ? "check-on border-frog bg-frog text-on-color" : "border-ink-3"}`}>
                     {i.checked && <Check className="size-4" strokeWidth={3.5} />}
                   </span>
                   <span className={`flex-1 font-semibold ${i.checked ? "text-ink-3 line-through decoration-2" : ""}`}>
@@ -172,7 +172,7 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
     ref.current?.showModal();
   }, []);
   return (
-    <dialog ref={ref} onClose={onClose} onClick={(e) => e.target === e.currentTarget && ref.current?.close()} aria-label={title} className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[90dvh] w-full max-w-none bg-transparent p-0 backdrop:bg-black/40">
+    <dialog ref={ref} onClose={() => setTimeout(onClose, 260)} onClick={(e) => e.target === e.currentTarget && ref.current?.close()} aria-label={title} className="sheet fixed inset-x-0 bottom-0 top-auto m-0 max-h-[90dvh] w-full max-w-none bg-transparent p-0">
       <div className="mx-auto flex max-h-[90dvh] max-w-md flex-col gap-3 overflow-y-auto rounded-t-[28px] bg-bg px-gutter pt-3" style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom, 0px))" }}>
         <div className="flex items-center justify-between">
           <h2 className="font-display text-[22px] font-bold">{title}</h2>
@@ -191,7 +191,7 @@ function ItemSheet({ item, product, onRemove, onClose }: { item: ShopItem; produ
     return r;
   }, null);
   return (
-    <Sheet title={item.name} onClose={onClose}>
+    <Sheet title={item.name} onClose={() => setTimeout(onClose, 260)}>
       <form action={action} className="flex flex-col gap-3">
         <input type="hidden" name="id" value={item.id} />
         <div className="grid grid-cols-3 gap-3">
@@ -229,7 +229,7 @@ function FinishSheet({ listId, members, viewerId, today, estimate, pendingCount,
     return r;
   }, null);
   return (
-    <Sheet title="Finalizar compra" onClose={onClose}>
+    <Sheet title="Finalizar compra" onClose={() => setTimeout(onClose, 260)}>
       <form action={action} className="flex flex-col gap-3">
         <input type="hidden" name="list_id" value={listId} />
         <Field id="fin-total" name="total" inputMode="decimal" label="Valor total (R$)" placeholder="0,00" defaultValue={estimate ? (estimate / 100).toFixed(2).replace(".", ",") : ""} required autoFocus />

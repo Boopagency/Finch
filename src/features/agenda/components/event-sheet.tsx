@@ -21,7 +21,7 @@ export function EventSheet({ event, date, spaces, onClose }: { event?: EventRow;
     const r = await saveEvent(prev, form);
     if (r.ok) {
       toast(r.message);
-      onClose();
+      ref.current?.close();
     }
     return r;
   }, null);
@@ -30,7 +30,7 @@ export function EventSheet({ event, date, spaces, onClose }: { event?: EventRow;
   }, []);
 
   return (
-    <dialog ref={ref} onClose={onClose} onClick={(e) => e.target === e.currentTarget && ref.current?.close()} aria-label={event ? event.title : "Novo evento"} className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[92dvh] w-full max-w-none bg-transparent p-0 backdrop:bg-black/40">
+    <dialog ref={ref} onClose={() => setTimeout(onClose, 260)} onClick={(e) => e.target === e.currentTarget && ref.current?.close()} aria-label={event ? event.title : "Novo evento"} className="sheet fixed inset-x-0 bottom-0 top-auto m-0 max-h-[92dvh] w-full max-w-none bg-transparent p-0">
       <div className="mx-auto flex max-h-[92dvh] max-w-md flex-col gap-3 overflow-y-auto rounded-t-[28px] bg-bg px-gutter pt-3" style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom, 0px))" }}>
         <div className="flex items-center justify-between">
           <h2 className="font-display text-[22px] font-bold">{event ? "Evento" : "Novo evento"}</h2>
@@ -106,7 +106,7 @@ export function EventSheet({ event, date, spaces, onClose }: { event?: EventRow;
           <Button type="submit" disabled={saving}>Salvar</Button>
         </form>
         {event && (
-          <Button variant="danger" className="self-start" disabled={pending} onClick={() => start(async () => { await deleteEvent(event.id); toast("Evento apagado"); onClose(); })}>
+          <Button variant="danger" className="self-start" disabled={pending} onClick={() => start(async () => { await deleteEvent(event.id); toast("Evento apagado"); ref.current?.close(); })}>
             <Trash2 className="size-4" /> {event.repeat ? "Apagar todas as repetições" : "Apagar evento"}
           </Button>
         )}

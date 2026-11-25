@@ -59,7 +59,7 @@ export function HabitList({
   if (rows.length === 0) return null;
 
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="stagger flex flex-col gap-2">
       {rows.map(({ h, s }) => {
         const todayDone = logs.some((l) => l.habit_id === h.id && l.local_date === today);
         const c = showConsistency ? consistency(h, logs, today) : null;
@@ -85,8 +85,8 @@ export function HabitList({
                   onClick={() => (h.period === "day" && todayDone ? clearToday(h, today) : add(h, 1))}
                   aria-label={todayDone && h.period === "day" ? `Desmarcar ${h.name}` : `Marcar ${h.name}`}
                   aria-pressed={h.period === "day" ? todayDone : undefined}
-                  className={`grid size-11 shrink-0 place-items-center rounded-full transition active:scale-90 ${
-                    s.done ? toneBg[h.tone] : "border-2 border-line text-ink-3"
+                  className={`press grid size-11 shrink-0 place-items-center rounded-full ${
+                    s.done ? `check-on ${toneBg[h.tone]}` : "border-2 border-line text-ink-3"
                   }`}
                 >
                   {h.period === "week" && !s.done ? <Plus className="size-5" /> : <Check className="size-5" strokeWidth={3} />}

@@ -24,7 +24,7 @@ export default function LifePage() {
   return (
     <main className="mx-auto max-w-2xl px-gutter pt-safe">
       <PageHeader title="Vida" meta="áreas da rotina" />
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <ul className="stagger grid grid-cols-2 gap-3 sm:grid-cols-3">
         {areas.map((a) => {
           const body = (
             <>
@@ -40,7 +40,7 @@ export default function LifePage() {
           return (
             <li key={a.label}>
               {"href" in a ? (
-                <Link href={a.href} className="flex min-h-32 flex-col justify-between rounded-[20px] bg-surface p-4 transition active:scale-[.98]">
+                <Link href={a.href} className="press flex min-h-32 flex-col justify-between rounded-[20px] bg-surface p-4">
                   {body}
                 </Link>
               ) : (

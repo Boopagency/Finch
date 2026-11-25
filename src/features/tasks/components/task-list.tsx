@@ -55,11 +55,11 @@ export function TaskRow({ item, onOpen, showDate }: { item: TaskItem; onOpen: ()
         aria-pressed={done}
         className="grid size-11 shrink-0 place-items-center"
       >
-        <span className={`grid size-6 place-items-center rounded-full border-2 transition ${done ? "border-frog bg-frog text-on-color" : "border-ink-3"}`}>
+        <span className={`grid size-6 place-items-center rounded-full border-2 transition-colors duration-200 ${done ? "check-on border-frog bg-frog text-on-color" : "border-ink-3"}`}>
           {done && <Check className="size-3.5" strokeWidth={3.5} />}
         </span>
       </button>
-      <button onClick={onOpen} className="flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center text-left">
+      <button onClick={onOpen} className="press flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center text-left">
         <span className={`w-full truncate text-[15px] font-semibold ${done ? "text-ink-3 line-through decoration-2" : ""}`}>{item.title}</span>
         {(meta.length > 0 || item.repeatLabel || item.space.kind === "shared") && (
           <span className="flex w-full items-center gap-1.5 truncate text-[12px] text-ink-3">
@@ -98,7 +98,7 @@ export function TaskList({ items, today, spaces, group = true, empty }: { items:
         {[...groups].map(([label, list]) => (
           <section key={label || "all"} aria-label={label || "Tarefas"} className="flex flex-col gap-1.5">
             {label && <h2 className={`px-2 text-[13px] font-semibold first-letter:uppercase ${label === "Atrasadas" ? "text-danger" : "text-ink-2"}`}>{label}</h2>}
-            <ul className="flex flex-col gap-1.5">
+            <ul className="stagger flex flex-col gap-1.5">
               {list.map((i) => (
                 <TaskRow key={i.key} item={i} onOpen={() => setOpenKey(i.key)} showDate={!group && i.date && i.date !== today ? dateLabel(i.date, today) : undefined} />
               ))}
