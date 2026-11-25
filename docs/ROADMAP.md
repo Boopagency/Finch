@@ -26,6 +26,7 @@ Perfis, onboarding (nome, foto, fuso, meta de água), workspaces, convite (criar
 ## Etapa 2 — Rotina diária
 Tarefas (+ subtarefas, projetos, etiquetas), recorrência com ocorrências e rodízio, agenda (dia/semana/mês, `calendar_items`), hábitos, água, **mercado**, Registrar (sheet + parser), notificações dessas categorias, offline (fila + sync), álbum de figurinhas (pontos, pacotinhos, trocas), frase-resumo do Hoje com itens reais.
 **Aceite:** critérios 3, 4, 5 e 8 da v1 (PRD §9).
+**Status (25/11):** água e hábitos implementados (aguardando validação no iPhone); tarefas, agenda, mercado e álbum pendentes.
 
 ## Etapa 3 — Financeiro
 Contas, categorias, razão de partidas, receitas/despesas, recorrentes, cartões, faturas, parcelas, divisão e acerto, orçamentos, projeção de saldo, relatórios, compra do mercado → despesa, exportação CSV. Importação CSV/OFX: estrutura.

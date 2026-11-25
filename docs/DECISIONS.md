@@ -41,3 +41,9 @@ Formato: contexto → decisão → alternativas. `PENDENTE` = aguarda o Jabez.
 **D-019 Testes de RLS em Postgres puro.** Docker não está disponível no ambiente do agente; `scripts/test-db.sh` sobe um Postgres efêmero com um stub mínimo do Supabase (`auth.uid()`, papéis) e roda `supabase/tests/*.test.sql`. Roda também no CI.
 
 **D-020 Grants explícitos por tabela.** O projeto Supabase (criado em nov/2026) não concede acesso automático da API a tabelas novas. Em 25/11 isso derrubou todas as leituras do app em produção ("permission denied"). Correção: migration `api_grants` com o mínimo por papel, e o stub de testes passou a imitar esse padrão, então uma tabela sem grant agora falha no `test:db`. Pendências do linter: `pg_net` instalado no schema `public` pelo SQL do cron (inofensivo; mover para `extensions` se o linter incomodar) e proteção contra senhas vazadas (opção do Auth, disponível no plano Pro).
+
+**D-021 Saúde é do usuário, não do workspace.** `water_logs`, `habits` e `habit_logs` usam `user_id` como fronteira (RLS `user_id = auth.uid()`), sem `workspace_id`: são dados sensíveis que nunca serão compartilhados. Hábitos compartilhados do casal, se vierem, serão outra tabela no workspace "Nós".
+
+**D-022 Fila offline genérica.** Escritas rápidas passam por `src/lib/outbox.ts` (IndexedDB) → `POST /api/sync`. Cada op tem id do aparelho que vira a PK do registro (`upsert ... ignoreDuplicates`), então reenvio não duplica. A UI junta servidor + fila por id (`mergeWater`, `mergeHabitLogs`, reaplicando as ops em ordem). Limitação: abrir o app do zero sem internet mostra a página offline (o HTML não é cacheado por conter dados pessoais); com o app já aberto, registrar offline funciona.
+
+**D-023 Lembretes de água pulados no silêncio.** Lembretes de água que caem no horário silencioso são descartados, não adiados (senão chegariam vários juntos ao fim do silêncio). Hábitos com horário escolhido continuam sendo adiados.

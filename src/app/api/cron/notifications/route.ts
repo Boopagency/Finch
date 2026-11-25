@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { serverEnv } from "@/lib/env";
 import { runDispatcher } from "@/features/notifications/server/dispatch";
+import { planReminders } from "@/features/notifications/server/planner";
 
 export const maxDuration = 60;
 
@@ -17,7 +18,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   try {
-    return NextResponse.json(await runDispatcher());
+    const planned = await planReminders();
+    return NextResponse.json({ planned, ...(await runDispatcher()) });
   } catch (e) {
     console.error("[cron/notifications]", e);
     return NextResponse.json({ error: "dispatch failed" }, { status: 500 });

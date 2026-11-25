@@ -9,7 +9,15 @@ AS=()
 if [ "$(id -u)" = 0 ]; then chown postgres "$DIR"; AS=(runuser -u postgres --); fi  # initdb recusa root
 "${AS[@]}" "$PGBIN/initdb" -D "$DIR" -U postgres --auth=trust >/dev/null
 "${AS[@]}" "$PGBIN/pg_ctl" -D "$DIR" -o "-p $PORT -k $DIR -c listen_addresses=''" -l "$DIR/log" start -w >/dev/null
-PSQL=(psql -h "$DIR" -p "$PORT" -U postgres -d postgres -v ON_ERROR_STOP=1 -q)
+PG=(-h "$DIR" -p "$PORT" -U postgres)
+psql "${PG[@]}" -d postgres -q -c "create database finch_template"
+PSQL=(psql "${PG[@]}" -d finch_template -v ON_ERROR_STOP=1 -q)
 "${PSQL[@]}" -f "$ROOT/supabase/tests/_stub_supabase.sql"
 for f in "$ROOT"/supabase/migrations/*.sql; do "${PSQL[@]}" -f "$f"; done
-for f in "$ROOT"/supabase/tests/*.test.sql; do "${PSQL[@]}" -f "$f"; done
+# cada arquivo de teste roda num banco limpo, copiado do template
+i=0
+for f in "$ROOT"/supabase/tests/*.test.sql; do
+  i=$((i + 1))
+  psql "${PG[@]}" -d postgres -q -c "create database t$i template finch_template"
+  psql "${PG[@]}" -d "t$i" -v ON_ERROR_STOP=1 -q -f "$f"
+done

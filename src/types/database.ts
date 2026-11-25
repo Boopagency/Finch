@@ -5,6 +5,18 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.18" }
   public: {
     Tables: {
+      habit_logs: {
+        Row: { created_at: string; habit_id: string; id: string; local_date: string; logged_at: string; user_id: string; value: number }
+        Insert: { created_at?: string; habit_id: string; id?: string; local_date?: string; logged_at?: string; user_id?: string; value?: number }
+        Update: { created_at?: string; habit_id?: string; id?: string; local_date?: string; logged_at?: string; user_id?: string; value?: number }
+        Relationships: [{ foreignKeyName: "habit_logs_habit_id_fkey"; columns: ["habit_id"]; isOneToOne: false; referencedRelation: "habits"; referencedColumns: ["id"] }, { foreignKeyName: "habit_logs_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      habits: {
+        Row: { archived_at: string | null; created_at: string; days: number[]; id: string; kind: string; name: string; period: string; position: number; reminder_time: string | null; target: number; tone: string; unit: string | null; user_id: string }
+        Insert: { archived_at?: string | null; created_at?: string; days?: number[]; id?: string; kind?: string; name: string; period?: string; position?: number; reminder_time?: string | null; target?: number; tone?: string; unit?: string | null; user_id?: string }
+        Update: { archived_at?: string | null; created_at?: string; days?: number[]; id?: string; kind?: string; name?: string; period?: string; position?: number; reminder_time?: string | null; target?: number; tone?: string; unit?: string | null; user_id?: string }
+        Relationships: [{ foreignKeyName: "habits_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
       invitations: {
         Row: { accepted_at: string | null; accepted_by: string | null; created_at: string; created_by: string; expires_at: string; id: string; invited_email: string; revoked_at: string | null; token_hash: string; workspace_id: string }
         Insert: { accepted_at?: string | null; accepted_by?: string | null; created_at?: string; created_by: string; expires_at?: string; id?: string; invited_email: string; revoked_at?: string | null; token_hash: string; workspace_id: string }
@@ -42,10 +54,16 @@ export type Database = {
         Relationships: [{ foreignKeyName: "push_subscriptions_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
       }
       user_settings: {
-        Row: { home_layout: Json; quiet_end: string; quiet_start: string; updated_at: string; user_id: string }
-        Insert: { home_layout?: Json; quiet_end?: string; quiet_start?: string; updated_at?: string; user_id: string }
-        Update: { home_layout?: Json; quiet_end?: string; quiet_start?: string; updated_at?: string; user_id?: string }
+        Row: { home_layout: Json; quiet_end: string; quiet_start: string; updated_at: string; user_id: string; water_every_min: number; water_from: string; water_goal_ml: number; water_presets: number[]; water_reminders: boolean; water_to: string }
+        Insert: { home_layout?: Json; quiet_end?: string; quiet_start?: string; updated_at?: string; user_id: string; water_every_min?: number; water_from?: string; water_goal_ml?: number; water_presets?: number[]; water_reminders?: boolean; water_to?: string }
+        Update: { home_layout?: Json; quiet_end?: string; quiet_start?: string; updated_at?: string; user_id?: string; water_every_min?: number; water_from?: string; water_goal_ml?: number; water_presets?: number[]; water_reminders?: boolean; water_to?: string }
         Relationships: [{ foreignKeyName: "user_settings_user_id_fkey"; columns: ["user_id"]; isOneToOne: true; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      water_logs: {
+        Row: { amount_ml: number; created_at: string; id: string; local_date: string; logged_at: string; user_id: string }
+        Insert: { amount_ml: number; created_at?: string; id?: string; local_date?: string; logged_at?: string; user_id?: string }
+        Update: { amount_ml?: number; created_at?: string; id?: string; local_date?: string; logged_at?: string; user_id?: string }
+        Relationships: [{ foreignKeyName: "water_logs_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
       }
       workspace_members: {
         Row: { joined_at: string; reference_income_cents: number | null; role: string; user_id: string; workspace_id: string }

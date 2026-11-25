@@ -59,6 +59,12 @@ Jobs presos em `sending` por mais de 5 min voltam para `pending`.
 | Compra | lista ainda aberta |
 | Treino/descanso | sessão ainda ativa e descanso não encerrado |
 
+## 4.1 Implementado (25/11)
+
+- **Planejador** (`planner.ts`), a cada chamada do cron: cria os lembretes de hoje (só horários futuros) para quem tem aparelho ativo. Água: `water_from` até `water_to` a cada `water_every_min`. Hábitos: no `reminder_time`, nos dias agendados. `dedupe_key` por horário evita duplicar.
+- **Relevância** (`relevance.ts`): água só envia se a meta do dia não foi atingida e os lembretes estão ligados; hábito só se ainda está ativo, agendado e não cumprido.
+- Ao mudar configurações de água ou editar/arquivar um hábito, os pendentes do usuário são apagados e o planejador recria.
+
 ## 5. Categorias e padrões
 
 Hidratação, hábitos, treinos (+ fim de descanso, melhor esforço), tarefas, compromissos, contas a pagar, orçamentos, compras, rotinas da casa, metas, datas importantes, compromissos do casal, conquistas, resumo diário (manhã), resumo semanal (domingo à noite), avisos do app.

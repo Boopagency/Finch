@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { BrandMark } from "@/components/brand/mark";
-import { RegisterSheet } from "./register-sheet";
+import { RegisterSheet, type QuickData } from "./register-sheet";
 
 const tabs = [
   { href: "/", label: "Hoje", Icon: Sun },
@@ -13,7 +13,7 @@ const tabs = [
   { href: "/vida", label: "Vida", Icon: LayoutGrid },
 ] as const;
 
-export function TabBar() {
+export function TabBar({ quick }: { quick: QuickData }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const active = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
@@ -60,7 +60,7 @@ export function TabBar() {
           </Link>
         </div>
       </nav>
-      <RegisterSheet open={open} onClose={() => setOpen(false)} />
+      <RegisterSheet open={open} onClose={() => setOpen(false)} data={quick} />
     </>
   );
 }

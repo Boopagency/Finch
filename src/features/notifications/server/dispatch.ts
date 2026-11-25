@@ -4,15 +4,11 @@ import { serverEnv } from "@/lib/env";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
 import { isQuiet, quietEndsAt } from "../quiet-hours";
+import { skipWhenQuiet, stillRelevant } from "./relevance";
 
 type Job = Tables<"notification_jobs">;
 const MAX_ATTEMPTS = 3;
 
-/**
- * "Ainda faz sentido enviar?" por tipo de origem. Cada módulo registra o seu aqui
- * (tarefa concluída, conta paga, meta de água atingida…). Sem origem = sempre envia.
- */
-const stillRelevant: Record<string, (job: Job) => Promise<boolean>> = {};
 
 let configured = false;
 function configure() {
@@ -52,6 +48,11 @@ export async function runDispatcher(limit = 50): Promise<DispatchResult> {
       ]);
       const tz = profile?.tz ?? "America/Sao_Paulo";
       if (settings && isQuiet(now, tz, settings.quiet_start, settings.quiet_end)) {
+        if (skipWhenQuiet.has(job.category)) {
+          await update({ status: "skipped", last_error: "horário silencioso" });
+          result.skipped++;
+          continue;
+        }
         await update({ status: "pending", attempts: job.attempts - 1, scheduled_for: quietEndsAt(now, tz, settings.quiet_end).toISOString() });
         result.deferred++;
         continue;

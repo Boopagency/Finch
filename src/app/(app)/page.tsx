@@ -1,8 +1,13 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Bell, Settings } from "lucide-react";
+import { Bell, Check, Droplet, Settings } from "lucide-react";
 import Link from "next/link";
 import { InstallHint } from "@/components/pwa/install-hint";
+import { HabitList } from "@/features/health/components/habit-list";
+import { WaterQuick } from "@/features/health/components/water-quick";
+import { habitStatus } from "@/features/health/habits";
+import { getHabits, getWaterToday } from "@/features/health/server/queries";
+import { formatWater } from "@/features/health/water";
 import { buildSentence, type DayItem, type Tone } from "@/features/today/sentence";
 import { createClient, requireViewer } from "@/lib/supabase/server";
 import { nowIn } from "@/lib/time";
@@ -25,7 +30,7 @@ export default async function TodayPage() {
   const supabase = await createClient();
   const now = nowIn(viewer.tz);
 
-  const [{ data: shared }, { count: devices }, { data: recent }] = await Promise.all([
+  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData] = await Promise.all([
     supabase.from("workspaces").select("id, name, workspace_members(user_id, profiles(display_name))").eq("kind", "shared"),
     supabase.from("push_subscriptions").select("id", { count: "exact", head: true }).is("revoked_at", null),
     supabase
@@ -35,10 +40,26 @@ export default async function TodayPage() {
       .neq("category", "test")
       .order("sent_at", { ascending: false })
       .limit(3),
+    getWaterToday(viewer),
+    getHabits(viewer, 7),
   ]);
 
-  // Itens do dia: cada módulo vai contribuir aqui (tarefas, contas, treino…). Ainda nenhum módulo ativo.
+  // Itens do dia: cada módulo contribui aqui (tarefas, contas e treino entram nas próximas etapas).
   const items: DayItem[] = [];
+  const waterTotal = water.logs.reduce((n, l) => n + l.amount_ml, 0);
+  const waterGoal = water.settings.water_goal_ml;
+  if (waterTotal < waterGoal) {
+    items.push({ lead: "faltam", highlight: `${formatWater(waterGoal - waterTotal)} de água`, tone: "cobalt", icon: "drop", priority: 2 });
+  }
+  const pendingHabits = habitsData.habits.filter((h) => {
+    const s = habitStatus(h, habitsData.logs, habitsData.today);
+    return s.scheduled && !s.done && h.period === "day";
+  });
+  if (pendingHabits.length === 1) {
+    items.push({ lead: "falta", highlight: pendingHabits[0]!.name, tone: pendingHabits[0]!.tone as Tone, icon: "check", priority: 1 });
+  } else if (pendingHabits.length > 1) {
+    items.push({ lead: "você tem", highlight: `${pendingHabits.length} hábitos`, tail: "para marcar", tone: "sunflower", icon: "check", priority: 1 });
+  }
   const sentence = buildSentence(viewer.name, now.getHours(), items);
 
   const space = shared?.[0];
@@ -82,7 +103,9 @@ export default async function TodayPage() {
       <p className="max-w-xl px-gutter pb-8 pt-6 font-display text-[26px] font-semibold leading-[1.28] tracking-[-0.02em] text-stage-muted">
         {sentence.map((s, i) =>
           s.sticker ? (
-            <span key={i} className={`mx-1 inline-grid h-7 w-9 -rotate-6 place-items-center rounded-[9px] align-[-4px] ${toneBg[s.sticker.tone]}`} />
+            <span key={i} className={`mx-1 inline-grid h-7 w-9 -rotate-6 place-items-center rounded-[9px] align-[-4px] ${toneBg[s.sticker.tone]}`}>
+              {s.sticker.icon === "drop" ? <Droplet className="size-4" strokeWidth={2.6} /> : <Check className="size-4" strokeWidth={3} />}
+            </span>
           ) : (
             <span key={i} className={s.strong ? "text-stage-ink" : undefined}>
               {s.text}
@@ -95,7 +118,9 @@ export default async function TodayPage() {
 
       <section aria-labelledby="casal" className="min-h-[50dvh] rounded-t-[28px] bg-bg px-4 pb-6 pt-5 text-ink">
         <div className="mx-auto flex max-w-xl flex-col gap-3">
-          <div className="flex items-baseline justify-between px-2">
+          <WaterQuick serverLogs={water.logs} goal={waterGoal} presets={water.settings.water_presets} />
+          <HabitList habits={habitsData.habits} serverLogs={habitsData.logs} today={habitsData.today} onlyPendingToday />
+          <div className="flex items-baseline justify-between px-2 pt-2">
             <h2 id="casal" className="text-[17px] font-bold">
               Pra você
             </h2>
