@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Bell, Check, Droplet, Settings } from "lucide-react";
+import { Bell, CalendarDays, Check, Droplet, Settings } from "lucide-react";
 import Link from "next/link";
 import { InstallHint } from "@/components/pwa/install-hint";
 import { HabitList } from "@/features/health/components/habit-list";
@@ -8,6 +8,7 @@ import { WaterQuick } from "@/features/health/components/water-quick";
 import { habitStatus } from "@/features/health/habits";
 import { getHabits, getWaterToday } from "@/features/health/server/queries";
 import { formatWater } from "@/features/health/water";
+import { getAgenda } from "@/features/agenda/server/queries";
 import { TaskList } from "@/features/tasks/components/task-list";
 import { getTaskItems } from "@/features/tasks/server/queries";
 import { buildSentence, type DayItem, type Tone } from "@/features/today/sentence";
@@ -46,12 +47,19 @@ export default async function TodayPage() {
     getHabits(viewer, 7),
     getTaskItems(viewer, 1),
   ]);
+  const agenda = await getAgenda(viewer, tasksData.today, tasksData.today);
+  const nowHm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const upcoming = agenda.events.filter((e) => !e.end || e.end > nowHm);
   const todayTasks = tasksData.items.filter((t) => t.date && t.date <= tasksData.today);
   const overdue = todayTasks.filter((t) => t.status !== "done" && t.date! < tasksData.today).length;
   const openToday = todayTasks.filter((t) => t.status !== "done").length;
 
   // Itens do dia: cada módulo contribui aqui (tarefas, contas e treino entram nas próximas etapas).
   const items: DayItem[] = [];
+  const nextEvent = upcoming.find((e) => e.start && e.start !== "00:00");
+  if (nextEvent) {
+    items.push({ lead: "tem", highlight: nextEvent.event.title.toLowerCase(), tail: `às ${nextEvent.start}`, tone: "lavender", icon: "calendar", priority: 6 });
+  }
   if (overdue > 0) {
     items.push({ lead: "tem", highlight: `${overdue} ${overdue === 1 ? "tarefa atrasada" : "tarefas atrasadas"}`, tone: "coral", icon: "check", priority: 5 });
   }
@@ -122,7 +130,13 @@ export default async function TodayPage() {
         {sentence.map((s, i) =>
           s.sticker ? (
             <span key={i} className={`mx-1 inline-grid h-7 w-9 -rotate-6 place-items-center rounded-[9px] align-[-4px] ${toneBg[s.sticker.tone]}`}>
-              {s.sticker.icon === "drop" ? <Droplet className="size-4" strokeWidth={2.6} /> : <Check className="size-4" strokeWidth={3} />}
+              {s.sticker.icon === "drop" ? (
+                <Droplet className="size-4" strokeWidth={2.6} />
+              ) : s.sticker.icon === "calendar" ? (
+                <CalendarDays className="size-4" strokeWidth={2.6} />
+              ) : (
+                <Check className="size-4" strokeWidth={3} />
+              )}
             </span>
           ) : (
             <span key={i} className={s.strong ? "text-stage-ink" : undefined}>
@@ -136,6 +150,19 @@ export default async function TodayPage() {
 
       <section aria-labelledby="casal" className="min-h-[50dvh] rounded-t-[28px] bg-bg px-4 pb-6 pt-5 text-ink">
         <div className="mx-auto flex max-w-xl flex-col gap-3">
+          {upcoming.length > 0 && (
+            <ul aria-label="Agenda de hoje" className="flex flex-col gap-1.5">
+              {upcoming.map((e) => (
+                <li key={e.key}>
+                  <Link href="/agenda" className="flex items-center gap-3 rounded-[18px] bg-surface px-4 py-3">
+                    <span className="tabular w-11 text-[13px] font-bold text-ink-2">{e.start && e.start !== "00:00" ? e.start : "dia"}</span>
+                    <span className="flex-1 truncate text-[15px] font-semibold">{e.event.title}</span>
+                    <CalendarDays className="size-4 text-ink-3" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
           {todayTasks.length > 0 && (
             <>
               <TaskList

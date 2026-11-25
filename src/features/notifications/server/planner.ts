@@ -1,5 +1,6 @@
 import "server-only";
 import { addDays, isScheduled, type Habit } from "@/features/health/habits";
+import { expandEvents, type EventRow } from "@/features/agenda/expand";
 import { ensureOccurrences } from "@/features/tasks/server/queries";
 import { localDate, localToInstant, waterSlots } from "@/features/health/water";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -71,6 +72,7 @@ export async function planReminders(now = new Date()): Promise<number> {
   }
 
   rows.push(...(await planTasks(db, users, profiles ?? [], now)));
+  rows.push(...(await planEvents(db, users, profiles ?? [], now)));
   if (rows.length === 0) return 0;
   const { error } = await db.from("notification_jobs").upsert(rows, { onConflict: "dedupe_key", ignoreDuplicates: true });
   if (error) throw new Error(`planner: ${error.message}`);
@@ -146,6 +148,43 @@ async function planTasks(db: Db, users: string[], profiles: { id: string; tz: st
       const t = timed.find((x) => x.id === o.task_id)!;
       const date = o.snoozed_to ?? o.occurs_on;
       if (date === localDate(now, tzOf(t.workspace_id))) push(t, date, "task_occ", o.id, o.assignee_id);
+    }
+  }
+  return rows;
+}
+
+/** Eventos com lembrete: dispara `remind_min` antes do início, para os membros do espaço. */
+async function planEvents(db: Db, users: string[], profiles: { id: string; tz: string }[], now: Date): Promise<JobInsert[]> {
+  const { data: members } = await db.from("workspace_members").select("workspace_id, user_id").in("user_id", users);
+  const spaces = [...new Set((members ?? []).map((m) => m.workspace_id))];
+  if (!spaces.length) return [];
+  const { data: events } = await db
+    .from("events")
+    .select("id, title, workspace_id, start_date, end_date, start_time, end_time, repeat, repeat_until, location, notes, category, remind_min")
+    .in("workspace_id", spaces)
+    .not("remind_min", "is", null)
+    .not("start_time", "is", null);
+  const rows: JobInsert[] = [];
+  for (const u of users) {
+    const tz = profiles.find((p) => p.id === u)?.tz ?? "America/Sao_Paulo";
+    const today = localDate(now, tz);
+    const mine = (events ?? []).filter((e) => (members ?? []).some((m) => m.user_id === u && m.workspace_id === e.workspace_id));
+    // janela de amanhã cobre lembretes de "1 dia antes"
+    for (const i of expandEvents(mine as EventRow[], today, addDays(today, 1))) {
+      if (i.day !== 1 || !i.start) continue;
+      const at = new Date(localToInstant(i.date, i.start, tz).getTime() - (i.event.remind_min ?? 0) * 60_000);
+      if (at <= now || at.getTime() - now.getTime() > 26 * 3600_000) continue;
+      rows.push({
+        user_id: u,
+        category: "event",
+        source_type: "event",
+        source_id: i.event.id,
+        scheduled_for: at.toISOString(),
+        dedupe_key: `event:${i.event.id}:${u}:${i.date}:${i.start}:${i.event.remind_min}`,
+        title: i.event.title,
+        body: i.event.remind_min ? `Começa às ${i.start}${i.event.location ? ` · ${i.event.location}` : ""}` : "Começando agora.",
+        url: `/agenda?d=${i.date}`,
+      });
     }
   }
   return rows;

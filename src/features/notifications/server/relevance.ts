@@ -63,6 +63,15 @@ export const stillRelevant: Record<string, (job: Job) => Promise<boolean>> = {
     const today = localDate(new Date(), await tzOf(job.user_id));
     return (o.snoozed_to ?? o.occurs_on) === today;
   },
+
+  // evento: ainda existe com o mesmo horário (a chave de dedupe guarda data/hora/antecedência)
+  async event(job) {
+    if (!job.source_id || !job.dedupe_key) return false;
+    const { data: e } = await createServiceClient().from("events").select("start_time, remind_min").eq("id", job.source_id).maybeSingle();
+    if (!e?.start_time || e.remind_min == null) return false;
+    const [, , , , hh, mm, remind] = job.dedupe_key.split(":"); // event:id:user:data:HH:MM:antecedência
+    return `${hh}:${mm}` === e.start_time.slice(0, 5) && Number(remind) === e.remind_min;
+  },
 };
 
 /** Categorias que perdem o sentido se adiadas (melhor pular do que acumular após o silêncio). */

@@ -5,6 +5,12 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.18" }
   public: {
     Tables: {
+      events: {
+        Row: { category: string; created_at: string; created_by: string; end_date: string; end_time: string | null; id: string; location: string | null; notes: string | null; remind_min: number | null; repeat: Json | null; repeat_until: string | null; start_date: string; start_time: string | null; title: string; updated_at: string; workspace_id: string }
+        Insert: { category?: string; created_at?: string; created_by?: string; end_date: string; end_time?: string | null; id?: string; location?: string | null; notes?: string | null; remind_min?: number | null; repeat?: Json | null; repeat_until?: string | null; start_date: string; start_time?: string | null; title: string; updated_at?: string; workspace_id: string }
+        Update: { category?: string; created_at?: string; created_by?: string; end_date?: string; end_time?: string | null; id?: string; location?: string | null; notes?: string | null; remind_min?: number | null; repeat?: Json | null; repeat_until?: string | null; start_date?: string; start_time?: string | null; title?: string; updated_at?: string; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "events_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
       habit_logs: {
         Row: { created_at: string; habit_id: string; id: string; local_date: string; logged_at: string; user_id: string; value: number }
         Insert: { created_at?: string; habit_id: string; id?: string; local_date?: string; logged_at?: string; user_id?: string; value?: number }
