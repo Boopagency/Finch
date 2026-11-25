@@ -63,3 +63,7 @@ Formato: contexto → decisão → alternativas. `PENDENTE` = aguarda o Jabez.
 **D-030 Treino simples e offline primeiro.** Fichas são listas de exercícios (séries × reps × descanso), sem dias/ciclos por ora. Carga em gramas inteiras. Recorde = maior 1RM estimado (Epley, reps limitadas a 12); a primeira marca de um exercício não é chamada de recorde. Começar a sessão é online (server action); séries e conclusão vão pela fila offline (ids do aparelho). O descanso guarda o horário de término (`localStorage`), não um contador. Concluir treino com ao menos uma série dá 30 pontos (1 por dia).
 
 **D-031 A fila offline respeita a ordem de criação.** O IndexedDB devolve pela chave (uuid); ao carregar, a fila é ordenada por `created_at`, e um envio pedido durante outro roda logo em seguida.
+
+**D-032 Espaço da casa.** Cozinha, datas, lugares e memórias moram no espaço "Nós" quando ele existe (senão no pessoal), sem seletor: é a casa de vocês. Metas têm seletor (pessoal ou do casal). Helper único: `homeSpace` em `src/features/core/server/home-space.ts`.
+
+**D-033 Despensa acompanha, não adivinha.** Finalizar compra só repõe itens que já estão na despensa (trigger em `purchases`); nada é criado sozinho. Receita e cardápio → lista pulam o que tem em casa acima do mínimo e o que já está pendente na lista.

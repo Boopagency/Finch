@@ -36,10 +36,10 @@ Contas, categorias, razão de partidas, receitas/despesas, recorrentes, cartões
 ## Etapa 4 — Treinos e saúde ✅ (exceto fotos de evolução)
 Biblioteca, fichas, execução offline, cronômetro por timestamp, histórico, PRs, evolução física com fotos privadas, registros de saúde.
 
-## Etapa 5 — Casa e alimentação
+## Etapa 5 — Casa e alimentação ✅ (despensa, receitas, cardápio; ativos/manutenções/documentos depois)
 Despensa, rotinas domésticas (sobre tarefas), ativos, manutenções, documentos, receitas, plano alimentar → lista.
 
-## Etapa 6 — Vida a dois e metas
+## Etapa 6 — Vida a dois e metas ✅ (datas, lugares/viagens, memórias, metas; fotos depois)
 Metas vinculadas, viagens, memórias, datas, lugares, desejos, conquistas, desafios, recompensas.
 
 ## Etapa 7 — IA

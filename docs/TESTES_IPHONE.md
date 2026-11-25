@@ -47,6 +47,18 @@ Marque ✅ ou ❌ e me mande os ❌ com print.
 - [ ] Concluir treino → aparece no Histórico e em Recordes; a barra do álbum sobe.
 - [ ] Saúde → peso `82,5`, sono `7h30`, humor → Salvar → card de peso e lista atualizam.
 
+## Cozinha (Vida → Cozinha)
+- [ ] Despensa → item "Arroz", tem 0,5 kg, mínimo 2 → aparece o aviso amarelo → Repor → o arroz entra na lista do Mercado.
+- [ ] Receitas → nova receita com ingredientes um por linha → abrir → mudar porções → "Ingredientes para a lista".
+- [ ] Cardápio → escrever o nome da receita no jantar de hoje → o Hoje mostra "Jantar de hoje".
+- [ ] Mercado → pegar o arroz → Finalizar compra → a despensa sobe sozinha.
+
+## Nós e Metas (Vida → Nós / Metas)
+- [ ] Nós → Datas → começo do namoro (repete todo ano) → contagem de dias e anos.
+- [ ] Lugares → um restaurante → "Fomos" → dar estrelas.
+- [ ] Memórias → uma memória → a Duda vê no celular dela.
+- [ ] Metas → meta do casal em R$ com prazo → cada um soma um valor → ao bater, fica verde e o álbum ganha pontos.
+
 ## Finanças (Vida → Finanças)
 - [ ] Cadastrar conta corrente (com saldo de hoje) e o cartão (limite, fecha, vence).
 - [ ] `180 mercado crédito` → vai para o cartão, categoria Mercado.

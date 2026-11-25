@@ -2,6 +2,10 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Bell, CalendarDays, Check, Droplet, Settings } from "lucide-react";
 import Link from "next/link";
+import { countdownLabel } from "@/features/couple/couple";
+import { getUpcomingDates } from "@/features/couple/server/queries";
+import { isLow } from "@/features/kitchen/kitchen";
+import { getKitchen } from "@/features/kitchen/server/queries";
 import { InstallHint } from "@/components/pwa/install-hint";
 import { HabitList } from "@/features/health/components/habit-list";
 import { WaterQuick } from "@/features/health/components/water-quick";
@@ -35,7 +39,7 @@ export default async function TodayPage() {
   const supabase = await createClient();
   const now = nowIn(viewer.tz);
 
-  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData, agenda, shopping, album] = await Promise.all([
+  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData, agenda, shopping, album, soonDates, kitchen] = await Promise.all([
     supabase.from("workspaces").select("id, name, workspace_members(user_id, profiles(display_name))").eq("kind", "shared"),
     supabase.from("push_subscriptions").select("id", { count: "exact", head: true }).is("revoked_at", null),
     supabase
@@ -51,6 +55,8 @@ export default async function TodayPage() {
     getAgenda(viewer, todayFor(viewer), todayFor(viewer)),
     getLists(viewer),
     getAlbumSummary(),
+    getUpcomingDates(viewer, 7),
+    getKitchen(viewer),
   ]);
   const nowHm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   const upcoming = agenda.events.filter((e) => !e.end || e.end > nowHm);
@@ -111,6 +117,13 @@ export default async function TodayPage() {
   if (album.packs > 0) {
     bubbles.unshift({ key: "packs", title: "Álbum", text: album.packs === 1 ? "Tem um pacotinho de figurinhas esperando você." : `Tem ${album.packs} pacotinhos de figurinhas esperando você.`, tone: "coral", href: "/vida/album" });
   }
+  for (const d of soonDates) {
+    bubbles.unshift({ key: `date-${d.id}`, title: d.title, text: d.next.days === 0 ? `É hoje${d.next.years ? `: ${d.next.years} ${d.next.years === 1 ? "ano" : "anos"}` : ""}!` : `${countdownLabel(d.next.days)[0]!.toUpperCase()}${countdownLabel(d.next.days).slice(1)}.`, tone: "lavender", href: "/vida/nos" });
+  }
+  const dinner = kitchen.meals.find((m) => m.day === kitchen.today && m.slot === "jantar");
+  if (dinner) bubbles.push({ key: "dinner", title: "Jantar de hoje", text: dinner.title, tone: "tangerine", href: "/vida/cozinha?v=cardapio" });
+  const low = kitchen.pantry.filter(isLow).length;
+  if (low) bubbles.push({ key: "pantry", title: "Despensa", text: low === 1 ? "1 item abaixo do mínimo." : `${low} itens abaixo do mínimo.`, tone: "sunflower", href: "/vida/cozinha" });
   for (const l of shopping.lists.filter((x) => x.pending > 0)) {
     bubbles.push({ key: `list-${l.id}`, title: l.name, text: `${l.pending} ${l.pending === 1 ? "item" : "itens"} para comprar.`, tone: "frog", href: `/mercado/${l.id}` });
   }

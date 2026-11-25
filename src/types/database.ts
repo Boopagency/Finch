@@ -251,6 +251,30 @@ export type Database = {
         Update: { id?: string; workspace_id?: string; day?: string; slot?: string; recipe_id?: string | null; title?: string; created_by?: string }
         Relationships: [{ foreignKeyName: "meal_plan_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }, { foreignKeyName: "meal_plan_recipe_id_fkey"; columns: ["recipe_id"]; isOneToOne: false; referencedRelation: "recipes"; referencedColumns: ["id"] }]
       }
+      special_dates: {
+        Row: { id: string; workspace_id: string; title: string; on_date: string; yearly: boolean; created_by: string; created_at: string }
+        Insert: { id?: string; workspace_id: string; title: string; on_date: string; yearly?: boolean; created_by?: string; created_at?: string }
+        Update: { id?: string; workspace_id?: string; title?: string; on_date?: string; yearly?: boolean; created_by?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "special_dates_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      places: {
+        Row: { id: string; workspace_id: string; name: string; kind: string; status: string; rating: number | null; note: string | null; visited_on: string | null; created_by: string; created_at: string }
+        Insert: { id?: string; workspace_id: string; name: string; kind?: string; status?: string; rating?: number | null; note?: string | null; visited_on?: string | null; created_by?: string; created_at?: string }
+        Update: { id?: string; workspace_id?: string; name?: string; kind?: string; status?: string; rating?: number | null; note?: string | null; visited_on?: string | null; created_by?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "places_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      memories: {
+        Row: { id: string; workspace_id: string; title: string; body: string; happened_on: string; created_by: string; created_at: string }
+        Insert: { id?: string; workspace_id: string; title: string; body?: string; happened_on?: string; created_by?: string; created_at?: string }
+        Update: { id?: string; workspace_id?: string; title?: string; body?: string; happened_on?: string; created_by?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "memories_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      goals: {
+        Row: { id: string; workspace_id: string; title: string; target: number; current: number; unit: string | null; due_on: string | null; done_at: string | null; created_by: string; created_at: string }
+        Insert: { id?: string; workspace_id: string; title: string; target: number; current?: number; unit?: string | null; due_on?: string | null; done_at?: string | null; created_by?: string; created_at?: string }
+        Update: { id?: string; workspace_id?: string; title?: string; target?: number; current?: number; unit?: string | null; due_on?: string | null; done_at?: string | null; created_by?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "goals_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
       workspace_members: {
         Row: { joined_at: string; reference_income_cents: number | null; role: string; user_id: string; workspace_id: string }
         Insert: { joined_at?: string; reference_income_cents?: number | null; role?: string; user_id: string; workspace_id: string }
@@ -284,6 +308,7 @@ export type Database = {
         SetofOptions: { from: "*"; to: "notification_jobs"; isOneToOne: false; isSetofReturn: true }
       }
       create_shared_workspace: { Args: { p_name: string }; Returns: string }
+      goal_add: { Args: { p_goal: string; p_delta: number }; Returns: Database["public"]["Tables"]["goals"]["Row"] }
       fin_confirm: { Args: { p_id: string }; Returns: undefined }
       fin_ensure_categories: { Args: { p_workspace: string }; Returns: undefined }
       fin_record: {

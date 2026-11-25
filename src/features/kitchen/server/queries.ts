@@ -1,15 +1,11 @@
 import "server-only";
 import { cache } from "react";
 import { todayFor } from "@/features/health/server/queries";
-import { getSpaces } from "@/features/tasks/server/queries";
 import { createClient, type Viewer } from "@/lib/supabase/server";
 import { weekFrom, type PantryItem } from "../kitchen";
 
-/** A cozinha mora no espaço da casa: "Nós" quando existe, senão o pessoal. */
-export const kitchenSpace = cache(async (viewer: Viewer) => {
-  const spaces = await getSpaces(viewer);
-  return spaces.find((s) => s.kind === "shared") ?? spaces.find((s) => s.kind === "personal")!;
-});
+export { homeSpace as kitchenSpace } from "@/features/core/server/home-space";
+import { homeSpace as kitchenSpace } from "@/features/core/server/home-space";
 
 export type Recipe = { id: string; title: string; servings: number; prep_min: number | null; ingredients: string; steps: string };
 export type Meal = { id: string; day: string; slot: string; recipe_id: string | null; title: string };

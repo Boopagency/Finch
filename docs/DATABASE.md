@@ -77,19 +77,22 @@ Por que razão de partidas: transferência, pagamento de fatura e estorno deixam
 
 ### Treinos
 Implementado (migration `20261125220000_training.sql`, ver D-030): `exercises` (user_id null = biblioteca base, só leitura), `workouts` (fichas), `workout_exercises` (sets, reps, rest_s), `workout_sessions` (logged_at = início, finished_at), `workout_sets` (weight_g, reps ou duration_s, done_at; id do aparelho), `body_logs` (weight_g, waist_mm, sleep_min, mood 1–5). Tudo do próprio usuário. Planejado: fotos de evolução, substituições, RPE.
-Cargas em gramas inteiras. PRs calculados por view.
+Cargas em gramas inteiras. PRs calculados no servidor a partir das séries.
 
 ### Saúde e hábitos
 `habits` (kind `boolean|quantity|duration|frequency`, target, period, schedule), `habit_logs` (habit_id, local_date, value) UNIQUE(habit_id, local_date) para diários, `water_goals`, `water_logs` (amount_ml, local_date), `favorite_containers`, `health_logs` (kind, value jsonb), `medications`, `medication_logs`.
 
 ### Mercado e alimentação
-`products`, `shopping_lists`, `shopping_items` (list_id, product_id, qty, unit, est_price_cents, checked_by, checked_at), `purchases` (list_id, store, total_cents, paid_by, account_id, entry_id UNIQUE) — `entry_id` único garante uma despesa por compra, `price_history`, `inventory_items`, `inventory_movements`, `recipes`, `recipe_ingredients`, `meal_plans`, `meal_plan_items`.
+`products`, `shopping_lists`, `shopping_items` (list_id, product_id, qty, unit, est_price_cents, checked_by, checked_at), `purchases` (list_id, store, total_cents, paid_by, account_id, entry_id UNIQUE) — `entry_id` único garante uma despesa por compra, `price_history`.
+Implementado (migration `20261125230000_kitchen.sql`, D-033): `pantry_items` (qty, min_qty, unit, expires_on; único por nome no espaço), `recipes` (ingredientes em texto, um por linha, lidos pelo parser do mercado), `meal_plan` (day, slot café/almoço/jantar, recipe_id opcional; único por dia+slot). Trigger `pantry_purchase` repõe a despensa ao finalizar compra.
 
 ### Casa e Nós
 `household_assets`, `maintenance_records`, `documents`, `service_contacts`, `memories`, `important_dates`, `places`, `watchlist`, `wishlist_items` (visibility), `trips`, `trip_items` (kind: reserva, roteiro, checklist).
-Rotinas domésticas = `tasks` com `category = 'home'`.
+Rotinas domésticas = `tasks` com `category = 'casa'`.
+Implementado (migration `20261125240000_couple_goals.sql`): `special_dates` (on_date, yearly), `places` (kind, status quero/fomos, rating), `memories` (happened_on, body). Planejado: ativos, manutenções, documentos, viagens com roteiro.
 
 ### Metas e gamificação
+Implementado: `goals` (target, current, unit, due_on, done_at) com `goal_add(goal, delta)` atômico, que conclui/reabre e dá/retira pontos (`xp_rules.goal`). O desenho abaixo é o alvo completo.
 `goals` (kind `amount|count|frequency|milestones`, target, due_on, link_rule jsonb), `goal_milestones`, `goal_contributions` (goal_id, entry_id nullable, amount), `xp_rules` (key, xp, seed_area), `xp_events` (user_id, rule_key, source_type, source_id, period_key, xp, revoked_at) **UNIQUE(user_id, rule_key, source_type, source_id, period_key)**, `achievements`, `user_achievements`, `challenges`, `reward_definitions`, `reward_redemptions`, `points_ledger`.
 
 ### Infraestrutura

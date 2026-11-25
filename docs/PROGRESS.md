@@ -22,12 +22,15 @@ _Atualizado em 2026-11-25 (fim da sessão longa). Status: `implementado` · `tes
 | Financeiro (núcleo): contas, cartões, parcelas, faturas, previsto/realizado, divisão do casal, acerto, orçamento, lançamento rápido, compra → despesa | testado | unidade + SQL (regras da spec) + E2E |
 | Treino: biblioteca (26 exercícios + próprios), fichas, execução com séries **offline**, descanso pelo relógio (sobrevive a recarregar/bloquear), histórico, recordes (1RM estimado), +30 pontos no álbum | testado | unidade + SQL + E2E (modo avião) |
 | Saúde: peso, cintura, sono, humor; tendência de peso e sono médio; privado | testado | unidade + SQL + E2E |
+| Cozinha: despensa com mínimo e validade, Repor → lista, receitas (porções escaláveis) → lista pulando o que tem em casa, cardápio da semana → lista; compra finalizada repõe a despensa | testado com 2 usuários | unidade + SQL + E2E |
+| Nós: datas especiais com contagem (29/02 tratado) e aviso no Hoje, lugares (queremos ir/fomos com nota), memórias em linha do tempo | testado com 2 usuários | unidade + SQL + E2E |
+| Metas pessoais ou do casal: soma atômica (os dois ao mesmo tempo), ritmo por semana até o prazo, +50 pontos ao bater | testado com 2 usuários | unidade + SQL + E2E |
 | Hoje: frase por regras com água/hábitos/tarefas/eventos; listas do dia; avisos | testado | E2E |
 
 ## Números (25/11)
-- `npm test`: **50** testes de unidade passando.
-- `npm run test:db`: **8** suítes SQL (RLS, saúde, tarefas, agenda, mercado, álbum, financeiro, treinos) passando, cada uma em banco limpo.
-- `npm run test:e2e`: **59** testes de ponta a ponta (8 suítes) passando (iPhone 15 simulado, 2 usuários de teste, Supabase de produção).
+- `npm test`: **60** testes de unidade passando.
+- `npm run test:db`: **10** suítes SQL (RLS, saúde, tarefas, agenda, mercado, álbum, financeiro, treinos, cozinha, nós e metas) passando, cada uma em banco limpo.
+- `npm run test:e2e`: **73** testes de ponta a ponta (10 suítes) passando (iPhone 15 simulado, 2 usuários de teste, Supabase de produção).
 - `lint`, `typecheck`, `build`: passando.
 
 ## Desempenho (25/11, medido no site publicado, iPhone 15 simulado)
@@ -45,6 +48,7 @@ Causas e correções: sem estado de carregamento (`loading.tsx`); funções na V
 - Janela de detalhe de tarefa mostrava dados velhos após salvar subtarefa.
 - Consistência de hábito contava dias antes do hábito existir.
 - Fila offline: op feita durante um envio esperava o próximo gatilho; e ao reabrir o app a fila voltava fora de ordem (chave = uuid), então "apagar" podia ser aplicado antes de "adicionar" e o item reaparecia. Afetava hábitos também. Corrigido na fila (vale para todos os módulos).
+- Finalizar compra com o mesmo item repetido na lista ("arroz" e "Arroz") dava erro no banco.
 - Campos de carga/reps vazavam da tela no iPhone e cobriam o botão de registrar série.
 - "1,5 l" virava dois itens; "água" sem categoria (limite de palavra sem acento no JS).
 
@@ -54,7 +58,8 @@ Causas e correções: sem estado de carregamento (`loading.tsx`); funções na V
 - Financeiro: importação CSV/OFX, relatórios avançados (evolução patrimonial, projeções), simulações e recorrências financeiras automáticas (salário/aluguel) ainda não; despesas recorrentes podem ser lançadas como "previsto".
 - Lente global Tudo/Eu/Nós (D-011): por ora cada tela tem o seletor do espaço onde faz sentido.
 - Treino: fotos de evolução (Storage privado), substituições de exercício e RPE ainda não. Iniciar sessão precisa de internet (as séries não).
-- Etapas 5–8 (casa/despensa/alimentação, viagens/memórias, assistente IA) não iniciadas.
+- Nós: fotos nas memórias e lembrete push das datas especiais ainda não (aparecem no Hoje 7 dias antes). Metas ainda não puxam valores sozinhas do financeiro/treino.
+- Etapa 7 (assistente IA) depende de chave de IA (ver pendências).
 - Artes das figurinhas usam ícones Lucide (licença ISC) em composição própria; podem ganhar ilustrações exclusivas depois.
 - `npm audit` com avisos em dependências de desenvolvimento.
 
@@ -62,4 +67,4 @@ Causas e correções: sem estado de carregamento (`loading.tsx`); funções na V
 1. Jabez roda o [roteiro no iPhone](TESTES_IPHONE.md) e convida a Duda.
 2. Testar o treino no iPhone na academia (sinal ruim é o caso real do modo offline).
 3. Financeiro 2: recorrências (salário, aluguel, assinaturas), relatórios e importação CSV/OFX.
-4. Etapa 5: despensa ligada ao mercado, rotinas da casa, receitas e plano alimentar → lista.
+4. Etapa 7: assistente com ferramentas (precisa da chave de IA).
