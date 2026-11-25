@@ -16,8 +16,8 @@ Mudanças em relação à sequência original (justificativa em DECISIONS.md):
 | Vercel ligada ao GitHub | deploy de preview por PR, produção na `main` |
 | Login por e-mail + senha | login no iPhone instalado |
 | PWA instalável | abre standalone nos dois iPhones |
-| Web Push | push de teste chega com app fechado nos dois |
-| Supabase Cron → Vercel | push agendado chega; atraso medido |
+| Web Push | push de teste chega com app fechado nos dois — ✅ Jabez (25/11), Duda pendente |
+| Supabase Cron → Vercel | push agendado chega; atraso medido — ✅ (25/11) |
 
 ## Etapa 1 — Fundação
 Perfis, onboarding (nome, foto, fuso, meta de água), workspaces, convite (criar/aceitar/expirar/revogar), RLS + testes, design system base, navegação, Hoje (estrutura), configurações, infraestrutura de notificações (preferências, aparelhos, inbox), exportação e exclusão de conta.
