@@ -52,6 +52,20 @@ export async function POST(request: Request) {
       case "shop.remove":
         ({ error } = await supabase.from("shopping_items").delete().eq("id", op.item_id));
         break;
+      case "set.add": {
+        const { id, session_id, exercise_id, weight_g, reps, duration_s, done_at } = op;
+        ({ error } = await supabase
+          .from("workout_sets")
+          .upsert({ id, session_id, exercise_id, weight_g, reps, duration_s, done_at }, { onConflict: "id", ignoreDuplicates: true }));
+        break;
+      }
+      case "set.remove":
+        ({ error } = await supabase.from("workout_sets").delete().eq("id", op.target_id));
+        break;
+      case "workout.finish":
+        // só fecha uma vez: reenvio não muda o horário de fim
+        ({ error } = await supabase.from("workout_sessions").update({ finished_at: op.finished_at }).eq("id", op.session_id).is("finished_at", null));
+        break;
       case "task.toggle": {
         const patch = { completed_at: op.done ? new Date().toISOString() : null, completed_by: op.done ? userId : null };
         ({ error } = op.occurrence_id

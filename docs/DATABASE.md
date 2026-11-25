@@ -76,7 +76,7 @@ Ocorrências são materializadas numa janela móvel (hoje + 60 dias) pelo planne
 Por que razão de partidas: transferência, pagamento de fatura e estorno deixam de ser casos especiais (somam zero), e saldos viram `SUM` de partidas, auditáveis. Para duas pessoas, mantemos simples: sem plano de contas contábil completo, só contas reais + contas-técnicas de categoria.
 
 ### Treinos
-`exercises` (workspace_id null = biblioteca base), `workout_plans`, `workout_plan_days`, `workout_plan_exercises` (sets, reps_target, load_target, rest_s, substitutes uuid[]), `workout_sessions` (planned_for, started_at, ended_at, rpe), `workout_sets` (session_id, exercise_id, set_no, reps, load_g, rpe, done_at), `body_measurements`, `progress_photos` (sempre no workspace pessoal).
+Implementado (migration `20261125220000_training.sql`, ver D-030): `exercises` (user_id null = biblioteca base, só leitura), `workouts` (fichas), `workout_exercises` (sets, reps, rest_s), `workout_sessions` (logged_at = início, finished_at), `workout_sets` (weight_g, reps ou duration_s, done_at; id do aparelho), `body_logs` (weight_g, waist_mm, sleep_min, mood 1–5). Tudo do próprio usuário. Planejado: fotos de evolução, substituições, RPE.
 Cargas em gramas inteiras. PRs calculados por view.
 
 ### Saúde e hábitos

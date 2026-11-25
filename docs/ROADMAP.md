@@ -33,7 +33,7 @@ Contas, categorias, razão de partidas, receitas/despesas, recorrentes, cartões
 **Aceite:** testes de DATABASE.md §4 passando; critérios 6 e 7 da v1. **Fim da v1.**
 **Status (25/11):** núcleo implementado e testado (contas, cartões, parcelas, faturas, divisão, acerto, orçamento, compra → despesa). Faltam: recorrências financeiras, relatórios avançados, simulações, importação CSV/OFX.
 
-## Etapa 4 — Treinos e saúde
+## Etapa 4 — Treinos e saúde ✅ (exceto fotos de evolução)
 Biblioteca, fichas, execução offline, cronômetro por timestamp, histórico, PRs, evolução física com fotos privadas, registros de saúde.
 
 ## Etapa 5 — Casa e alimentação

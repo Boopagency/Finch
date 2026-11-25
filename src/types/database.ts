@@ -197,6 +197,42 @@ export type Database = {
         Update: { amount_ml?: number; created_at?: string; id?: string; local_date?: string; logged_at?: string; user_id?: string }
         Relationships: [{ foreignKeyName: "water_logs_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
       }
+      body_logs: {
+        Row: { id: string; user_id: string; logged_at: string; local_date: string; weight_g: number | null; waist_mm: number | null; sleep_min: number | null; mood: number | null; note: string | null }
+        Insert: { id?: string; user_id?: string; logged_at?: string; local_date?: string; weight_g?: number | null; waist_mm?: number | null; sleep_min?: number | null; mood?: number | null; note?: string | null }
+        Update: { id?: string; user_id?: string; logged_at?: string; local_date?: string; weight_g?: number | null; waist_mm?: number | null; sleep_min?: number | null; mood?: number | null; note?: string | null }
+        Relationships: [{ foreignKeyName: "body_logs_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      exercises: {
+        Row: { id: string; user_id: string | null; name: string; muscle: string; kind: string; created_at: string }
+        Insert: { id?: string; user_id?: string | null; name: string; muscle?: string; kind?: string; created_at?: string }
+        Update: { id?: string; user_id?: string | null; name?: string; muscle?: string; kind?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "exercises_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      workouts: {
+        Row: { id: string; user_id: string; name: string; position: number; archived_at: string | null; created_at: string }
+        Insert: { id?: string; user_id?: string; name: string; position?: number; archived_at?: string | null; created_at?: string }
+        Update: { id?: string; user_id?: string; name?: string; position?: number; archived_at?: string | null; created_at?: string }
+        Relationships: [{ foreignKeyName: "workouts_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      workout_exercises: {
+        Row: { id: string; workout_id: string; user_id: string; exercise_id: string; position: number; sets: number; reps: number; rest_s: number }
+        Insert: { id?: string; workout_id: string; user_id?: string; exercise_id: string; position?: number; sets?: number; reps?: number; rest_s?: number }
+        Update: { id?: string; workout_id?: string; user_id?: string; exercise_id?: string; position?: number; sets?: number; reps?: number; rest_s?: number }
+        Relationships: [{ foreignKeyName: "workout_exercises_workout_id_fkey"; columns: ["workout_id"]; isOneToOne: false; referencedRelation: "workouts"; referencedColumns: ["id"] }, { foreignKeyName: "workout_exercises_exercise_id_fkey"; columns: ["exercise_id"]; isOneToOne: false; referencedRelation: "exercises"; referencedColumns: ["id"] }, { foreignKeyName: "workout_exercises_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      workout_sessions: {
+        Row: { id: string; user_id: string; workout_id: string | null; name: string; logged_at: string; local_date: string; finished_at: string | null; created_at: string }
+        Insert: { id?: string; user_id?: string; workout_id?: string | null; name: string; logged_at?: string; local_date?: string; finished_at?: string | null; created_at?: string }
+        Update: { id?: string; user_id?: string; workout_id?: string | null; name?: string; logged_at?: string; local_date?: string; finished_at?: string | null; created_at?: string }
+        Relationships: [{ foreignKeyName: "workout_sessions_workout_id_fkey"; columns: ["workout_id"]; isOneToOne: false; referencedRelation: "workouts"; referencedColumns: ["id"] }, { foreignKeyName: "workout_sessions_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      workout_sets: {
+        Row: { id: string; session_id: string; user_id: string; exercise_id: string; weight_g: number | null; reps: number | null; duration_s: number | null; done_at: string }
+        Insert: { id?: string; session_id: string; user_id?: string; exercise_id: string; weight_g?: number | null; reps?: number | null; duration_s?: number | null; done_at?: string }
+        Update: { id?: string; session_id?: string; user_id?: string; exercise_id?: string; weight_g?: number | null; reps?: number | null; duration_s?: number | null; done_at?: string }
+        Relationships: [{ foreignKeyName: "workout_sets_session_id_fkey"; columns: ["session_id"]; isOneToOne: false; referencedRelation: "workout_sessions"; referencedColumns: ["id"] }, { foreignKeyName: "workout_sets_exercise_id_fkey"; columns: ["exercise_id"]; isOneToOne: false; referencedRelation: "exercises"; referencedColumns: ["id"] }, { foreignKeyName: "workout_sets_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
       workspace_members: {
         Row: { joined_at: string; reference_income_cents: number | null; role: string; user_id: string; workspace_id: string }
         Insert: { joined_at?: string; reference_income_cents?: number | null; role?: string; user_id: string; workspace_id: string }

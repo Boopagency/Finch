@@ -22,6 +22,18 @@ export const opSchema = z.discriminatedUnion("type", [
   z.object({ id: z.uuid(), type: z.literal("shop.check"), item_id: z.uuid(), checked: z.boolean() }),
   z.object({ id: z.uuid(), type: z.literal("shop.remove"), item_id: z.uuid() }),
   z.object({ id: z.uuid(), type: z.literal("task.toggle"), task_id: z.uuid(), occurrence_id: z.uuid().nullable(), done: z.boolean() }),
+  z.object({
+    id: z.uuid(),
+    type: z.literal("set.add"),
+    session_id: z.uuid(),
+    exercise_id: z.uuid(),
+    weight_g: z.number().int().min(0).max(1_000_000).nullable(),
+    reps: z.number().int().min(0).max(500).nullable(),
+    duration_s: z.number().int().min(0).max(86400).nullable(),
+    done_at: z.iso.datetime({ offset: true }),
+  }),
+  z.object({ id: z.uuid(), type: z.literal("set.remove"), target_id: z.uuid() }),
+  z.object({ id: z.uuid(), type: z.literal("workout.finish"), session_id: z.uuid(), finished_at: z.iso.datetime({ offset: true }) }),
 ]);
 export type Op = z.infer<typeof opSchema>;
 export const batchSchema = z.object({ ops: z.array(opSchema).min(1).max(100) });
@@ -73,4 +85,18 @@ export function mergeShopping(server: ShopItem[], ops: Op[], listId: string): Sh
     if (o.type === "shop.remove") items = items.filter((i) => i.id !== o.item_id);
   }
   return items;
+}
+
+export type WorkoutSet = { id: string; exercise_id: string; weight_g: number | null; reps: number | null; duration_s: number | null; done_at: string };
+
+/** Séries da sessão: servidor + fila (dedupe por id), menos as removidas. */
+export function mergeSets(server: WorkoutSet[], ops: Op[], sessionId: string): WorkoutSet[] {
+  const known = new Set(server.map((s) => s.id));
+  let sets = [...server];
+  for (const o of ops) {
+    if (o.type === "set.add" && o.session_id === sessionId && !known.has(o.id))
+      sets.push({ id: o.id, exercise_id: o.exercise_id, weight_g: o.weight_g, reps: o.reps, duration_s: o.duration_s, done_at: o.done_at });
+    if (o.type === "set.remove") sets = sets.filter((s) => s.id !== o.target_id);
+  }
+  return sets;
 }

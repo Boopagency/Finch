@@ -19,11 +19,6 @@ export type QuickData = {
   shoppingList: { id: string; name: string } | null;
 };
 
-// Atalhos que ligam quando cada módulo existir (ver docs/ROADMAP.md).
-const later = [
-  { label: "Treino", Icon: Dumbbell, stage: 4 },
-  { label: "Peso", Icon: Scale, stage: 4 },
-] as const;
 
 export function RegisterSheet({ open, onClose, data }: { open: boolean; onClose: () => void; data: QuickData }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -77,18 +72,14 @@ export function RegisterSheet({ open, onClose, data }: { open: boolean; onClose:
           <CalendarPlus className="size-5 text-lavender" /> Novo compromisso na agenda
         </Link>
 
-        <section aria-label="Em breve">
-          <h3 className="mb-2 px-1 text-[13px] font-semibold text-ink-3">Em breve</h3>
-          <ul className="grid grid-cols-4 gap-2">
-            {later.map(({ label, Icon, stage }) => (
-              <li key={label} className="flex flex-col items-center gap-1 rounded-[16px] bg-surface p-2 text-ink-3">
-                <Icon className="size-5" />
-                <span className="text-[11px] font-semibold">{label}</span>
-                <span className="text-[10px]">Etapa {stage}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <div className="grid grid-cols-2 gap-2">
+          <Link href="/vida/treino" onClick={onClose} className="press flex items-center gap-2 rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
+            <Dumbbell className="size-5" /> Treino
+          </Link>
+          <Link href="/vida/saude" onClick={onClose} className="press flex items-center gap-2 rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
+            <Scale className="size-5 text-cobalt" /> Peso e sono
+          </Link>
+        </div>
       </div>
       <style>{`@keyframes sheet{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}`}</style>
     </dialog>

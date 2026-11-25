@@ -40,6 +40,13 @@ Marque ✅ ou ❌ e me mande os ❌ com print.
 - [ ] Abrir o pacotinho de boas-vindas → 3 figurinhas → Colar no álbum.
 - [ ] Concluir tarefas/hábitos ao longo do dia e ver a barra de pontos subir.
 
+## Treino e Saúde (Vida → Treino / Saúde)
+- [ ] Nova ficha → nome → adicionar 3 exercícios → Salvar.
+- [ ] ▶ na ficha → registrar uma série (carga e reps) → aparece o descanso. Bloquear o iPhone 1 min e voltar: o tempo continua certo.
+- [ ] Modo avião → registrar mais uma série → tirar do modo avião → recarregar: a série continua lá.
+- [ ] Concluir treino → aparece no Histórico e em Recordes; a barra do álbum sobe.
+- [ ] Saúde → peso `82,5`, sono `7h30`, humor → Salvar → card de peso e lista atualizam.
+
 ## Finanças (Vida → Finanças)
 - [ ] Cadastrar conta corrente (com saldo de hoje) e o cartão (limite, fecha, vence).
 - [ ] `180 mercado crédito` → vai para o cartão, categoria Mercado.

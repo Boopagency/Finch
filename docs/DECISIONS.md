@@ -59,3 +59,7 @@ Formato: contexto → decisão → alternativas. `PENDENTE` = aguarda o Jabez.
 **D-028 Testes E2E contra produção com usuários isolados.** Sem Docker no ambiente, os testes de ponta a ponta usam o Supabase de produção com dois usuários `@finch.test` (RLS isola). Script para criar/apagar em `tests/e2e/README.md`.
 
 **D-029 Região das funções = região do banco.** `vercel.json` fixa `pdx1` (Oregon) porque o Supabase está em `us-west-2`. Cada tela faz várias consultas; a viagem servidor↔banco pesa mais que a do iPhone↔servidor. Se um dia o banco mudar para São Paulo, mudar para `gru1`.
+
+**D-030 Treino simples e offline primeiro.** Fichas são listas de exercícios (séries × reps × descanso), sem dias/ciclos por ora. Carga em gramas inteiras. Recorde = maior 1RM estimado (Epley, reps limitadas a 12); a primeira marca de um exercício não é chamada de recorde. Começar a sessão é online (server action); séries e conclusão vão pela fila offline (ids do aparelho). O descanso guarda o horário de término (`localStorage`), não um contador. Concluir treino com ao menos uma série dá 30 pontos (1 por dia).
+
+**D-031 A fila offline respeita a ordem de criação.** O IndexedDB devolve pela chave (uuid); ao carregar, a fila é ordenada por `created_at`, e um envio pedido durante outro roda logo em seguida.

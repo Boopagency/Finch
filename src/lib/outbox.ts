@@ -37,7 +37,8 @@ export const getServerEntries = () => EMPTY;
 
 export async function loadOutbox() {
   try {
-    entries = (await (await db()).getAll("outbox")) as Entry[];
+    // a chave é o id (uuid aleatório): sem ordenar, "remover" podia vir antes de "adicionar" ao recarregar
+    entries = ((await (await db()).getAll("outbox")) as Entry[]).sort((a, b) => a.created_at - b.created_at);
     emit();
   } catch {
     // IndexedDB indisponível (modo privado): segue só com memória
@@ -93,9 +94,21 @@ let flushing: Promise<boolean> | null = null;
 
 /** Envia o que estiver pendente. Retorna true se algo foi confirmado. */
 export function flush(): Promise<boolean> {
-  flushing ??= doFlush().finally(() => (flushing = null));
+  // pedido durante um envio: roda de novo ao terminar, senão a op nova esperaria o próximo gatilho
+  if (flushing) {
+    again = true;
+    return flushing;
+  }
+  flushing = doFlush().finally(() => {
+    flushing = null;
+    if (again) {
+      again = false;
+      void flush();
+    }
+  });
   return flushing;
 }
+let again = false;
 
 async function doFlush(): Promise<boolean> {
   const batch = entries.filter((e) => !e.acked).slice(0, 100);
