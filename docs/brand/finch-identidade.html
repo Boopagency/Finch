@@ -1,0 +1,455 @@
+<title>Direções do Finch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Geist:wght@400..700&family=Schibsted+Grotesk:wght@400..900&display=swap">
+<style>
+/* Layout: página de estudo — introdução, três direções (texto à esquerda, tela à direita), comparação e recomendação. */
+:root{
+  --bg:#FAFAF8; --fg:#121212; --muted:#6B6B66; --line:#E4E3DE; --surface:#FFFFFF; --chip:#F0EFEA; --accent:#121212;
+  --f-body:"Geist",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --f-a:"Bricolage Grotesque","Geist",ui-sans-serif,system-ui,sans-serif;
+  --f-b:"Archivo","Arial Narrow","Helvetica Neue",ui-sans-serif,sans-serif;
+  --f-c:"Schibsted Grotesk","Geist",ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121211;--fg:#F2F1EC;--muted:#9B9A94;--line:#2A2A27;--surface:#1A1A18;--chip:#252522;--accent:#F2F1EC;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121211;--fg:#F2F1EC;--muted:#9B9A94;--line:#2A2A27;--surface:#1A1A18;--chip:#252522;--accent:#F2F1EC;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 80px;display:flex;flex-direction:column;gap:72px}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.intro{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:end}
+.intro h1{font-family:var(--f-b);font-stretch:62%;font-weight:900;font-size:clamp(64px,13vw,148px);line-height:.86;text-transform:uppercase;letter-spacing:-.01em}
+.intro p{max-width:52ch;color:var(--muted)}
+.intro p strong{color:var(--fg);font-weight:600}
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.principles div{background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.principles b{font-size:15px}
+.principles span{color:var(--muted);font-size:14px}
+.dir{display:grid;grid-template-columns:minmax(0,1fr) 316px;gap:48px;align-items:start;padding-top:40px;border-top:1px solid var(--line)}
+.dir-info{display:flex;flex-direction:column;gap:28px;min-width:0}
+.dir-head{display:flex;flex-direction:column;gap:10px}
+.dir-head h2{font-size:clamp(40px,6vw,64px);line-height:.95;letter-spacing:-.02em}
+.dir-head p{max-width:60ch;color:var(--muted)}
+.lockups{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch}
+.lockup{border-radius:22px;padding:20px 24px;display:flex;align-items:center;gap:14px;min-height:96px}
+.lockup svg{width:52px;height:52px;flex:none}
+.lockup .wm{font-size:40px;line-height:1}
+.icons{display:flex;gap:14px;align-items:flex-end}
+.appicon{width:76px;height:76px;border-radius:18px;display:grid;place-items:center;overflow:hidden}
+.appicon svg{width:62%;height:62%}
+.appicon.sm{width:44px;height:44px;border-radius:11px}
+.appicon.xs{width:28px;height:28px;border-radius:7px}
+.label{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.sw{border-radius:14px;padding:10px;height:84px;display:flex;flex-direction:column;justify-content:flex-end;font-size:12px;line-height:1.25;border:1px solid rgba(0,0,0,.06)}
+.sw b{font-weight:600}
+.sw span{opacity:.75;font-variant-numeric:tabular-nums}
+.type{display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:20px;background:var(--surface);border:1px solid var(--line)}
+.type .big{font-size:56px;line-height:.95}
+.type small{color:var(--muted);font-size:13px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.two>div{min-width:0}
+.two h3{font-size:15px;margin-bottom:6px}
+.two ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:4px}
+.game{padding:18px 20px;border-radius:20px;background:var(--chip);display:flex;flex-direction:column;gap:6px}
+.game b{font-size:15px}
+.game p{color:var(--muted);font-size:14px;max-width:62ch}
+.reco{display:flex;flex-direction:column;gap:20px;padding-top:40px;border-top:1px solid var(--line)}
+.reco h2{font-family:var(--f-b);font-stretch:62%;font-weight:900;font-size:clamp(48px,9vw,96px);line-height:.9;text-transform:uppercase}
+.reco p{max-width:70ch}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.note{padding:18px 20px;border-radius:16px;border:1px dashed var(--muted);color:var(--muted);font-size:14px;max-width:80ch}
+.note b{color:var(--fg)}
+
+/* ---------- Telefone (paleta própria por direção, independente do tema da página) ---------- */
+.phone{width:316px;max-width:100%;height:640px;border-radius:48px;border:9px solid #0E0E0E;background:#0E0E0E;position:relative;overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,.35);position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px)}
+.screen{position:absolute;inset:0;border-radius:39px;overflow:hidden;display:flex;flex-direction:column}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:14px 24px 0;font-size:13px;font-weight:600;height:40px;flex:none}
+.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:92px;height:26px;border-radius:20px;background:#0E0E0E}
+.tabbar{position:absolute;left:16px;right:16px;bottom:16px;height:58px;border-radius:30px;display:flex;align-items:center;justify-content:space-around;padding:0 8px}
+.tab{width:40px;height:40px;border-radius:50%;display:grid;place-items:center}
+.tab svg{width:20px;height:20px}
+.tab.on{width:52px;height:42px;border-radius:22px}
+
+/* A — Ninho */
+.A .screen{background:#EDEDE6;background-image:linear-gradient(#DCDCD2 1px,transparent 1px),linear-gradient(90deg,#DCDCD2 1px,transparent 1px);background-size:22px 22px;color:#151515;font-family:var(--f-a)}
+.A .hdr{padding:10px 20px 0;display:flex;justify-content:space-between;align-items:flex-start}
+.A h4{font-size:44px;font-weight:800;letter-spacing:-.03em;margin:0;line-height:1}
+.A .date{text-align:right;font-size:13px;color:#6E6E66;line-height:1.3;padding-top:6px}
+.A .date b{color:#151515;font-weight:600}
+.A .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 16px 0}
+.folder{position:relative;border-radius:6px 16px 16px 16px;padding:38px 12px 12px;min-height:118px;display:flex;flex-direction:column;justify-content:flex-end}
+.folder::before{content:"";position:absolute;left:0;top:-9px;width:52%;height:16px;border-radius:8px 8px 0 0;background:inherit}
+.folder .peek{position:absolute;top:-4px;right:12px;width:56px;height:40px;border-radius:6px;transform:rotate(6deg);box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.folder b{font-size:15px;font-weight:700;line-height:1.15}
+.folder span{font-size:11px;opacity:.75;font-family:var(--f-body)}
+
+/* B — Alpiste */
+.B .screen{background:#FFFFFF;color:#0B0B0B;font-family:var(--f-body)}
+.B .top{display:flex;justify-content:space-between;align-items:center;padding:8px 16px 0}
+.pill{height:30px;border-radius:15px;background:#F1F1EE;display:flex;align-items:center;padding:0 12px;gap:6px;font-size:12px;font-weight:600}
+.seg{display:flex;background:#F1F1EE;border-radius:15px;padding:3px;gap:2px}
+.seg span{font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px;color:#7A7A75}
+.seg span.on{background:#0B0B0B;color:#fff}
+.B h4{font-family:var(--f-b);font-stretch:62%;font-weight:900;font-size:76px;line-height:.85;text-align:center;margin:18px 0 2px;letter-spacing:-.005em}
+.B .sub{text-align:center;font-size:12px;color:#8A8A85}
+.B .bento{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:16px 12px 0}
+.tile{background:#F3F3F0;border-radius:18px;padding:12px;min-height:84px;display:flex;flex-direction:column;justify-content:space-between}
+.tile small{font-size:11px;color:#7A7A75}
+.tile .n{font-family:var(--f-b);font-stretch:75%;font-weight:800;font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.tile .n i{font-style:normal;font-size:15px;color:#7A7A75;font-weight:600}
+.bar{height:6px;border-radius:3px;background:#E2E2DD;overflow:hidden}
+.bar>div{height:100%;border-radius:3px}
+.jar{grid-column:1/-1;position:relative;height:148px;overflow:hidden;background:#F3F3F0;border-radius:18px;padding:12px}
+.jar .seeds{position:absolute;left:0;right:0;bottom:0;height:100%}
+.seed{position:absolute;width:20px;height:28px;border-radius:50% 50% 50% 50% / 60% 60% 40% 40%}
+.jar .cap{position:relative;z-index:1;display:flex;justify-content:space-between;font-size:11px;color:#7A7A75}
+.jar .cap b{font-family:var(--f-b);font-stretch:62%;font-weight:900;font-size:22px;color:#0B0B0B;text-transform:uppercase;display:block;line-height:1}
+
+/* C — Canto */
+.C .screen{background:#111110;color:#F4F3EF;font-family:var(--f-c)}
+.C .hdr{padding:12px 20px 0;display:flex;justify-content:space-between;align-items:flex-start}
+.C h4{font-size:40px;font-weight:800;letter-spacing:-.035em;margin:0;line-height:1}
+.C .date{text-align:right;font-size:13px;line-height:1.3;color:#8C8B85}
+.C .date b{color:#F4F3EF;font-weight:600}
+.C .date b::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#FF6A5C;margin-right:6px;vertical-align:middle}
+.C .story{padding:22px 20px 0;font-size:21px;line-height:1.32;font-weight:600;color:#6F6E69;letter-spacing:-.015em}
+.C .story em{font-style:normal;color:#F4F3EF}
+.st{display:inline-grid;place-items:center;width:30px;height:24px;border-radius:8px;vertical-align:-4px;margin:0 2px;transform:rotate(-6deg)}
+.st svg{width:15px;height:15px}
+.C .sheet{position:absolute;left:0;right:0;bottom:0;height:262px;background:#F6F5F1;border-radius:28px 28px 0 0;color:#151515;padding:18px 14px 0;display:flex;flex-direction:column;gap:8px}
+.C .sheet .h{display:flex;justify-content:space-between;font-weight:700;font-size:15px;padding:0 6px}
+.C .sheet .h span{font-weight:500;font-size:12px;color:#7D7C77}
+.bubble{border-radius:22px;padding:10px 14px;font-size:12.5px;line-height:1.3;position:relative}
+.bubble b{display:block;font-size:13px}
+.bubble::after{content:"";position:absolute;bottom:-6px;width:14px;height:14px;background:inherit;transform:rotate(45deg);border-radius:2px}
+.bubble.l::after{left:22px}.bubble.r::after{right:22px}
+
+@media (max-width:860px){
+  .intro{grid-template-columns:1fr;gap:20px}
+  .principles{grid-template-columns:1fr 1fr}
+  .dir{grid-template-columns:1fr;gap:32px}
+  .phone{position:relative;top:0;margin:0 auto}
+}
+@media (max-width:520px){
+  .principles{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr}
+  .lockup .wm{font-size:32px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .seed{animation:drop .9s cubic-bezier(.3,1.4,.5,1) both}
+  @keyframes drop{from{transform:translateY(-120px) rotate(var(--r))}to{transform:translateY(0) rotate(var(--r))}}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c3.5 4.2 6 7.6 6 10.6A6 6 0 0 1 6 13.6C6 10.6 8.5 7.2 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 10h16M9 3v4M15 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="4" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6l1-7z" fill="currentColor"/></symbol>
+    <symbol id="i-dumb" viewBox="0 0 24 24"><path d="M3 10v4M6 7v10M18 7v10M21 10v4M6 12h12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h3l2.2 11h10l2-8H7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="9" cy="19" r="1.6" fill="currentColor"/><circle cx="17" cy="19" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-bill" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8h6M9 12h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <!-- Marcas -->
+    <symbol id="m-ninho" viewBox="0 0 64 64">
+      <path d="M17 35 L4 45 L20 42 Z" fill="#151515"/>
+      <circle cx="31" cy="30" r="16" fill="#FFC21A"/>
+      <path d="M45 25 L56 30 L45 35 Z" fill="#FF8A1F"/>
+      <circle cx="38" cy="25" r="2.6" fill="#151515"/>
+      <path d="M8 47 Q32 66 56 47" fill="none" stroke="#151515" stroke-width="6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="m-semente" viewBox="0 0 64 64">
+      <path d="M30 6 C44 15 50 31 47 44 C44 56 22 59 17 47 C12 35 18 17 30 6 Z" fill="currentColor"/>
+      <path d="M44 22 L55 25 L45 30 Z" fill="currentColor"/>
+      <circle cx="35" cy="23" r="3" fill="var(--eye,#fff)"/>
+    </symbol>
+    <symbol id="m-canto" viewBox="0 0 64 64">
+      <circle cx="29" cy="32" r="21" fill="#FF6A5C"/>
+      <path d="M47 25 L61 32 L47 39 Z" fill="#FF6A5C"/>
+      <path d="M12 46 L6 58 L20 51 Z" fill="#FF6A5C"/>
+      <circle cx="36" cy="26" r="3.4" fill="#111110"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="wrap">
+
+<section class="intro">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Finch · estudo de identidade · v0</span>
+    <h1>Três jeitos de ser Finch</h1>
+  </div>
+  <p>As duas referências têm algo em comum: <strong>tipografia gigante, fundo quieto e cor saturada usada como conteúdo</strong>, nunca como enfeite. Cada direção abaixo leva esse princípio para um lado diferente, sempre com o finch (o passarinho) como fio da marca. As telas mostram o <strong>Hoje</strong> com dados de exemplo.</p>
+</section>
+
+<section>
+  <div class="label">O que as referências ensinam</div>
+  <div class="principles">
+    <div><b>Um título que domina</b><span>“JAMIE”, “MY JAR”, “Today”: uma palavra enorme por tela, o resto em corpo pequeno e cinza.</span></div>
+    <div><b>Fundo neutro, cor no conteúdo</b><span>Branco, papel quadriculado ou preto. A cor só aparece em pastas, balões e pontos que significam algo.</span></div>
+    <div><b>Formas com significado</b><span>Pastas para coleções, balões para conversas, bolinhas para sentimentos. A forma já explica o dado.</span></div>
+    <div><b>Objetos e figurinhas</b><span>Recortes e personagens 3D dão calor sem gradiente. Usados como prêmio, não em toda tela.</span></div>
+    <div><b>Navegação flutuante</b><span>Barra em pílula, com o item ativo em preto. Pouco cromo, muito conteúdo.</span></div>
+    <div><b>Dados que viram coleção</b><span>O pote de sentimentos transforma registro em algo visível e acumulável. É a gamificação mais elegante das duas.</span></div>
+  </div>
+</section>
+
+<!-- ================= A ================= -->
+<section class="dir">
+  <div class="dir-info">
+    <div class="dir-head">
+      <span class="eyebrow">Direção A</span>
+      <h2 style="font-family:var(--f-a);font-weight:800">Ninho</h2>
+      <p>O caderno quadriculado da casa. Cada área da vida é uma pasta colorida com coisas “saindo” dela. Quente, tátil, organizada. Vem da referência dos folders e do fundo em grade.</p>
+    </div>
+    <div class="lockups">
+      <div class="lockup" style="background:#EDEDE6;color:#151515"><svg><use href="#m-ninho"/></svg><span class="wm" style="font-family:var(--f-a);font-weight:800;letter-spacing:-.04em">finch</span></div>
+      <div class="lockup" style="background:#151515;color:#EDEDE6"><svg><use href="#m-ninho"/></svg><span class="wm" style="font-family:var(--f-a);font-weight:800;letter-spacing:-.04em">finch</span></div>
+    </div>
+    <div>
+      <div class="label">Ícone do app</div>
+      <div class="icons">
+        <div class="appicon" style="background:#2F7CF6"><svg><use href="#m-ninho"/></svg></div>
+        <div class="appicon sm" style="background:#2F7CF6"><svg><use href="#m-ninho"/></svg></div>
+        <div class="appicon xs" style="background:#2F7CF6"><svg><use href="#m-ninho"/></svg></div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Paleta: cada área tem sua cor</div>
+      <div class="swatches">
+        <div class="sw" style="background:#EDEDE6;color:#151515"><b>Papel</b><span>#EDEDE6</span></div>
+        <div class="sw" style="background:#151515;color:#fff"><b>Nanquim</b><span>#151515</span></div>
+        <div class="sw" style="background:#FFC21A;color:#151515"><b>Gema · hábitos</b><span>#FFC21A</span></div>
+        <div class="sw" style="background:#2F7CF6;color:#fff"><b>Céu · agenda</b><span>#2F7CF6</span></div>
+        <div class="sw" style="background:#FF8A1F;color:#151515"><b>Laranja · casa</b><span>#FF8A1F</span></div>
+        <div class="sw" style="background:#3DBE6B;color:#151515"><b>Folha · saúde</b><span>#3DBE6B</span></div>
+        <div class="sw" style="background:#F0554A;color:#fff"><b>Tomate · finanças</b><span>#F0554A</span></div>
+        <div class="sw" style="background:#B9A6F0;color:#151515"><b>Lilás · nós</b><span>#B9A6F0</span></div>
+      </div>
+    </div>
+    <div class="type" style="font-family:var(--f-a)">
+      <span class="big" style="font-weight:800;letter-spacing:-.04em">Lavar roupa</span>
+      <span style="font-family:var(--f-body);font-size:15px">quarta · com a Duda · 25 XP. Texto corrido em Geist.</span>
+      <small>Bricolage Grotesque 800 (títulos) · Geist 400–600 (texto e números)</small>
+    </div>
+    <div class="game"><b>Gamificação: o ninho do casal</b><p>Cada semana o ninho ganha gravetos, folhas e penas vindos das áreas onde vocês agiram. Conquistas viram objetos colecionáveis que ficam “dentro” das pastas. Bonito, mas exige ilustração própria de muitos objetos.</p></div>
+    <div class="two">
+      <div><h3>Funciona bem</h3><ul><li>Muito acolhedor, combina com “casa”</li><li>Cor por área ajuda a navegar</li><li>Pastas resolvem as listas e coleções</li></ul></div>
+      <div><h3>Cuidados</h3><ul><li>Grade de fundo cansa em telas densas (finanças)</li><li>Depende de muitas ilustrações para não ficar vazio</li><li>Dark mode perde o charme do papel</li></ul></div>
+    </div>
+  </div>
+
+  <div class="phone A" aria-label="Tela Hoje na direção Ninho">
+    <div class="screen">
+      <div class="island"></div>
+      <div class="sb"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="hdr"><h4>Hoje</h4><div class="date"><b>qua, 25 nov</b><br>3 coisas pedem atenção</div></div>
+      <div class="grid">
+        <div class="folder" style="background:#F0554A;color:#fff"><div class="peek" style="background:#fff"></div><b>Luz vence amanhã</b><span>conta da casa · R$ 184</span></div>
+        <div class="folder" style="background:#2F7CF6;color:#fff"><div class="peek" style="background:#B9A6F0"></div><b>Água<br>1,2 de 2,5 L</b><span>falta pouco para metade</span></div>
+        <div class="folder" style="background:#FF8A1F;color:#151515"><div class="peek" style="background:#FFC21A"></div><b>Lavar roupa</b><span>quarta · você · 25 XP</span></div>
+        <div class="folder" style="background:#3DBE6B;color:#151515"><div class="peek" style="background:#EDEDE6"></div><b>Treino A<br>às 19h</b><span>superiores · 55 min</span></div>
+        <div class="folder" style="background:#B9A6F0;color:#151515;grid-column:1/-1;min-height:84px"><div class="peek" style="background:#2F7CF6"></div><b>Jantar com a Duda · sexta</b><span>2 ideias salvas na lista de lugares</span></div>
+      </div>
+      <div class="tabbar" style="background:#fff;box-shadow:0 8px 20px rgba(0,0,0,.08)">
+        <div class="tab on" style="background:#151515;color:#fff"><svg><use href="#i-sun"/></svg></div>
+        <div class="tab" style="color:#151515"><svg><use href="#i-cal"/></svg></div>
+        <div class="tab" style="background:#FFC21A;color:#151515"><svg><use href="#i-plus"/></svg></div>
+        <div class="tab" style="color:#151515"><svg><use href="#i-grid"/></svg></div>
+        <div class="tab"><svg style="width:26px;height:26px"><use href="#m-ninho"/></svg></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= B ================= -->
+<section class="dir">
+  <div class="dir-info">
+    <div class="dir-head">
+      <span class="eyebrow">Direção B</span>
+      <h2 style="font-family:var(--f-b);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(52px,8vw,84px);letter-spacing:0">Alpiste</h2>
+      <p>Branco limpo, título condensado enorme e um pote que se enche de sementes. Finch come alpiste: cada coisa que vocês fazem vira uma semente colorida no pote do casal. Vem da referência “MY JAR” e do bento de cartões cinza.</p>
+    </div>
+    <div class="lockups">
+      <div class="lockup" style="background:#FFFFFF;color:#0B0B0B;border:1px solid #E6E6E1;--eye:#fff"><svg style="color:#0B0B0B"><use href="#m-semente"/></svg><span class="wm" style="font-family:var(--f-b);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:48px">Finch</span></div>
+      <div class="lockup" style="background:#0B0B0B;color:#fff;--eye:#0B0B0B"><svg style="color:#36C46B"><use href="#m-semente"/></svg><span class="wm" style="font-family:var(--f-b);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:48px">Finch</span></div>
+    </div>
+    <div>
+      <div class="label">Ícone do app</div>
+      <div class="icons">
+        <div class="appicon" style="background:#36C46B;--eye:#36C46B"><svg style="color:#0B0B0B"><use href="#m-semente"/></svg></div>
+        <div class="appicon sm" style="background:#36C46B;--eye:#36C46B"><svg style="color:#0B0B0B"><use href="#m-semente"/></svg></div>
+        <div class="appicon xs" style="background:#36C46B;--eye:#36C46B"><svg style="color:#0B0B0B"><use href="#m-semente"/></svg></div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Paleta: neutros fazem a estrutura, sementes dão cor</div>
+      <div class="swatches">
+        <div class="sw" style="background:#FFFFFF;color:#0B0B0B"><b>Branco</b><span>#FFFFFF</span></div>
+        <div class="sw" style="background:#F3F3F0;color:#0B0B0B"><b>Casca</b><span>#F3F3F0</span></div>
+        <div class="sw" style="background:#0B0B0B;color:#fff"><b>Preto</b><span>#0B0B0B</span></div>
+        <div class="sw" style="background:#36C46B;color:#0B0B0B"><b>Broto · saúde</b><span>#36C46B</span></div>
+        <div class="sw" style="background:#6FB6E8;color:#0B0B0B"><b>Água · rotina</b><span>#6FB6E8</span></div>
+        <div class="sw" style="background:#F5A68C;color:#0B0B0B"><b>Pêssego · casa</b><span>#F5A68C</span></div>
+        <div class="sw" style="background:#FFB020;color:#0B0B0B"><b>Milho · dinheiro</b><span>#FFB020</span></div>
+        <div class="sw" style="background:#3B2A26;color:#fff"><b>Cacau · treino</b><span>#3B2A26</span></div>
+        <div class="sw" style="background:#E8352B;color:#fff"><b>Pimenta · nós</b><span>#E8352B</span></div>
+      </div>
+    </div>
+    <div class="type">
+      <span class="big" style="font-family:var(--f-b);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:72px;line-height:.85">Nosso pote</span>
+      <span style="font-size:15px">31 sementes esta semana. Texto e números em Geist, com algarismos tabulares.</span>
+      <small>Archivo Condensed 900 em caixa alta (só títulos de tela) · Geist 400–600</small>
+    </div>
+    <div class="game"><b>Gamificação: o pote de sementes</b><p>Toda ação concluída solta uma semente da cor da área no pote semanal do casal. No domingo o pote “vira” e vocês veem o retrato da semana: muita cor de casa, pouca de saúde. É colaborativo por natureza, não tem placar entre vocês e não pune ausência. XP e nível ficam por baixo, como contagem.</p></div>
+    <div class="two">
+      <div><h3>Funciona bem</h3><ul><li>Metáfora perfeita para o nome (finch come semente)</li><li>Branco aguenta telas densas, como finanças e treino</li><li>Dark mode fácil e bonito</li><li>Pouca ilustração necessária</li></ul></div>
+      <div><h3>Cuidados</h3><ul><li>Condensada só em títulos, senão grita</li><li>Pode ficar fria sem as sementes e microinterações</li><li>Física do pote precisa ser leve no iPhone</li></ul></div>
+    </div>
+  </div>
+
+  <div class="phone B" aria-label="Tela Hoje na direção Alpiste">
+    <div class="screen">
+      <div class="island"></div>
+      <div class="sb"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="top"><div class="seg"><span class="on">Tudo</span><span>Eu</span><span>Nós</span></div><div class="pill">qua, 25 nov</div></div>
+      <h4>HOJE</h4>
+      <div class="sub">3 coisas pedem atenção</div>
+      <div class="bento">
+        <div class="tile"><small>água</small><div class="n">1,2<i> / 2,5 L</i></div><div class="bar"><div style="width:48%;background:#6FB6E8"></div></div></div>
+        <div class="tile"><small>treino A · superiores</small><div class="n">19:00</div><small>55 min · 6 exercícios</small></div>
+        <div class="tile" style="background:#FFB020"><small style="color:#0B0B0B">vence amanhã</small><div class="n" style="font-size:24px">Luz</div><small style="color:#0B0B0B">conta da casa</small></div>
+        <div class="tile" style="background:#0B0B0B;color:#fff"><small style="color:#A9A9A4">tarefas</small><div class="n">3</div><small style="color:#A9A9A4">1 é da Duda</small></div>
+        <div class="jar" id="jar"><div class="cap"><div><b>Nosso pote</b>31 sementes</div><span>nov 23–29</span></div><div class="seeds" id="seeds"></div></div>
+      </div>
+      <div class="tabbar" style="background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.12)">
+        <div class="tab on" style="background:#0B0B0B;color:#fff"><svg><use href="#i-sun"/></svg></div>
+        <div class="tab" style="color:#0B0B0B"><svg><use href="#i-cal"/></svg></div>
+        <div class="tab" style="background:#36C46B;color:#0B0B0B"><svg><use href="#i-plus"/></svg></div>
+        <div class="tab" style="color:#0B0B0B"><svg><use href="#i-grid"/></svg></div>
+        <div class="tab" style="--eye:#fff"><svg style="width:24px;height:24px;color:#0B0B0B"><use href="#m-semente"/></svg></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= C ================= -->
+<section class="dir">
+  <div class="dir-info">
+    <div class="dir-head">
+      <span class="eyebrow">Direção C</span>
+      <h2 style="font-family:var(--f-c);font-weight:800;letter-spacing:-.04em">Canto</h2>
+      <p>O finch canta: o app fala com vocês. O dia aparece como uma frase, com figurinhas no meio do texto, e as coisas do casal chegam em balões coloridos. Vem da referência “Today” e “Chats”. A IA é a voz da marca.</p>
+    </div>
+    <div class="lockups">
+      <div class="lockup" style="background:#111110;color:#F4F3EF"><svg><use href="#m-canto"/></svg><span class="wm" style="font-family:var(--f-c);font-weight:800;letter-spacing:-.05em">Finch</span></div>
+      <div class="lockup" style="background:#F6F5F1;color:#111110"><svg><use href="#m-canto"/></svg><span class="wm" style="font-family:var(--f-c);font-weight:800;letter-spacing:-.05em">Finch</span></div>
+    </div>
+    <div>
+      <div class="label">Ícone do app</div>
+      <div class="icons">
+        <div class="appicon" style="background:#111110"><svg><use href="#m-canto"/></svg></div>
+        <div class="appicon sm" style="background:#111110"><svg><use href="#m-canto"/></svg></div>
+        <div class="appicon xs" style="background:#111110"><svg><use href="#m-canto"/></svg></div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Paleta: balões vivos sobre tinta e papel</div>
+      <div class="swatches">
+        <div class="sw" style="background:#111110;color:#F4F3EF"><b>Tinta</b><span>#111110</span></div>
+        <div class="sw" style="background:#F6F5F1;color:#111110"><b>Papel</b><span>#F6F5F1</span></div>
+        <div class="sw" style="background:#FF6A5C;color:#111110"><b>Coral · marca</b><span>#FF6A5C</span></div>
+        <div class="sw" style="background:#FFD02E;color:#111110"><b>Girassol</b><span>#FFD02E</span></div>
+        <div class="sw" style="background:#FF9A1F;color:#111110"><b>Tangerina</b><span>#FF9A1F</span></div>
+        <div class="sw" style="background:#3A6BF5;color:#fff"><b>Cobalto</b><span>#3A6BF5</span></div>
+        <div class="sw" style="background:#C3AEF5;color:#111110"><b>Lavanda</b><span>#C3AEF5</span></div>
+        <div class="sw" style="background:#9ADB3C;color:#111110"><b>Rã</b><span>#9ADB3C</span></div>
+      </div>
+    </div>
+    <div class="type" style="font-family:var(--f-c)">
+      <span class="big" style="font-weight:800;letter-spacing:-.045em;font-size:48px">Hoje você vai <span style="color:var(--muted)">treinar às 19h.</span></span>
+      <span style="font-size:15px">Frases inteiras em vez de painéis. Corpo em Geist.</span>
+      <small>Schibsted Grotesk 800 (títulos e frases) · Geist 400–600</small>
+    </div>
+    <div class="game"><b>Gamificação: álbum de figurinhas</b><p>Conquistas viram figurinhas recortadas que aparecem dentro das frases do Hoje e num álbum do casal. Sequências viram “músicas” que o finch aprende. Charmoso, mas é o que mais depende de arte própria e de boa escrita.</p></div>
+    <div class="two">
+      <div><h3>Funciona bem</h3><ul><li>Hoje que se lê em 3 segundos</li><li>Assistente IA com personalidade natural</li><li>Balões ótimos para coisas do casal</li></ul></div>
+      <div><h3>Cuidados</h3><ul><li>Frase quebra com muitos itens; precisa de regra de corte</li><li>Figurinhas pedem arte com licença própria</li><li>Escuro no Hoje e claro no resto exige muito cuidado</li></ul></div>
+    </div>
+  </div>
+
+  <div class="phone C" aria-label="Tela Hoje na direção Canto">
+    <div class="screen">
+      <div class="island"></div>
+      <div class="sb"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="hdr"><h4>Hoje</h4><div class="date"><b>25 nov</b><br>quarta</div></div>
+      <p class="story">Oi, Jabez! Hoje você <em>treina às 19h</em> <span class="st" style="background:#9ADB3C;color:#111110"><svg><use href="#i-dumb"/></svg></span>, a <em>conta de luz</em> <span class="st" style="background:#FFD02E;color:#111110;transform:rotate(5deg)"><svg><use href="#i-bill"/></svg></span> vence amanhã e a Duda pediu <em>ovos e leite</em> <span class="st" style="background:#3A6BF5;color:#fff"><svg><use href="#i-cart"/></svg></span>.</p>
+      <div class="sheet">
+        <div class="h">Do casal <span>3 novidades</span></div>
+        <div class="bubble l" style="background:#FF6A5C"><b>Duda · 8:12</b>Adicionou ovos e leite à lista do mercado.</div>
+        <div class="bubble r" style="background:#FFD02E"><b>Casa · hoje</b>Lavar roupa é sua vez. Vale 25 XP.</div>
+        <div class="bubble l" style="background:#C3AEF5"><b>Sexta</b>Jantar juntos. 2 lugares salvos.</div>
+      </div>
+      <div class="tabbar" style="background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.18)">
+        <div class="tab on" style="background:#111110;color:#fff"><svg><use href="#i-sun"/></svg></div>
+        <div class="tab" style="color:#111110"><svg><use href="#i-cal"/></svg></div>
+        <div class="tab" style="background:#FF6A5C;color:#111110"><svg><use href="#i-plus"/></svg></div>
+        <div class="tab" style="color:#111110"><svg><use href="#i-grid"/></svg></div>
+        <div class="tab"><svg style="width:26px;height:26px"><use href="#m-canto"/></svg></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Recomendação ================= -->
+<section class="reco">
+  <span class="eyebrow">Recomendação</span>
+  <h2>B como base, com a frase de C</h2>
+  <p><b>Alpiste</b> é a direção que melhor aguenta o produto real: finanças, treino e agenda são telas densas e pedem fundo limpo. O pote de sementes resolve a gamificação colaborativa com uma única metáfora, ligada ao nome, sem placar entre vocês. Da direção <b>Canto</b> eu traria a frase-resumo no topo do Hoje (gerada por regras, sem custo de IA) e os balões para novidades do casal. Da direção <b>Ninho</b>, só a ideia de cor fixa por área da vida.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Critério</th><th>A · Ninho</th><th>B · Alpiste</th><th>C · Canto</th></tr></thead>
+      <tbody>
+        <tr><td>Telas densas (finanças, treino)</td><td>Média</td><td><span class="dot" style="background:#36C46B"></span>Alta</td><td>Média</td></tr>
+        <tr><td>Personalidade</td><td><span class="dot" style="background:#36C46B"></span>Alta</td><td>Média-alta</td><td><span class="dot" style="background:#36C46B"></span>Alta</td></tr>
+        <tr><td>Gamificação do casal</td><td>Ninho que cresce</td><td><span class="dot" style="background:#36C46B"></span>Pote de sementes</td><td>Álbum de figurinhas</td></tr>
+        <tr><td>Arte própria necessária</td><td>Muita</td><td><span class="dot" style="background:#36C46B"></span>Pouca</td><td>Muita</td></tr>
+        <tr><td>Dark mode</td><td>Difícil</td><td><span class="dot" style="background:#36C46B"></span>Natural</td><td>Já nasce escuro</td></tr>
+        <tr><td>Custo de manter</td><td>Médio</td><td><span class="dot" style="background:#36C46B"></span>Baixo</td><td>Médio</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note"><b>Sobre o nome.</b> Já existe um app conhecido chamado “Finch: Self-Care Pet”, também com um passarinho e gamificação de autocuidado. Para uso pessoal não há problema, mas evitei de propósito a mecânica de “bichinho que você cuida”. Aqui o finch é marca e voz, não um pet. Se um dia o produto for público, vale revisar nome e marca.</p>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var host=document.getElementById('seeds'); if(!host) return;
+  var colors=['#36C46B','#6FB6E8','#F5A68C','#FFB020','#3B2A26','#E8352B','#36C46B','#6FB6E8','#F5A68C','#36C46B'];
+  var seed=7; function rnd(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646;}
+  var W=272, cols=13, h=new Array(cols).fill(0);
+  for(var i=0;i<31;i++){
+    var c=Math.floor(rnd()*cols); var min=Math.min.apply(null,h);
+    if(h[c]>min+1){c=h.indexOf(min);}
+    var el=document.createElement('div'); el.className='seed';
+    var r=(rnd()*90-45).toFixed(0)+'deg';
+    el.style.setProperty('--r',r); el.style.transform='rotate('+r+')';
+    el.style.left=(c*(W/cols)+rnd()*4)+'px'; el.style.bottom=(h[c]*19-4)+'px';
+    el.style.background=colors[Math.floor(rnd()*colors.length)];
+    el.style.animationDelay=(i*40)+'ms';
+    host.appendChild(el); h[c]++;
+  }
+})();
+</script>

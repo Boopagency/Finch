@@ -1,0 +1,18 @@
+# Finch — instruções para o Claude Code
+
+App PWA pessoal e do casal (Jabez e Duda). Interface em pt-BR, BRL, fuso por usuário.
+
+Leia antes de mudar algo: `docs/PROGRESS.md` (estado real), `docs/ROADMAP.md` (etapa atual) e o doc do domínio (`docs/DATABASE.md`, `docs/NOTIFICATIONS.md`, `docs/AI_ASSISTANT.md`, `docs/DESIGN_SYSTEM.md`). Decisões em `docs/DECISIONS.md`.
+
+Regras inegociáveis:
+- Stack: Next.js App Router + TS strict + Tailwind + Supabase + Vercel + provedor de IA. Sem Firebase, Expo, React Native.
+- RLS em toda tabela com dado de usuário; nunca desligar RLS ou usar service role para contornar policy. Migration nova = tabela + índices + RLS + teste de RLS.
+- Dinheiro em centavos inteiros (`bigint`), razão de partidas, operações compostas em função SQL transacional com idempotência.
+- Dados pessoais são privados por padrão; compartilhar é explícito (workspace "Nós").
+- Segredos só no servidor. Nunca expor service role, VAPID privada, chave de IA, CRON_SECRET.
+- Payload de push sem dados financeiros/saúde por padrão.
+- A IA nunca recebe user_id do modelo; ações financeiras/destrutivas pedem confirmação.
+- Cores, fontes, raios e espaçamentos só via tokens (`docs/DESIGN_SYSTEM.md`).
+- Sem dados mockados silenciosos; demo é explicitamente marcada.
+- Não declarar teste que não rodou. Atualizar `docs/PROGRESS.md` ao fim de cada entrega.
+- Lógica de negócio em `src/features/<domínio>/server`, nunca em componentes.
