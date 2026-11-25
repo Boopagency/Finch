@@ -39,3 +39,5 @@ Formato: contexto → decisão → alternativas. `PENDENTE` = aguarda o Jabez.
 **D-018 Projeto Supabase.** Usado o projeto vazio criado em 25/11 (`rdyaddlrutewleifcety`, us-west-2). Migrations aplicadas via MCP a partir dos arquivos versionados em `supabase/migrations`.
 
 **D-019 Testes de RLS em Postgres puro.** Docker não está disponível no ambiente do agente; `scripts/test-db.sh` sobe um Postgres efêmero com um stub mínimo do Supabase (`auth.uid()`, papéis) e roda `supabase/tests/*.test.sql`. Roda também no CI.
+
+**D-020 Grants explícitos por tabela.** O projeto Supabase (criado em nov/2026) não concede acesso automático da API a tabelas novas. Em 25/11 isso derrubou todas as leituras do app em produção ("permission denied"). Correção: migration `api_grants` com o mínimo por papel, e o stub de testes passou a imitar esse padrão, então uma tabela sem grant agora falha no `test:db`. Pendências do linter: `pg_net` instalado no schema `public` pelo SQL do cron (inofensivo; mover para `extensions` se o linter incomodar) e proteção contra senhas vazadas (opção do Auth, disponível no plano Pro).

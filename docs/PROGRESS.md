@@ -9,7 +9,7 @@ _Atualizado em 2026-11-25._
 | Documentação, identidade (Canto), decisões | implementado |
 | Next.js 16.4 + TS strict + Tailwind v4 + ESLint + Vitest | implementado, testado localmente |
 | CI no GitHub Actions (lint, tipos, testes, build, testes de RLS) | implementado, **não executado ainda no GitHub** |
-| Migrations `core`, `notifications`, `harden_helpers` | aplicadas no Supabase de produção; testadas em Postgres local |
+| Migrations `core`, `notifications`, `harden_helpers`, `api_grants` | aplicadas no Supabase de produção; testadas em Postgres local |
 | RLS: pessoal × compartilhado × anônimo, convites, aparelhos, fila | testado localmente (17 asserções); mutação confirmou que o teste falha se a policy quebrar |
 | Login e-mail + senha, proxy de sessão, `requireViewer` | implementado; **sem teste com usuário real** (falta criar o 1º usuário) |
 | Convite por link (criar, aceitar criando senha, revogar, expira em 7 dias) | implementado; aceite testado só no SQL |
@@ -29,6 +29,7 @@ _Atualizado em 2026-11-25._
 - Navegador headless (tamanho iPhone 15): `/entrar`, `/offline` renderizam; `/` sem login redireciona para `/entrar`; manifest servido.
 
 ## Problemas conhecidos
+- ~~25/11: em produção, toda leitura/escrita do app dava "permission denied" (tabelas sem GRANT para a API).~~ Corrigido pela migration `api_grants` no mesmo dia; teste local passou a cobrir.
 - `/convite/<token>` retorna erro 500 se `SUPABASE_SERVICE_ROLE_KEY` não estiver configurada (esperado; em produção a variável existe).
 - Tipos do banco (`src/types/database.ts`) foram gerados via MCP e colados; regenerar após cada migration.
 - `npm audit` aponta avisos em dependências de desenvolvimento; revisar na Etapa 8.

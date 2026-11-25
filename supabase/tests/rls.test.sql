@@ -102,6 +102,11 @@ reset role; set role service_role;
 do $$ begin
   assert (select count(*) from public.claim_notification_jobs(10)) = 1, 'claim pega 1';
   assert (select count(*) from public.claim_notification_jobs(10)) = 0, 'claim não repete';
+  -- caminho do dispatcher: ler aparelhos, gravar log, marcar enviado
+  perform 1 from public.push_subscriptions;
+  insert into public.notification_logs (job_id, status_code) select id, 201 from public.notification_jobs limit 1;
+  update public.notification_jobs set status = 'sent', sent_at = now();
+  assert (select count(*) from public.notification_jobs where status = 'sent') = 1, 'service_role atualiza job';
 end $$;
 reset role;
 \echo 'RLS: todos os testes passaram'

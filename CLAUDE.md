@@ -8,7 +8,7 @@ Leia antes de mudar algo: `docs/PROGRESS.md` (estado real), `docs/ROADMAP.md` (e
 
 Regras inegociáveis:
 - Stack: Next.js App Router + TS strict + Tailwind + Supabase + Vercel + provedor de IA. Sem Firebase, Expo, React Native.
-- RLS em toda tabela com dado de usuário; nunca desligar RLS ou usar service role para contornar policy. Migration nova = tabela + índices + RLS + teste de RLS.
+- RLS em toda tabela com dado de usuário; nunca desligar RLS ou usar service role para contornar policy. Migration nova = tabela + índices + RLS + **GRANTs explícitos** (o projeto não expõe tabelas à API por padrão; sem grant = "permission denied") + teste.
 - Dinheiro em centavos inteiros (`bigint`), razão de partidas, operações compostas em função SQL transacional com idempotência.
 - Dados pessoais são privados por padrão; compartilhar é explícito (workspace "Nós").
 - Segredos só no servidor. Nunca expor service role, VAPID privada, chave de IA, CRON_SECRET.
