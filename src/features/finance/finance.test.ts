@@ -82,3 +82,35 @@ describe("relatório e CSV", () => {
     expect(csv).toContain('2026-11-25;"Jantar; ""especial""";123,45\r\n');
   });
 });
+
+import { parseCSV, parseOFX, parseStatement } from "./statement";
+describe("importação de extrato", () => {
+  const ofx = `OFXHEADER:100
+DATA:OFXSGML
+<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><BANKTRANLIST>
+<STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20261120000000[-3:BRT]<TRNAMT>-45.90<FITID>A1<MEMO>UBER *TRIP
+<STMTTRN><TRNTYPE>CREDIT<DTPOSTED>20261105<TRNAMT>6200.00<FITID>A2<NAME>SALARIO EMPRESA</STMTTRN>
+<STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20261106<TRNAMT>0.00<FITID>A3<MEMO>zerado</STMTTRN>
+</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`;
+  it("OFX em SGML (tags sem fechar) e XML", () => {
+    expect(parseOFX(ofx)).toEqual([
+      { ref: "A1", date: "2026-11-20", description: "UBER *TRIP", amount: -4590 },
+      { ref: "A2", date: "2026-11-05", description: "SALARIO EMPRESA", amount: 620000 },
+    ]);
+  });
+  it("CSV de conta (Nubank) e genérico brasileiro", () => {
+    const nu = "Data,Valor,Identificador,Descrição\n20/11/2026,-45.90,abc-1,Transferência enviada pelo Pix - Fulano\n05/11/2026,6200.00,abc-2,\"Salário, novembro\"";
+    expect(parseCSV(nu)).toEqual([
+      { ref: "abc-1", date: "2026-11-20", description: "Transferência enviada pelo Pix - Fulano", amount: -4590 },
+      { ref: "abc-2", date: "2026-11-05", description: "Salário, novembro", amount: 620000 },
+    ]);
+    const br = "data;descrição;valor\n20/11/2026;Mercado;-1.234,56\nlixo;x;y";
+    expect(parseCSV(br)).toEqual([{ ref: "2026-11-20|-123456|Mercado", date: "2026-11-20", description: "Mercado", amount: -123456 }]);
+  });
+  it("fatura do Nubank: compra positiva vira saída no cartão", () => {
+    const fat = "date,title,amount\n2026-11-18,Ifood,35.90\n2026-11-19,Pagamento recebido,-500.00";
+    const r = parseStatement("fatura.csv", fat, true);
+    expect(r.map((x) => x.amount)).toEqual([-3590, 50000]);
+    expect(parseStatement("x.csv", "sem cabeçalho útil", false)).toEqual([]);
+  });
+});
