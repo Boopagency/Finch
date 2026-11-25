@@ -1,5 +1,6 @@
 import "server-only";
-import { isScheduled, type Habit } from "@/features/health/habits";
+import { addDays, isScheduled, type Habit } from "@/features/health/habits";
+import { ensureOccurrences } from "@/features/tasks/server/queries";
 import { localDate, localToInstant, waterSlots } from "@/features/health/water";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database";
@@ -69,8 +70,83 @@ export async function planReminders(now = new Date()): Promise<number> {
     }
   }
 
+  rows.push(...(await planTasks(db, users, profiles ?? [], now)));
   if (rows.length === 0) return 0;
   const { error } = await db.from("notification_jobs").upsert(rows, { onConflict: "dedupe_key", ignoreDuplicates: true });
   if (error) throw new Error(`planner: ${error.message}`);
   return rows.length;
+}
+
+type Db = ReturnType<typeof createServiceClient>;
+
+/**
+ * Tarefas com horário hoje: avisa o responsável; sem responsável, o dono (pessoal) ou os dois (Nós).
+ * Também estende as ocorrências recorrentes (14 dias) para quem não abriu o app.
+ */
+async function planTasks(db: Db, users: string[], profiles: { id: string; tz: string }[], now: Date): Promise<JobInsert[]> {
+  const { data: members } = await db.from("workspace_members").select("workspace_id, user_id").in("user_id", users);
+  const spaces = [...new Set((members ?? []).map((m) => m.workspace_id))];
+  if (!spaces.length) return [];
+  const { data: allMembers } = await db.from("workspace_members").select("workspace_id, user_id").in("workspace_id", spaces);
+  const { data: tasks } = await db
+    .from("tasks")
+    .select("id, title, workspace_id, created_by, assignee_id, due_date, due_time, status, remind, repeat, repeat_start, rotation")
+    .in("workspace_id", spaces)
+    .is("archived_at", null);
+  if (!tasks?.length) return [];
+
+  // fuso de referência do espaço: o do primeiro membro com aparelho (casal no mesmo fuso, na prática)
+  const tzOf = (ws: string) => {
+    const u = allMembers?.find((m) => m.workspace_id === ws && users.includes(m.user_id))?.user_id;
+    return profiles.find((p) => p.id === u)?.tz ?? "America/Sao_Paulo";
+  };
+  const recurring = tasks.filter((t) => t.repeat);
+  if (now.getUTCMinutes() % 15 === 0 && recurring.length) {
+    const today = localDate(now, "America/Sao_Paulo");
+    await ensureOccurrences(db, recurring, addDays(today, -1), addDays(today, 14));
+  }
+
+  const recipients = (t: { workspace_id: string; created_by: string }, assignee: string | null) =>
+    (assignee ? [assignee] : (allMembers ?? []).filter((m) => m.workspace_id === t.workspace_id).map((m) => m.user_id)).filter((u) =>
+      users.includes(u),
+    );
+
+  const rows: JobInsert[] = [];
+  const push = (t: (typeof tasks)[number], date: string, sourceType: string, sourceId: string, assignee: string | null) => {
+    const at = localToInstant(date, t.due_time!.slice(0, 5), tzOf(t.workspace_id));
+    if (at <= now) return;
+    for (const u of recipients(t, assignee)) {
+      rows.push({
+        user_id: u,
+        category: "task",
+        source_type: sourceType,
+        source_id: sourceId,
+        scheduled_for: at.toISOString(),
+        dedupe_key: `${sourceType}:${sourceId}:${u}:${date}:${t.due_time!.slice(0, 5)}`,
+        title: t.title,
+        body: "Está na hora. Toque para ver.",
+        url: "/tarefas",
+      });
+    }
+  };
+
+  for (const t of tasks.filter((x) => !x.repeat && x.remind && x.due_time && x.due_date && x.status !== "done")) {
+    if (t.due_date === localDate(now, tzOf(t.workspace_id))) push(t, t.due_date, "task", t.id, t.assignee_id);
+  }
+  const timed = recurring.filter((t) => t.remind && t.due_time);
+  if (timed.length) {
+    const today = localDate(now, "America/Sao_Paulo");
+    const { data: occs } = await db
+      .from("task_occurrences")
+      .select("id, task_id, occurs_on, snoozed_to, assignee_id")
+      .in("task_id", timed.map((t) => t.id))
+      .eq("status", "open")
+      .or(`occurs_on.eq.${today},snoozed_to.eq.${today}`);
+    for (const o of occs ?? []) {
+      const t = timed.find((x) => x.id === o.task_id)!;
+      const date = o.snoozed_to ?? o.occurs_on;
+      if (date === localDate(now, tzOf(t.workspace_id))) push(t, date, "task_occ", o.id, o.assignee_id);
+    }
+  }
+  return rows;
 }

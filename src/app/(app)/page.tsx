@@ -8,6 +8,8 @@ import { WaterQuick } from "@/features/health/components/water-quick";
 import { habitStatus } from "@/features/health/habits";
 import { getHabits, getWaterToday } from "@/features/health/server/queries";
 import { formatWater } from "@/features/health/water";
+import { TaskList } from "@/features/tasks/components/task-list";
+import { getTaskItems } from "@/features/tasks/server/queries";
 import { buildSentence, type DayItem, type Tone } from "@/features/today/sentence";
 import { createClient, requireViewer } from "@/lib/supabase/server";
 import { nowIn } from "@/lib/time";
@@ -30,7 +32,7 @@ export default async function TodayPage() {
   const supabase = await createClient();
   const now = nowIn(viewer.tz);
 
-  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData] = await Promise.all([
+  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData] = await Promise.all([
     supabase.from("workspaces").select("id, name, workspace_members(user_id, profiles(display_name))").eq("kind", "shared"),
     supabase.from("push_subscriptions").select("id", { count: "exact", head: true }).is("revoked_at", null),
     supabase
@@ -42,10 +44,26 @@ export default async function TodayPage() {
       .limit(3),
     getWaterToday(viewer),
     getHabits(viewer, 7),
+    getTaskItems(viewer, 1),
   ]);
+  const todayTasks = tasksData.items.filter((t) => t.date && t.date <= tasksData.today);
+  const overdue = todayTasks.filter((t) => t.status !== "done" && t.date! < tasksData.today).length;
+  const openToday = todayTasks.filter((t) => t.status !== "done").length;
 
   // Itens do dia: cada módulo contribui aqui (tarefas, contas e treino entram nas próximas etapas).
   const items: DayItem[] = [];
+  if (overdue > 0) {
+    items.push({ lead: "tem", highlight: `${overdue} ${overdue === 1 ? "tarefa atrasada" : "tarefas atrasadas"}`, tone: "coral", icon: "check", priority: 5 });
+  }
+  if (openToday - overdue > 0) {
+    const n = openToday - overdue;
+    const only = todayTasks.find((t) => t.status !== "done" && t.date === tasksData.today);
+    items.push(
+      n === 1 && only
+        ? { lead: "tem", highlight: only.title.toLowerCase(), tail: only.time ? `às ${only.time}` : undefined, tone: "sunflower", icon: "check", priority: 4 }
+        : { lead: "tem", highlight: `${n} tarefas`, tone: "sunflower", icon: "check", priority: 4 },
+    );
+  }
   const waterTotal = water.logs.reduce((n, l) => n + l.amount_ml, 0);
   const waterGoal = water.settings.water_goal_ml;
   if (waterTotal < waterGoal) {
@@ -118,6 +136,21 @@ export default async function TodayPage() {
 
       <section aria-labelledby="casal" className="min-h-[50dvh] rounded-t-[28px] bg-bg px-4 pb-6 pt-5 text-ink">
         <div className="mx-auto flex max-w-xl flex-col gap-3">
+          {todayTasks.length > 0 && (
+            <>
+              <TaskList
+                items={[...todayTasks].sort((a, b) => Number(a.status === "done") - Number(b.status === "done")).slice(0, 6)}
+                spaces={tasksData.spaces}
+                today={tasksData.today}
+                group={overdue > 0}
+              />
+              {todayTasks.length > 6 && (
+                <Link href="/tarefas" className="px-2 text-[13px] font-semibold text-ink-3">
+                  Ver todas as {todayTasks.length} tarefas de hoje →
+                </Link>
+              )}
+            </>
+          )}
           <WaterQuick serverLogs={water.logs} goal={waterGoal} presets={water.settings.water_presets} />
           <HabitList habits={habitsData.habits} serverLogs={habitsData.logs} today={habitsData.today} onlyPendingToday />
           <div className="flex items-baseline justify-between px-2 pt-2">

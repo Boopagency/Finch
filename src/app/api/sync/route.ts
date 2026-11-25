@@ -14,6 +14,7 @@ export async function POST(request: Request) {
   const parsed = batchSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid batch" }, { status: 400 });
 
+  const userId = auth.claims.sub;
   const results: OpResult[] = [];
   for (const op of parsed.data.ops) {
     let error: { message: string } | null = null;
@@ -37,6 +38,13 @@ export async function POST(request: Request) {
       case "habit.clear":
         ({ error } = await supabase.from("habit_logs").delete().eq("habit_id", op.habit_id).eq("local_date", op.local_date));
         break;
+      case "task.toggle": {
+        const patch = { completed_at: op.done ? new Date().toISOString() : null, completed_by: op.done ? userId : null };
+        ({ error } = op.occurrence_id
+          ? await supabase.from("task_occurrences").update({ ...patch, status: op.done ? "done" : "open" }).eq("id", op.occurrence_id)
+          : await supabase.from("tasks").update({ ...patch, status: op.done ? "done" : "open" }).eq("id", op.task_id));
+        break;
+      }
     }
     // rejeição é definitiva (dado inválido/sem permissão): o aparelho descarta e segue
     results.push(error ? { id: op.id, status: "rejected", error: error.message.slice(0, 200) } : { id: op.id, status: "ok" });

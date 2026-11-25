@@ -46,6 +46,23 @@ export const stillRelevant: Record<string, (job: Job) => Promise<boolean>> = {
     const status = habitStatus(h as Habit, logs ?? [], today);
     return status.scheduled && !status.done;
   },
+
+  // tarefa única: ainda aberta e com o mesmo horário
+  async task(job) {
+    if (!job.source_id) return false;
+    const { data: t } = await createServiceClient().from("tasks").select("status, archived_at, remind").eq("id", job.source_id).maybeSingle();
+    return !!t && t.status !== "done" && !t.archived_at && t.remind;
+  },
+
+  // ocorrência de rotina: ainda aberta (não concluída, pulada ou adiada para outro dia)
+  async task_occ(job) {
+    if (!job.source_id) return false;
+    const db = createServiceClient();
+    const { data: o } = await db.from("task_occurrences").select("status, snoozed_to, occurs_on, task_id").eq("id", job.source_id).maybeSingle();
+    if (!o || o.status !== "open") return false;
+    const today = localDate(new Date(), await tzOf(job.user_id));
+    return (o.snoozed_to ?? o.occurs_on) === today;
+  },
 };
 
 /** Categorias que perdem o sentido se adiadas (melhor pular do que acumular após o silêncio). */

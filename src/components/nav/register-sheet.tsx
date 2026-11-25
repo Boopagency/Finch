@@ -1,22 +1,23 @@
 "use client";
 
-import { CalendarPlus, CheckSquare, Dumbbell, Receipt, Scale, ShoppingBasket, Wallet } from "lucide-react";
+import { CalendarPlus, Dumbbell, Receipt, Scale, ShoppingBasket, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { HabitList } from "@/features/health/components/habit-list";
 import { WaterQuick } from "@/features/health/components/water-quick";
 import type { Habit, HabitLog } from "@/features/health/habits";
+import { QuickAdd } from "@/features/tasks/components/quick-add";
 
 export type QuickData = {
   today: string;
   water: { logs: { id: string; amount_ml: number }[]; goal: number; presets: number[] };
   habits: Habit[];
   habitLogs: HabitLog[];
+  spaces: { id: string; kind: string; name: string }[];
 };
 
 // Atalhos que ligam quando cada módulo existir (ver docs/ROADMAP.md).
 const later = [
-  { label: "Tarefa", Icon: CheckSquare, stage: 2 },
   { label: "Evento", Icon: CalendarPlus, stage: 2 },
   { label: "Mercado", Icon: ShoppingBasket, stage: 2 },
   { label: "Despesa", Icon: Receipt, stage: 3 },
@@ -46,6 +47,7 @@ export function RegisterSheet({ open, onClose, data }: { open: boolean; onClose:
         <div className="mx-auto h-1.5 w-10 shrink-0 rounded-full bg-line" />
         <h2 className="font-display text-[28px] font-extrabold tracking-[-0.03em]">Registrar</h2>
 
+        <QuickAdd today={data.today} spaces={data.spaces} onCreated={onClose} />
         <WaterQuick serverLogs={data.water.logs} goal={data.water.goal} presets={data.water.presets} onLogged={onClose} />
 
         {data.habits.length > 0 ? (

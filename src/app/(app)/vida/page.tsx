@@ -1,4 +1,4 @@
-import { Droplet, Dumbbell, HeartPulse, Home, Images, ShoppingBasket, Sparkles, Target, Users, Utensils, Wallet } from "lucide-react";
+import { CheckSquare, Droplet, Dumbbell, HeartPulse, Home, Images, ShoppingBasket, Sparkles, Target, Users, Utensils, Wallet } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -6,6 +6,8 @@ export const metadata = { title: "Vida" };
 
 // Áreas da vida. `href` liga quando o módulo existe; o resto mostra a etapa prevista.
 const areas = [
+  { label: "Tarefas", Icon: CheckSquare, tone: "bg-sunflower text-on-color", href: "/tarefas" },
+  { label: "Casa", Icon: Home, tone: "bg-tangerine text-on-color", href: "/tarefas?v=casa" },
   { label: "Água", Icon: Droplet, tone: "bg-cobalt text-on-cobalt", href: "/vida/agua" },
   { label: "Hábitos", Icon: Sparkles, tone: "bg-sunflower text-on-color", href: "/vida/habitos" },
   { label: "Mercado", Icon: ShoppingBasket, tone: "bg-frog text-on-color", stage: 2 },
@@ -13,7 +15,6 @@ const areas = [
   { label: "Finanças", Icon: Wallet, tone: "bg-coral text-on-color", stage: 3 },
   { label: "Treino", Icon: Dumbbell, tone: "bg-ink text-bg", stage: 4 },
   { label: "Saúde", Icon: HeartPulse, tone: "bg-cobalt text-on-cobalt", stage: 4 },
-  { label: "Casa", Icon: Home, tone: "bg-tangerine text-on-color", stage: 5 },
   { label: "Alimentação", Icon: Utensils, tone: "bg-frog text-on-color", stage: 5 },
   { label: "Nós", Icon: Users, tone: "bg-lavender text-on-color", stage: 6 },
   { label: "Metas", Icon: Target, tone: "bg-sunflower text-on-color", stage: 6 },

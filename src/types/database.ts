@@ -53,6 +53,24 @@ export type Database = {
         Update: { auth?: string; created_at?: string; device_label?: string; endpoint?: string; id?: string; last_success_at?: string | null; p256dh?: string; revoked_at?: string | null; user_agent?: string | null; user_id?: string }
         Relationships: [{ foreignKeyName: "push_subscriptions_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
       }
+      subtasks: {
+        Row: { done: boolean; id: string; position: number; task_id: string; title: string; workspace_id: string }
+        Insert: { done?: boolean; id?: string; position?: number; task_id: string; title: string; workspace_id?: string }
+        Update: { done?: boolean; id?: string; position?: number; task_id?: string; title?: string; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "subtasks_task_id_fkey"; columns: ["task_id"]; isOneToOne: false; referencedRelation: "tasks"; referencedColumns: ["id"] }, { foreignKeyName: "subtasks_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      task_occurrences: {
+        Row: { assignee_id: string | null; completed_at: string | null; completed_by: string | null; id: string; occurs_on: string; snoozed_to: string | null; status: string; task_id: string; workspace_id: string }
+        Insert: { assignee_id?: string | null; completed_at?: string | null; completed_by?: string | null; id?: string; occurs_on: string; snoozed_to?: string | null; status?: string; task_id: string; workspace_id?: string }
+        Update: { assignee_id?: string | null; completed_at?: string | null; completed_by?: string | null; id?: string; occurs_on?: string; snoozed_to?: string | null; status?: string; task_id?: string; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "task_occurrences_task_id_fkey"; columns: ["task_id"]; isOneToOne: false; referencedRelation: "tasks"; referencedColumns: ["id"] }, { foreignKeyName: "task_occurrences_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      tasks: {
+        Row: { archived_at: string | null; assignee_id: string | null; category: string; completed_at: string | null; completed_by: string | null; created_at: string; created_by: string; due_date: string | null; due_time: string | null; id: string; notes: string | null; priority: number; remind: boolean; repeat: Json | null; repeat_start: string | null; rotation: string[] | null; status: string; title: string; updated_at: string; workspace_id: string }
+        Insert: { archived_at?: string | null; assignee_id?: string | null; category?: string; completed_at?: string | null; completed_by?: string | null; created_at?: string; created_by?: string; due_date?: string | null; due_time?: string | null; id?: string; notes?: string | null; priority?: number; remind?: boolean; repeat?: Json | null; repeat_start?: string | null; rotation?: string[] | null; status?: string; title: string; updated_at?: string; workspace_id: string }
+        Update: { archived_at?: string | null; assignee_id?: string | null; category?: string; completed_at?: string | null; completed_by?: string | null; created_at?: string; created_by?: string; due_date?: string | null; due_time?: string | null; id?: string; notes?: string | null; priority?: number; remind?: boolean; repeat?: Json | null; repeat_start?: string | null; rotation?: string[] | null; status?: string; title?: string; updated_at?: string; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "tasks_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
       user_settings: {
         Row: { home_layout: Json; quiet_end: string; quiet_start: string; updated_at: string; user_id: string; water_every_min: number; water_from: string; water_goal_ml: number; water_presets: number[]; water_reminders: boolean; water_to: string }
         Insert: { home_layout?: Json; quiet_end?: string; quiet_start?: string; updated_at?: string; user_id: string; water_every_min?: number; water_from?: string; water_goal_ml?: number; water_presets?: number[]; water_reminders?: boolean; water_to?: string }

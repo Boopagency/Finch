@@ -10,6 +10,7 @@ export const opSchema = z.discriminatedUnion("type", [
   z.object({ id: z.uuid(), type: z.literal("habit.add"), habit_id: z.uuid(), value: z.number().int().min(1).max(1000), logged_at: z.iso.datetime({ offset: true }) }),
   z.object({ id: z.uuid(), type: z.literal("habit.remove"), target_id: z.uuid() }),
   z.object({ id: z.uuid(), type: z.literal("habit.clear"), habit_id: z.uuid(), local_date: z.iso.date() }),
+  z.object({ id: z.uuid(), type: z.literal("task.toggle"), task_id: z.uuid(), occurrence_id: z.uuid().nullable(), done: z.boolean() }),
 ]);
 export type Op = z.infer<typeof opSchema>;
 export const batchSchema = z.object({ ops: z.array(opSchema).min(1).max(100) });
@@ -39,4 +40,11 @@ export function mergeHabitLogs<T extends { id: string; habit_id: string; value: 
     if (o.type === "habit.clear") logs = logs.filter((l) => !(l.habit_id === o.habit_id && l.local_date === o.local_date));
   }
   return logs;
+}
+
+/** Estado de conclusão otimista: a última op de cada item vence. */
+export function taskDoneOverrides(ops: Op[]): Map<string, boolean> {
+  const m = new Map<string, boolean>();
+  for (const o of ops) if (o.type === "task.toggle") m.set(o.occurrence_id ?? o.task_id, o.done);
+  return m;
 }
