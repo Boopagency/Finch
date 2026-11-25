@@ -69,5 +69,27 @@ Abra a URL no Safari → Compartilhar → **Adicionar à Tela de Início** → a
 ### 5. Duda
 **Ajustes → Nós dois → Criar espaço Nós → Gerar convite** com o e-mail dela → mande o link. Ela abre no Safari, cria a senha, instala e ativa os lembretes.
 
+## Trocar URL ou CRON_SECRET depois
+
+Ex.: domínio próprio, ou segredo vazado. Faça nos **dois** lados.
+
+1. Vercel → Settings → Environment Variables: atualize `NEXT_PUBLIC_APP_URL` e/ou `CRON_SECRET` → **Redeploy**.
+2. Supabase → SQL Editor:
+
+```sql
+-- nova URL (sem barra no final)
+select vault.update_secret((select id from vault.secrets where name = 'finch_app_url'), 'https://NOVA-URL');
+-- novo segredo (igual ao da Vercel)
+select vault.update_secret((select id from vault.secrets where name = 'finch_cron_secret'), 'NOVO-CRON-SECRET');
+```
+
+3. Conferir após 2 min (esperado: 200):
+
+```sql
+select status_code, content, created from net._http_response order by created desc limit 3;
+```
+
+Pausar os lembretes: `select cron.unschedule('finch-notifications');` · Religar: rodar de novo o `cron.schedule` de `supabase/setup/cron.sql`.
+
 ## Deploy
 Push na `main` = produção; PRs geram preview. Migrations: aplicar os arquivos de `supabase/migrations` em ordem (Supabase CLI `db push` ou SQL Editor) e regenerar `src/types/database.ts`.

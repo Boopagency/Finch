@@ -17,8 +17,8 @@ _Atualizado em 2026-11-25._
 | PWA: manifest, ícones, SW (cache estático, offline, push, deep link, atualização) | implementado; manifest e página offline conferidos localmente |
 | Web Push: inscrição, aparelhos, teste imediato e agendado, dispatcher com silêncio/retry/revogação | implementado; **validação nos iPhones pendente** |
 | Rota do cron protegida por segredo | testado localmente (401 sem segredo) |
-| Supabase Cron agendado | SQL pronto em `supabase/setup/cron.sql`; **não executado** (precisa da URL da Vercel) |
-| Projeto na Vercel | **bloqueado**: sem permissão para criar projeto no time "Boop" via API |
+| Supabase Cron agendado | executado em 25/11; chamada ao app retornando **200** (conferido pelo Jabez em `net._http_response`) |
+| Projeto na Vercel | no ar em https://finch-ecru.vercel.app (criado pelo Jabez); `/entrar` 200, cron sem segredo 401, URL e chave do Supabase conferidas no bundle |
 | Hoje (palco escuro, frase por regras, balões com dados reais) | implementado; frase testada; tela não vista com login real |
 | Agenda, Vida, Finch, Registrar | telas honestas de "chega na Etapa X" |
 
@@ -34,7 +34,7 @@ _Atualizado em 2026-11-25._
 - `npm audit` aponta avisos em dependências de desenvolvimento; revisar na Etapa 8.
 
 ## Próximo passo
-1. Configurações do Jabez (README → "Primeira configuração").
+1. ~~Configurações do Jabez~~ feito (Supabase, Vercel, Cron). Conferir `NEXT_PUBLIC_APP_URL` no primeiro convite.
 2. Validar no iPhone: instalar, entrar, ativar lembretes, "Enviar teste agora", "Testar em 2 min" com app fechado. Registrar atraso aqui.
 3. Convidar a Duda e repetir no iPhone dela.
 4. Etapa 2: tarefas + recorrência, água, hábitos, mercado, álbum.
