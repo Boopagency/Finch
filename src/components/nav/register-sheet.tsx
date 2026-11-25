@@ -1,11 +1,12 @@
 "use client";
 
-import { CalendarPlus, Dumbbell, Receipt, Scale, Wallet } from "lucide-react";
+import { CalendarPlus, Dumbbell, Scale } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { HabitList } from "@/features/health/components/habit-list";
 import { WaterQuick } from "@/features/health/components/water-quick";
 import type { Habit, HabitLog } from "@/features/health/habits";
+import { QuickExpense } from "@/features/finance/components/finance-view";
 import { QuickItems } from "@/features/shopping/components/shopping-list";
 import { QuickAdd } from "@/features/tasks/components/quick-add";
 
@@ -20,8 +21,6 @@ export type QuickData = {
 
 // Atalhos que ligam quando cada módulo existir (ver docs/ROADMAP.md).
 const later = [
-  { label: "Despesa", Icon: Receipt, stage: 3 },
-  { label: "Receita", Icon: Wallet, stage: 3 },
   { label: "Treino", Icon: Dumbbell, stage: 4 },
   { label: "Peso", Icon: Scale, stage: 4 },
 ] as const;
@@ -48,6 +47,10 @@ export function RegisterSheet({ open, onClose, data }: { open: boolean; onClose:
         <h2 className="font-display text-[28px] font-extrabold tracking-[-0.03em]">Registrar</h2>
 
         <QuickAdd today={data.today} spaces={data.spaces} onCreated={onClose} />
+        <section aria-label="Gasto ou receita" className="flex flex-col gap-1.5">
+          <h3 className="px-1 text-[13px] font-semibold text-ink-2">Gasto ou receita</h3>
+          <QuickExpense onDone={onClose} />
+        </section>
         {data.shoppingList && (
           <section aria-label={`Adicionar ao ${data.shoppingList.name}`} className="flex flex-col gap-1.5">
             <h3 className="px-1 text-[13px] font-semibold text-ink-2">{data.shoppingList.name}</h3>

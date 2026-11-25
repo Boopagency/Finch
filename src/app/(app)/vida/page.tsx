@@ -12,7 +12,7 @@ const areas = [
   { label: "Hábitos", Icon: Sparkles, tone: "bg-sunflower text-on-color", href: "/vida/habitos" },
   { label: "Mercado", Icon: ShoppingBasket, tone: "bg-frog text-on-color", href: "/mercado" },
   { label: "Álbum", Icon: Images, tone: "bg-coral text-on-color", href: "/vida/album" },
-  { label: "Finanças", Icon: Wallet, tone: "bg-coral text-on-color", stage: 3 },
+  { label: "Finanças", Icon: Wallet, tone: "bg-coral text-on-color", href: "/financas" },
   { label: "Treino", Icon: Dumbbell, tone: "bg-ink text-bg", stage: 4 },
   { label: "Saúde", Icon: HeartPulse, tone: "bg-cobalt text-on-cobalt", stage: 4 },
   { label: "Alimentação", Icon: Utensils, tone: "bg-frog text-on-color", stage: 5 },

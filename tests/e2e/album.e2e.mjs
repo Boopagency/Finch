@@ -1,28 +1,37 @@
-import { assert, BASE, close, phone, shot, summary, test } from "./lib.mjs";
+import { assert, B, BASE, close, phone, shot, summary, test } from "./lib.mjs";
 
 console.log("Álbum");
 const run = Date.now() % 100000;
-const { page } = await phone();
+// os testes de pacote usam quem tiver pacote fechado (A ou B); em execuções repetidas no mesmo dia pode não haver
+let { page } = await phone();
+await page.goto(`${BASE}/vida/album`);
+let packPage = page;
+if (!(await page.getByRole("button", { name: /Abrir pacotinho/ }).count())) {
+  packPage = (await phone(B)).page;
+  await packPage.goto(`${BASE}/vida/album`);
+}
+const hasPack = (await packPage.getByRole("button", { name: /Abrir pacotinho/ }).count()) > 0;
 const pastedCount = async () => Number((await page.locator("header").getByText(/de 60/).innerText()).split(" ")[0]);
 
-await test("Hoje avisa do pacotinho de boas-vindas", async () => {
-  await page.goto(`${BASE}/vida/album`); // garante o pacote de boas-vindas
-  await page.goto(`${BASE}/`);
-  await page.getByRole("link", { name: /pacotinho/ }).first().waitFor();
+await test("Hoje avisa quando há pacotinho", async () => {
+  if (!hasPack) return console.log("    (sem pacote fechado hoje: pulado)");
+  await packPage.goto(`${BASE}/`);
+  await packPage.getByRole("link", { name: /pacotinho/ }).first().waitFor();
 });
 
 await test("Abrir pacotinho revela 3 figurinhas e cola as novas", async () => {
-  await page.goto(`${BASE}/vida/album`);
-  const before = await pastedCount();
-  await page.getByRole("button", { name: /Abrir pacotinho/ }).click();
-  const dialog = page.getByRole("dialog", { name: "Pacotinho aberto" });
+  if (!hasPack) return console.log("    (sem pacote fechado hoje: pulado)");
+  await packPage.goto(`${BASE}/vida/album`);
+  const n = async () => Number((await packPage.locator("header").getByText(/de 60/).innerText()).split(" ")[0]);
+  const before = await n();
+  await packPage.getByRole("button", { name: /Abrir pacotinho/ }).click();
+  const dialog = packPage.getByRole("dialog", { name: "Pacotinho aberto" });
   await dialog.waitFor();
   assert.equal(await dialog.locator("figure").count(), 3);
-  await shot(page, "album-pacote");
   await dialog.getByRole("button", { name: "Colar no álbum" }).click();
-  await page.getByRole("status").filter({ hasText: /colada|Nada novo/ }).waitFor();
-  await page.reload();
-  assert.ok((await pastedCount()) >= before);
+  await packPage.getByRole("status").filter({ hasText: /colada|Nada novo/ }).waitFor();
+  await packPage.reload();
+  assert.ok((await n()) >= before);
 });
 
 await test("Concluir tarefa dá pontos e libera a especial 'Primeiro passo'", async () => {

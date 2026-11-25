@@ -64,7 +64,14 @@ const finishSchema = z.object({
   carry_over: z.literal("on").optional(),
 });
 
-/** Finaliza a compra (função SQL atômica e idempotente). Lançamento financeiro entra na Etapa 3. */
+const PAY_ACCOUNT: Record<string, string[]> = {
+  credito: ["credit_card"], pix: ["checking", "wallet", "savings"], debito: ["checking", "savings"], dinheiro: ["cash"], vr: ["meal"], va: ["food"], outro: [],
+};
+
+/**
+ * Finaliza a compra (função SQL atômica e idempotente) e, se quem pagou foi você e há conta compatível,
+ * lança a despesa com id = id da compra (repetir não duplica; despesa do casal dividida ao meio).
+ */
 export async function finishShopping(_prev: Result | null, form: FormData): Promise<Result> {
   const viewer = await requireViewer();
   const p = finishSchema.safeParse(Object.fromEntries(form));
@@ -72,7 +79,7 @@ export async function finishShopping(_prev: Result | null, form: FormData): Prom
   const cents = parseMoney(p.data.total);
   if (cents == null || cents <= 0) return { ok: false, message: "Valor inválido." };
   const supabase = await createClient();
-  const { error } = await supabase.rpc("finish_shopping", {
+  const { data: purchaseId, error } = await supabase.rpc("finish_shopping", {
     p_list_id: p.data.list_id,
     p_store: p.data.store ?? "",
     p_total_cents: cents,
@@ -81,7 +88,37 @@ export async function finishShopping(_prev: Result | null, form: FormData): Prom
     p_payment: p.data.payment,
     p_carry_over: p.data.carry_over === "on",
   });
-  if (error) return { ok: false, message: "Não consegui finalizar." };
+  if (error || !purchaseId) return { ok: false, message: "Não consegui finalizar." };
+
+  let note = "";
+  if ((p.data.paid_by || viewer.id) === viewer.id) {
+    const { data: list } = await supabase.from("shopping_lists").select("workspace_id").eq("id", p.data.list_id).single();
+    const { data: spaces } = await supabase.from("workspaces").select("id, kind");
+    const personal = spaces?.find((s) => s.kind === "personal")?.id;
+    const ws = list!.workspace_id;
+    const { data: accounts } = await supabase.from("fin_accounts").select("id, kind, workspace_id").is("archived_at", null).order("created_at");
+    const acc = (accounts ?? []).find((a) => (a.workspace_id === ws || a.workspace_id === personal) && PAY_ACCOUNT[p.data.payment]!.includes(a.kind));
+    if (acc) {
+      await supabase.rpc("fin_ensure_categories", { p_workspace: ws });
+      const { data: cat } = await supabase.from("fin_categories").select("id").eq("workspace_id", ws).eq("kind", "expense").eq("name", "Mercado").maybeSingle();
+      const shared = spaces?.find((s) => s.id === ws)?.kind === "shared";
+      const { error: finError } = await supabase.rpc("fin_record", {
+        p_id: purchaseId,
+        p_kind: "expense",
+        p_workspace: ws,
+        p_account: acc.id,
+        p_amount_cents: cents,
+        p_category: cat?.id ?? null,
+        p_description: p.data.store ? `Mercado · ${p.data.store}` : "Mercado",
+        p_occurred_on: p.data.purchased_on || todayFor(viewer),
+        p_split_method: shared ? "equal" : null,
+        p_purchase: purchaseId,
+      });
+      note = finError ? " (não virou despesa: confira a conta em Finanças)" : " e lançada em Finanças";
+    } else {
+      note = ". Cadastre a conta/cartão em Finanças para ela virar despesa sozinha";
+    }
+  }
   revalidatePath("/", "layout");
-  return { ok: true, message: "Compra registrada." };
+  return { ok: true, message: `Compra registrada${note}.` };
 }

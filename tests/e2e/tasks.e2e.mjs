@@ -80,7 +80,8 @@ await test("Busca filtra pelo texto (sem acento)", async () => {
 await test("Hoje: frase e lista incluem tarefas", async () => {
   await quick(`Regar plantas ${run} hoje`);
   await page.goto(`${BASE}/`);
-  await page.getByText(`Regar plantas ${run}`).first().waitFor();
+  // o Hoje mostra até 6; com muitas tarefas, aparece o link "Ver todas"
+  await page.getByText(`Regar plantas ${run}`).first().or(page.getByRole("link", { name: /Ver todas as \d+ tarefas/ })).first().waitFor();
   assert.match(await page.locator("p").filter({ hasText: "Teste A!" }).first().innerText(), /tarefa/);
   await shot(page, "hoje-tarefas");
 });

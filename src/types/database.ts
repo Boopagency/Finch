@@ -11,6 +11,48 @@ export type Database = {
         Update: { category?: string; created_at?: string; created_by?: string; end_date?: string; end_time?: string | null; id?: string; location?: string | null; notes?: string | null; remind_min?: number | null; repeat?: Json | null; repeat_until?: string | null; start_date?: string; start_time?: string | null; title?: string; updated_at?: string; workspace_id?: string }
         Relationships: [{ foreignKeyName: "events_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
       }
+      fin_accounts: {
+        Row: { archived_at: string | null; card_limit_cents: number | null; closing_day: number | null; created_at: string; due_day: number | null; id: string; kind: string; name: string; opening_balance_cents: number; owner_id: string | null; workspace_id: string }
+        Insert: { archived_at?: string | null; card_limit_cents?: number | null; closing_day?: number | null; created_at?: string; due_day?: number | null; id?: string; kind: string; name: string; opening_balance_cents?: number; owner_id?: string | null; workspace_id: string }
+        Update: { archived_at?: string | null; card_limit_cents?: number | null; closing_day?: number | null; created_at?: string; due_day?: number | null; id?: string; kind?: string; name?: string; opening_balance_cents?: number; owner_id?: string | null; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "fin_accounts_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      fin_budgets: {
+        Row: { category_id: string; limit_cents: number; workspace_id: string }
+        Insert: { category_id: string; limit_cents: number; workspace_id: string }
+        Update: { category_id?: string; limit_cents?: number; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "fin_budgets_category_id_fkey"; columns: ["category_id"]; isOneToOne: false; referencedRelation: "fin_categories"; referencedColumns: ["id"] }]
+      }
+      fin_categories: {
+        Row: { archived_at: string | null; id: string; kind: string; name: string; workspace_id: string }
+        Insert: { archived_at?: string | null; id?: string; kind: string; name: string; workspace_id: string }
+        Update: { archived_at?: string | null; id?: string; kind?: string; name?: string; workspace_id?: string }
+        Relationships: []
+      }
+      fin_entries: {
+        Row: { category_id: string | null; created_at: string; created_by: string | null; description: string; group_id: string | null; id: string; installment_no: number | null; installments: number | null; kind: string; month: string; occurred_on: string; purchase_id: string | null; status: string; voided_at: string | null; workspace_id: string }
+        Insert: { category_id?: string | null; created_at?: string; created_by?: string | null; description?: string; group_id?: string | null; id: string; installment_no?: number | null; installments?: number | null; kind: string; month: string; occurred_on: string; purchase_id?: string | null; status?: string; voided_at?: string | null; workspace_id: string }
+        Update: { category_id?: string | null; created_at?: string; created_by?: string | null; description?: string; group_id?: string | null; id?: string; installment_no?: number | null; installments?: number | null; kind?: string; month?: string; occurred_on?: string; purchase_id?: string | null; status?: string; voided_at?: string | null; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "fin_entries_category_id_fkey"; columns: ["category_id"]; isOneToOne: false; referencedRelation: "fin_categories"; referencedColumns: ["id"] }]
+      }
+      fin_postings: {
+        Row: { account_id: string; amount_cents: number; entry_id: string; id: number }
+        Insert: { account_id: string; amount_cents: number; entry_id: string; id?: number }
+        Update: { account_id?: string; amount_cents?: number; entry_id?: string; id?: number }
+        Relationships: [{ foreignKeyName: "fin_postings_entry_id_fkey"; columns: ["entry_id"]; isOneToOne: false; referencedRelation: "fin_entries"; referencedColumns: ["id"] }, { foreignKeyName: "fin_postings_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "fin_accounts"; referencedColumns: ["id"] }]
+      }
+      fin_settlements: {
+        Row: { amount_cents: number; created_at: string; created_by: string | null; from_user: string; id: string; note: string | null; occurred_on: string; to_user: string; voided_at: string | null; workspace_id: string }
+        Insert: { amount_cents: number; created_at?: string; created_by?: string | null; from_user: string; id?: string; note?: string | null; occurred_on: string; to_user: string; voided_at?: string | null; workspace_id: string }
+        Update: { amount_cents?: number; created_at?: string; created_by?: string | null; from_user?: string; id?: string; note?: string | null; occurred_on?: string; to_user?: string; voided_at?: string | null; workspace_id?: string }
+        Relationships: []
+      }
+      fin_splits: {
+        Row: { entry_id: string; method: string; paid_by: string; shares: Json; total_cents: number; workspace_id: string }
+        Insert: { entry_id: string; method: string; paid_by: string; shares: Json; total_cents: number; workspace_id: string }
+        Update: { entry_id?: string; method?: string; paid_by?: string; shares?: Json; total_cents?: number; workspace_id?: string }
+        Relationships: [{ foreignKeyName: "fin_splits_entry_id_fkey"; columns: ["entry_id"]; isOneToOne: false; referencedRelation: "fin_entries"; referencedColumns: ["id"] }]
+      }
       habit_logs: {
         Row: { created_at: string; habit_id: string; id: string; local_date: string; logged_at: string; user_id: string; value: number }
         Insert: { created_at?: string; habit_id: string; id?: string; local_date?: string; logged_at?: string; user_id?: string; value?: number }
@@ -171,7 +213,9 @@ export type Database = {
         Relationships: [{ foreignKeyName: "workspaces_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
       }
     }
-    Views: { [_ in never]: never }
+    Views: {
+      fin_account_balances: { Row: { account_id: string; balance_cents: number }; Relationships: [] }
+    }
     Functions: {
       accept_invitation: { Args: { p_token: string }; Returns: string }
       album_answer_trade: { Args: { p_trade: string; p_accept: boolean }; Returns: undefined }
@@ -186,6 +230,18 @@ export type Database = {
         SetofOptions: { from: "*"; to: "notification_jobs"; isOneToOne: false; isSetofReturn: true }
       }
       create_shared_workspace: { Args: { p_name: string }; Returns: string }
+      fin_confirm: { Args: { p_id: string }; Returns: undefined }
+      fin_ensure_categories: { Args: { p_workspace: string }; Returns: undefined }
+      fin_record: {
+        Args: {
+          p_id: string; p_kind: string; p_workspace: string; p_account: string; p_amount_cents: number; p_category?: string | null; p_description?: string;
+          p_occurred_on?: string; p_status?: string; p_to_account?: string | null; p_installments?: number; p_split_method?: string | null;
+          p_split_weights?: Json | null; p_paid_by?: string | null; p_purchase?: string | null
+        }
+        Returns: string
+      }
+      fin_settle: { Args: { p_workspace: string; p_to: string; p_amount: number; p_on: string; p_note?: string | null }; Returns: string }
+      fin_void: { Args: { p_id: string }; Returns: undefined }
       finish_shopping: {
         Args: { p_list_id: string; p_store: string; p_total_cents: number; p_purchased_on: string; p_paid_by: string | null; p_payment: string; p_carry_over: boolean }
         Returns: string
