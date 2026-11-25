@@ -2,7 +2,7 @@
 
 Organização pessoal, financeira, doméstica e de vida a dois. Web App (PWA) para iPhone e desktop.
 
-Estado real: [docs/PROGRESS.md](docs/PROGRESS.md).
+Estado real: [docs/PROGRESS.md](docs/PROGRESS.md) · O que depende de você: [docs/PENDENCIAS_JABEZ.md](docs/PENDENCIAS_JABEZ.md) · Testes no iPhone: [docs/TESTES_IPHONE.md](docs/TESTES_IPHONE.md)
 
 ## Documentação
 - [PRD](docs/PRD.md) · [Arquitetura](docs/ARCHITECTURE.md) · [Banco](docs/DATABASE.md) · [Design system](docs/DESIGN_SYSTEM.md)
@@ -26,6 +26,7 @@ npm run dev
 | `npm test` | testes de unidade (Vitest) |
 | `npm run test:db` | Postgres efêmero + migrations + testes de RLS |
 | `npm run build` | build de produção |
+| `npm run test:e2e` | ponta a ponta no app rodando (ver `tests/e2e/README.md`) |
 
 O Service Worker só registra em produção (`npm run build && npm start`).
 

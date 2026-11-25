@@ -47,3 +47,13 @@ Formato: contexto → decisão → alternativas. `PENDENTE` = aguarda o Jabez.
 **D-022 Fila offline genérica.** Escritas rápidas passam por `src/lib/outbox.ts` (IndexedDB) → `POST /api/sync`. Cada op tem id do aparelho que vira a PK do registro (`upsert ... ignoreDuplicates`), então reenvio não duplica. A UI junta servidor + fila por id (`mergeWater`, `mergeHabitLogs`, reaplicando as ops em ordem). Limitação: abrir o app do zero sem internet mostra a página offline (o HTML não é cacheado por conter dados pessoais); com o app já aberto, registrar offline funciona.
 
 **D-023 Lembretes de água pulados no silêncio.** Lembretes de água que caem no horário silencioso são descartados, não adiados (senão chegariam vários juntos ao fim do silêncio). Hábitos com horário escolhido continuam sendo adiados.
+
+**D-024 Razão simplificada no financeiro (revisa D-005).** Partidas só em contas reais. Transferência e pagamento de fatura têm duas partidas que somam zero; despesa/receita/estorno têm uma partida e a categoria fica no lançamento. Garante as regras da especificação (testadas em `supabase/tests/finance.test.sql`) sem contas-técnicas de categoria. Lançamentos só entram por `fin_record` (security definer, idempotente pelo id do aparelho); o app não tem permissão de inserir partidas diretamente.
+
+**D-025 Competência do cartão = mês da fatura.** Parcelas e compras no crédito contam no mês da fatura em que caem (fechamento no dia ou depois → fatura seguinte). Limite do cartão é consumido pelo total parcelado.
+
+**D-026 Agenda montada no servidor em TypeScript (revisa D-007).** Em vez de uma view SQL, `getAgenda` expande eventos (recorrência, vários dias) e lê tarefas datadas do próprio módulo. Continua sem cópia de dados.
+
+**D-027 Álbum individual com progresso do casal.** Cada um completa o próprio álbum (permite trocas, como no álbum de verdade); o app mostra também o total colado pelos dois juntos.
+
+**D-028 Testes E2E contra produção com usuários isolados.** Sem Docker no ambiente, os testes de ponta a ponta usam o Supabase de produção com dois usuários `@finch.test` (RLS isola). Script para criar/apagar em `tests/e2e/README.md`.

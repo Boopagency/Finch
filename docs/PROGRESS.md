@@ -1,50 +1,52 @@
 # Progresso
 
-_Atualizado em 2026-11-25._
+_Atualizado em 2026-11-25 (fim da sessão longa). Status: `implementado` · `testado (unidade/banco/E2E)` · `validado no iPhone`._
 
-## Estado atual: Etapa 0 concluída (Jabez) · Etapa 2 em andamento
+**No ar:** https://finch-ecru.vercel.app · branch `claude/lucid-rubin-r0jdza` (produção da Vercel).
+**O que depende do Jabez:** [PENDENCIAS_JABEZ.md](PENDENCIAS_JABEZ.md) · **Roteiro no iPhone:** [TESTES_IPHONE.md](TESTES_IPHONE.md)
 
-| Item | Status |
-|---|---|
-| Documentação, identidade (Canto), decisões | implementado |
-| Next.js 16.4 + TS strict + Tailwind v4 + ESLint + Vitest | implementado, testado localmente |
-| CI no GitHub Actions (lint, tipos, testes, build, testes de RLS) | implementado, **não executado ainda no GitHub** |
-| Migrations `core`, `notifications`, `harden_helpers`, `api_grants` | aplicadas no Supabase de produção; testadas em Postgres local |
-| RLS: pessoal × compartilhado × anônimo, convites, aparelhos, fila | testado localmente (17 asserções); mutação confirmou que o teste falha se a policy quebrar |
-| Login e-mail + senha, proxy de sessão, `requireViewer` | **validado no iPhone do Jabez** (app instalado) |
-| Convite por link (criar, aceitar criando senha, revogar, expira em 7 dias) | implementado; aceite testado só no SQL |
-| Espaço "Nós" (criar), perfil, fuso, horário silencioso | implementado, não testado com usuário real |
-| PWA: manifest, ícones, SW (cache estático, offline, push, deep link, atualização) | implementado; manifest e página offline conferidos localmente |
-| Web Push: inscrição, aparelhos, teste imediato e agendado, dispatcher com silêncio/retry/revogação | **validado no iPhone do Jabez** (25/11): teste imediato e agendado chegaram com o app fechado. iPhone da Duda pendente |
-| Rota do cron protegida por segredo | testado localmente (401 sem segredo) |
-| Supabase Cron agendado | executado em 25/11; chamada ao app retornando **200** (conferido pelo Jabez em `net._http_response`) |
-| Projeto na Vercel | no ar em https://finch-ecru.vercel.app (criado pelo Jabez); `/entrar` 200, cron sem segredo 401, URL e chave do Supabase conferidas no bundle |
-| Hoje (palco escuro, frase por regras, balões com dados reais) | implementado; frase testada; tela não vista com login real |
-| **Água** (registro em 1 toque, desfazer, meta ≤ 5 L, copos, histórico 7 dias, lembretes que param na meta) | implementado; lógica e banco testados; **não testado com login real** |
-| **Hábitos** (feito/quantidade, diário nos dias/X por semana, lembrete, cor, editar/arquivar, consistência sem punição) | implementado; lógica e banco testados; **não testado com login real** |
-| Fila offline (IndexedDB → `/api/sync`, idempotente, indicador de pendências) | implementado; junção testada; **não testado em aparelho** |
-| Registrar (+): água e hábitos ativos; demais atalhos marcados com a etapa | implementado |
-| Hoje: frase com água/hábitos, card de água e hábitos pendentes | implementado |
-| Agenda, Finch | telas honestas de "chega na Etapa X" |
+## Módulos
 
-## Medições
-- Push (25/11, iPhone do Jabez, app fechado): imediato enviado 0,5 s após criado; agendado enviado 1,2 s após o horário (o tique do cron caiu logo depois). Atraso esperado no pior caso: ~60 s (intervalo do cron) + entrega da Apple.
+| Módulo | Status | Testes |
+|---|---|---|
+| Fundação: login e-mail+senha, convite, espaços pessoal/Nós, RLS, perfil, ajustes | implementado; login e push **validados no iPhone do Jabez** | SQL (RLS) + E2E |
+| PWA: manifest, ícones, SW (offline, push, deep link, atualização) | implementado; instalação validada no iPhone | E2E (corrigido bug de recarregar na 1ª instalação) |
+| Notificações: fila, cron 1 min, silêncio, retry, relevância, planejador | implementado; push validado no iPhone (0,5 s / 1,2 s) | unidade + SQL |
+| Água: 1 toque, desfazer, meta ≤ 5 L, histórico, lembretes que param na meta | testado | unidade + SQL + E2E |
+| Hábitos: feito/quantidade, dias/X por semana, lembrete, consistência sem punição | testado | unidade + SQL + E2E |
+| Fila offline (IndexedDB → `/api/sync`, idempotente) para água, hábitos, tarefas, mercado | testado (modo avião simulado) | unidade + E2E |
+| Tarefas: recorrência, ocorrências independentes, rodízio, subtarefas, adiar, quadro, busca, adição rápida em PT | testado | unidade + SQL + E2E |
+| Agenda: dia/semana/mês, eventos recorrentes e de vários dias, conflitos, lembrete antecipado, tarefas na agenda | testado | unidade + SQL + E2E |
+| Mercado: listas do casal **em tempo real**, offline, corredores, modo supermercado, finalizar compra, histórico de preço | testado com 2 usuários simultâneos | unidade + SQL + E2E |
+| Álbum de figurinhas: pontos por triggers, teto diário, pacotinhos, sorteio determinístico, especiais, presente e troca | testado | SQL + E2E |
+| Financeiro (núcleo): contas, cartões, parcelas, faturas, previsto/realizado, divisão do casal, acerto, orçamento, lançamento rápido, compra → despesa | testado | unidade + SQL (regras da spec) + E2E |
+| Hoje: frase por regras com água/hábitos/tarefas/eventos; listas do dia; avisos | testado | E2E |
 
-## Testes executados (25/11)
-- `npm test`: 16 testes (frase do Hoje, silêncio, água, hábitos, fila offline) — passando.
-- `npm run test:db`: migrations do zero + testes de RLS e de saúde (privacidade, fuso, idempotência, limites), cada arquivo num banco limpo — passando.
-- `npm run lint`, `npm run typecheck`, `npm run build` — passando.
-- Navegador headless (tamanho iPhone 15): `/entrar`, `/offline` renderizam; `/` sem login redireciona para `/entrar`; manifest servido.
+## Números (25/11)
+- `npm test`: **45** testes de unidade passando.
+- `npm run test:db`: **7** suítes SQL (RLS, saúde, tarefas, agenda, mercado, álbum, financeiro) passando, cada uma em banco limpo.
+- `npm run test:e2e`: **47** testes de ponta a ponta passando (iPhone 15 simulado, 2 usuários de teste, Supabase de produção).
+- `lint`, `typecheck`, `build`: passando.
 
-## Problemas conhecidos
-- ~~25/11: em produção, toda leitura/escrita do app dava "permission denied" (tabelas sem GRANT para a API).~~ Corrigido pela migration `api_grants` no mesmo dia; teste local passou a cobrir.
-- `/convite/<token>` retorna erro 500 se `SUPABASE_SERVICE_ROLE_KEY` não estiver configurada (esperado; em produção a variável existe).
-- Tipos do banco (`src/types/database.ts`) foram gerados via MCP e colados; regenerar após cada migration.
-- `npm audit` aponta avisos em dependências de desenvolvimento; revisar na Etapa 8.
+## Bugs encontrados e corrigidos pelos testes
+- Service worker recarregava a página na 1ª instalação (apagava o login).
+- Tabelas sem GRANT para a API ("permission denied") — projeto Supabase novo não expõe por padrão (D-020).
+- Tempo real entrava como anônimo antes da sessão carregar (sem eventos) — agora autentica antes de assinar.
+- Janela de detalhe de tarefa mostrava dados velhos após salvar subtarefa.
+- Consistência de hábito contava dias antes do hábito existir.
+- "1,5 l" virava dois itens; "água" sem categoria (limite de palavra sem acento no JS).
 
-## Próximo passo
-1. ~~Configurações do Jabez~~ feito (Supabase, Vercel, Cron). Conferir `NEXT_PUBLIC_APP_URL` no primeiro convite.
-2. ~~Validar no iPhone do Jabez~~ feito.
-3. Convidar a Duda e repetir no iPhone dela (adiado pelo Jabez).
-4. Validar água e hábitos no iPhone (checklist na conversa de 25/11).
-5. Etapa 2, próximo bloco: tarefas + recorrência + rotina da casa; depois mercado e álbum.
+## Não feito / limitações conhecidas
+- **Validação no iPhone** de tudo que veio depois do push (ver roteiro). Duda ainda não entrou.
+- Abrir o app **do zero sem internet** mostra a página offline (telas não são cacheadas por conterem dados pessoais); com o app aberto, registrar offline funciona.
+- Financeiro: importação CSV/OFX, relatórios avançados (evolução patrimonial, projeções), simulações e recorrências financeiras automáticas (salário/aluguel) ainda não; despesas recorrentes podem ser lançadas como "previsto".
+- Lente global Tudo/Eu/Nós (D-011): por ora cada tela tem o seletor do espaço onde faz sentido.
+- Etapas 4–8 (treinos, saúde detalhada, casa/despensa/alimentação, viagens/memórias, assistente IA) não iniciadas.
+- Artes das figurinhas usam ícones Lucide (licença ISC) em composição própria; podem ganhar ilustrações exclusivas depois.
+- `npm audit` com avisos em dependências de desenvolvimento.
+
+## Próximos passos sugeridos
+1. Jabez roda o [roteiro no iPhone](TESTES_IPHONE.md) e convida a Duda.
+2. Etapa 4: treinos (fichas, execução offline com cronômetro por timestamp, histórico, PRs) e evolução física.
+3. Financeiro 2: recorrências (salário, aluguel, assinaturas), relatórios e importação CSV/OFX.
+4. Etapa 5: despensa ligada ao mercado, rotinas da casa, receitas e plano alimentar → lista.
