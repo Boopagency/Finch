@@ -8,6 +8,7 @@ import { WaterQuick } from "@/features/health/components/water-quick";
 import { habitStatus } from "@/features/health/habits";
 import { getHabits, getWaterToday } from "@/features/health/server/queries";
 import { formatWater } from "@/features/health/water";
+import { getAlbumSummary } from "@/features/album/server/queries";
 import { getAgenda } from "@/features/agenda/server/queries";
 import { getLists } from "@/features/shopping/server/queries";
 import { TaskList } from "@/features/tasks/components/task-list";
@@ -48,7 +49,7 @@ export default async function TodayPage() {
     getHabits(viewer, 7),
     getTaskItems(viewer, 1),
   ]);
-  const [agenda, shopping] = await Promise.all([getAgenda(viewer, tasksData.today, tasksData.today), getLists(viewer)]);
+  const [agenda, shopping, album] = await Promise.all([getAgenda(viewer, tasksData.today, tasksData.today), getLists(viewer), getAlbumSummary()]);
   const nowHm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   const upcoming = agenda.events.filter((e) => !e.end || e.end > nowHm);
   const todayTasks = tasksData.items.filter((t) => t.date && t.date <= tasksData.today);
@@ -104,6 +105,9 @@ export default async function TodayPage() {
   }
   if (!devices) {
     bubbles.push({ key: "push", title: "Lembretes", text: "Ative os lembretes neste iPhone para o Finch te chamar.", tone: "cobalt", href: "/ajustes#lembretes" });
+  }
+  if (album.packs > 0) {
+    bubbles.unshift({ key: "packs", title: "Álbum", text: album.packs === 1 ? "Tem um pacotinho de figurinhas esperando você." : `Tem ${album.packs} pacotinhos de figurinhas esperando você.`, tone: "coral", href: "/vida/album" });
   }
   for (const l of shopping.lists.filter((x) => x.pending > 0)) {
     bubbles.push({ key: `list-${l.id}`, title: l.name, text: `${l.pending} ${l.pending === 1 ? "item" : "itens"} para comprar.`, tone: "frog", href: `/mercado/${l.id}` });

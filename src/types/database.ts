@@ -83,6 +83,48 @@ export type Database = {
         Update: { auth?: string; created_at?: string; device_label?: string; endpoint?: string; id?: string; last_success_at?: string | null; p256dh?: string; revoked_at?: string | null; user_agent?: string | null; user_id?: string }
         Relationships: [{ foreignKeyName: "push_subscriptions_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
       }
+      sticker_items: {
+        Row: { created_at: string; id: string; owner_id: string; pack_id: string | null; pasted_at: string | null; slot: number | null; sticker_code: string }
+        Insert: { created_at?: string; id?: string; owner_id: string; pack_id?: string | null; pasted_at?: string | null; slot?: number | null; sticker_code: string }
+        Update: { created_at?: string; id?: string; owner_id?: string; pack_id?: string | null; pasted_at?: string | null; slot?: number | null; sticker_code?: string }
+        Relationships: [{ foreignKeyName: "sticker_items_sticker_code_fkey"; columns: ["sticker_code"]; isOneToOne: false; referencedRelation: "stickers"; referencedColumns: ["code"] }]
+      }
+      sticker_packs: {
+        Row: { created_at: string; id: string; opened_at: string | null; reason: string; user_id: string }
+        Insert: { created_at?: string; id?: string; opened_at?: string | null; reason: string; user_id: string }
+        Update: { created_at?: string; id?: string; opened_at?: string | null; reason?: string; user_id?: string }
+        Relationships: []
+      }
+      sticker_pages: {
+        Row: { code: string; name: string; position: number; season: number; tone: string }
+        Insert: { code: string; name: string; position: number; season?: number; tone: string }
+        Update: { code?: string; name?: string; position?: number; season?: number; tone?: string }
+        Relationships: []
+      }
+      sticker_trades: {
+        Row: { created_at: string; decided_at: string | null; from_user: string; give_item: string; id: string; status: string; to_user: string; want_item: string | null }
+        Insert: { created_at?: string; decided_at?: string | null; from_user: string; give_item: string; id?: string; status?: string; to_user: string; want_item?: string | null }
+        Update: { created_at?: string; decided_at?: string | null; from_user?: string; give_item?: string; id?: string; status?: string; to_user?: string; want_item?: string | null }
+        Relationships: []
+      }
+      stickers: {
+        Row: { achievement: string | null; code: string; icon: string; name: string; page_code: string; position: number; rarity: string }
+        Insert: { achievement?: string | null; code: string; icon: string; name: string; page_code: string; position: number; rarity: string }
+        Update: { achievement?: string | null; code?: string; icon?: string; name?: string; page_code?: string; position?: number; rarity?: string }
+        Relationships: []
+      }
+      xp_events: {
+        Row: { created_at: string; id: string; period_key: string; points: number; revoked_at: string | null; rule_key: string; source_id: string; user_id: string }
+        Insert: { created_at?: string; id?: string; period_key?: string; points: number; revoked_at?: string | null; rule_key: string; source_id?: string; user_id: string }
+        Update: { created_at?: string; id?: string; period_key?: string; points?: number; revoked_at?: string | null; rule_key?: string; source_id?: string; user_id?: string }
+        Relationships: []
+      }
+      xp_rules: {
+        Row: { daily_cap: number; key: string; label: string; points: number }
+        Insert: { daily_cap: number; key: string; label: string; points: number }
+        Update: { daily_cap?: number; key?: string; label?: string; points?: number }
+        Relationships: []
+      }
       subtasks: {
         Row: { done: boolean; id: string; position: number; task_id: string; title: string; workspace_id: string }
         Insert: { done?: boolean; id?: string; position?: number; task_id: string; title: string; workspace_id?: string }
@@ -132,6 +174,12 @@ export type Database = {
     Views: { [_ in never]: never }
     Functions: {
       accept_invitation: { Args: { p_token: string }; Returns: string }
+      album_answer_trade: { Args: { p_trade: string; p_accept: boolean }; Returns: undefined }
+      album_gift: { Args: { p_item: string; p_to: string }; Returns: undefined }
+      album_open_pack: { Args: { p_pack: string }; Returns: { created_at: string; id: string; owner_id: string; pack_id: string | null; pasted_at: string | null; slot: number | null; sticker_code: string }[]; SetofOptions: { from: "*"; to: "sticker_items"; isOneToOne: false; isSetofReturn: true } }
+      album_paste: { Args: { p_item: string }; Returns: undefined }
+      album_propose_trade: { Args: { p_give: string; p_want: string }; Returns: string }
+      album_refresh: { Args: never; Returns: undefined }
       claim_notification_jobs: {
         Args: { p_limit?: number }
         Returns: Database["public"]["Tables"]["notification_jobs"]["Row"][]
