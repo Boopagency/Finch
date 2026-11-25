@@ -57,3 +57,5 @@ Formato: contexto → decisão → alternativas. `PENDENTE` = aguarda o Jabez.
 **D-027 Álbum individual com progresso do casal.** Cada um completa o próprio álbum (permite trocas, como no álbum de verdade); o app mostra também o total colado pelos dois juntos.
 
 **D-028 Testes E2E contra produção com usuários isolados.** Sem Docker no ambiente, os testes de ponta a ponta usam o Supabase de produção com dois usuários `@finch.test` (RLS isola). Script para criar/apagar em `tests/e2e/README.md`.
+
+**D-029 Região das funções = região do banco.** `vercel.json` fixa `pdx1` (Oregon) porque o Supabase está em `us-west-2`. Cada tela faz várias consultas; a viagem servidor↔banco pesa mais que a do iPhone↔servidor. Se um dia o banco mudar para São Paulo, mudar para `gru1`.

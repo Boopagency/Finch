@@ -28,6 +28,14 @@ _Atualizado em 2026-11-25 (fim da sessão longa). Status: `implementado` · `tes
 - `npm run test:e2e`: **47** testes de ponta a ponta passando (iPhone 15 simulado, 2 usuários de teste, Supabase de produção).
 - `lint`, `typecheck`, `build`: passando.
 
+## Desempenho (25/11, medido no site publicado, iPhone 15 simulado)
+Relato do Jabez: toques "demoram e às vezes não vão", principalmente na barra.
+| | Antes | Depois |
+|---|---|---|
+| Resposta ao toque na barra | 1.000–1.300 ms sem nada na tela | **45–69 ms** (esqueleto pré-carregado) |
+| Servidor Hoje / Tarefas / Finanças | 1.958 / 813 / 778 ms | 709 / 359 / 419 ms |
+Causas e correções: sem estado de carregamento (`loading.tsx`); funções na Vercel longe do banco (agora `pdx1`, ao lado do Supabase `us-west-2`); consultas repetidas e gravação de ocorrências a cada abertura (cache por requisição; cron materializa); recarregamentos a cada sincronização (agrupados); `touch-action: manipulation`.
+
 ## Bugs encontrados e corrigidos pelos testes
 - Service worker recarregava a página na 1ª instalação (apagava o login).
 - Tabelas sem GRANT para a API ("permission denied") — projeto Supabase novo não expõe por padrão (D-020).
