@@ -43,6 +43,11 @@ describe("hábitos", () => {
     expect(consistency(habit(), logs, "2026-11-25", 3)).toEqual({ done: 1, of: 2 }); // 24 ok, 23 não, 25 ainda aberto
     expect(consistency(habit({ period: "week", target: 1 }), logs, "2026-11-25").done).toBe(1);
   });
+  it("consistência não conta dias antes do hábito existir", () => {
+    expect(consistency(habit({ since: "2026-11-25" }), [], "2026-11-25")).toEqual({ done: 0, of: 0 });
+    expect(consistency(habit({ period: "week", target: 3, since: "2026-11-25" }), [], "2026-11-25")).toEqual({ done: 0, of: 0 });
+    expect(consistency(habit({ since: "2026-11-24" }), [], "2026-11-25", 28)).toEqual({ done: 0, of: 1 });
+  });
 });
 
 describe("fila offline", () => {

@@ -2,16 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { createClient, createServiceClient, requireViewer } from "@/lib/supabase/server";
+import { createClient, requireViewer } from "@/lib/supabase/server";
 
 type Result = { ok: boolean; message: string };
 
 /**
  * Apaga lembretes pendentes do próprio usuário para o planejador recriar com a configuração nova.
- * Apagar (não cancelar) libera a chave única do horário. Service role, sempre filtrado pelo usuário.
+ * Apagar (não cancelar) libera a chave única do horário. RLS: só os pendentes do próprio usuário.
  */
 async function dropPendingReminders(userId: string, by: { category?: string; sourceId?: string }) {
-  let q = createServiceClient().from("notification_jobs").delete().eq("user_id", userId).eq("status", "pending");
+  let q = (await createClient()).from("notification_jobs").delete().eq("user_id", userId).eq("status", "pending");
   if (by.category) q = q.eq("category", by.category);
   if (by.sourceId) q = q.eq("source_id", by.sourceId);
   await q;

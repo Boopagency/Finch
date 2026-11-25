@@ -88,7 +88,11 @@ select from pg_temp.as_user('00000000-0000-0000-0000-00000000000a', 'jabez@exemp
 do $$ begin
   assert (select count(*) from public.push_subscriptions) = 0, 'A não vê aparelhos de B';
   assert (select count(*) from public.notification_jobs) = 0, 'A não vê jobs de B';
+  delete from public.notification_jobs; -- não pode apagar os de B
 end $$;
+reset role;
+do $$ begin assert (select count(*) from public.notification_jobs) = 1, 'jobs de B intactos'; end $$;
+set role authenticated;
 
 -- anônimo não vê nada
 reset role; set role anon;

@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
+import { toast } from "@/components/ui/toast";
 import { archiveHabit, saveHabit } from "../server/actions";
 import type { Habit } from "../habits";
 
@@ -15,7 +16,10 @@ const weekdays = ["D", "S", "T", "Q", "Q", "S", "S"];
 export function HabitForm({ habit, onDone }: { habit?: Habit; onDone?: () => void }) {
   const [state, action, pending] = useActionState(async (prev: Awaited<ReturnType<typeof saveHabit>> | null, form: FormData) => {
     const r = await saveHabit(prev, form);
-    if (r.ok) onDone?.();
+    if (r.ok) {
+      toast(r.message);
+      onDone?.();
+    }
     return r;
   }, null);
   const [kind, setKind] = useState<Habit["kind"]>(habit?.kind ?? "check");

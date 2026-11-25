@@ -9,6 +9,8 @@ export type Habit = {
   days: number[]; // 0 = domingo
   reminder_time: string | null;
   tone: string;
+  /** data local de criação; consistência não conta dias antes disso */
+  since?: string;
 };
 export type HabitLog = { id: string; habit_id: string; value: number; local_date: string };
 
@@ -59,6 +61,7 @@ export function consistency(h: Habit, logs: HabitLog[], today: string, days = 28
     const current = weekStart(today);
     for (let w = 0; w <= 4; w++) {
       const start = addDays(current, -7 * w);
+      if (h.since && addDays(start, 6) < h.since) break; // semana inteira antes do hábito existir
       let sum = 0;
       for (let i = 0; i < 7; i++) sum += byDate.get(addDays(start, i)) ?? 0;
       const ok = sum >= h.target;
@@ -73,6 +76,7 @@ export function consistency(h: Habit, logs: HabitLog[], today: string, days = 28
   let of = 0;
   for (let i = 0; i < days; i++) {
     const d = addDays(today, -i);
+    if (h.since && d < h.since) break;
     if (!isScheduled(h, d)) continue;
     const ok = (byDate.get(d) ?? 0) >= h.target;
     if (i === 0 && !ok) continue; // hoje ainda dá tempo

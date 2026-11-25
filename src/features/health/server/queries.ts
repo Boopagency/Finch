@@ -55,7 +55,7 @@ export async function getHabits(viewer: Viewer, historyDays = 35) {
   const [{ data: habits }, { data: logs }] = await Promise.all([
     supabase
       .from("habits")
-      .select("id, name, kind, period, target, unit, days, reminder_time, tone")
+      .select("id, name, kind, period, target, unit, days, reminder_time, tone, created_at")
       .is("archived_at", null)
       .order("position")
       .order("created_at"),
@@ -63,7 +63,9 @@ export async function getHabits(viewer: Viewer, historyDays = 35) {
   ]);
   return {
     today,
-    habits: (habits ?? []).map((h) => ({ ...h, reminder_time: h.reminder_time?.slice(0, 5) ?? null }) as Habit),
+    habits: (habits ?? []).map(
+      ({ created_at, ...h }) => ({ ...h, reminder_time: h.reminder_time?.slice(0, 5) ?? null, since: localDate(new Date(created_at), viewer.tz) }) as Habit,
+    ),
     logs: (logs ?? []) as HabitLog[],
   };
 }
