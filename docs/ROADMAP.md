@@ -33,13 +33,13 @@ Contas, categorias, razão de partidas, receitas/despesas, recorrentes, cartões
 **Aceite:** testes de DATABASE.md §4 passando; critérios 6 e 7 da v1. **Fim da v1.**
 **Status (25/11):** núcleo implementado e testado (contas, cartões, parcelas, faturas, divisão, acerto, orçamento, compra → despesa). Faltam: recorrências financeiras, relatórios avançados, simulações, importação CSV/OFX.
 
-## Etapa 4 — Treinos e saúde ✅ (exceto fotos de evolução)
+## Etapa 4 — Treinos e saúde ✅
 Biblioteca, fichas, execução offline, cronômetro por timestamp, histórico, PRs, evolução física com fotos privadas, registros de saúde.
 
-## Etapa 5 — Casa e alimentação ✅ (despensa, receitas, cardápio; ativos/manutenções/documentos depois)
+## Etapa 5 — Casa e alimentação ✅
 Despensa, rotinas domésticas (sobre tarefas), ativos, manutenções, documentos, receitas, plano alimentar → lista.
 
-## Etapa 6 — Vida a dois e metas ✅ (datas, lugares/viagens, memórias, metas; fotos depois)
+## Etapa 6 — Vida a dois e metas ✅
 Metas vinculadas, viagens, memórias, datas, lugares, desejos, conquistas, desafios, recompensas.
 
 ## Etapa 7 — IA ✅ (assistente com ferramentas; falta a chave; fotos de comprovante e relatório automático depois)

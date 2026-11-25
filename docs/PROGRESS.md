@@ -27,12 +27,15 @@ _Atualizado em 2026-11-25 (fim da sessão longa). Status: `implementado` · `tes
 | Metas pessoais ou do casal: soma atômica (os dois ao mesmo tempo), ritmo por semana até o prazo, +50 pontos ao bater | testado com 2 usuários | unidade + SQL + E2E |
 | Finanças 2: recorrentes (salário, aluguel, assinaturas) que entram sozinhos como previsto, relatório de 6 meses e categorias vs. mês anterior, exportação CSV para Excel | testado | unidade + SQL + E2E |
 | Assistente Finch (aba do passarinho): conversa, resumo do dia, finanças do mês, cria tarefa, registra água, põe itens no mercado; dinheiro só com cartão de confirmação; cota diária por pessoa; **falta a chave de IA** | testado com API falsa local (laço completo até o banco) | unidade + SQL + E2E |
+| Fotos: evolução corporal (privadas, antes/agora) e foto nas memórias; reduzidas no aparelho, sem localização; bucket privado com links de 1 h | testado com 2 usuários | SQL + E2E |
+| Importar extrato do banco (OFX/CSV, Windows-1252): prévia, categoria sugerida, aviso de possível duplicado, reimportar não duplica | testado | unidade + E2E |
+| Coisas da casa: itens com garantia e foto da nota, manutenções com próxima data; avisos no Hoje | testado com 2 usuários | unidade + SQL + E2E |
 | Hoje: frase por regras com água/hábitos/tarefas/eventos; listas do dia; avisos | testado | E2E |
 
 ## Números (25/11)
-- `npm test`: **66** testes de unidade passando.
-- `npm run test:db`: **12** suítes SQL (RLS, saúde, tarefas, agenda, mercado, álbum, financeiro, recorrências, treinos, cozinha, nós e metas, uso da IA) passando, cada uma em banco limpo.
-- `npm run test:e2e`: **86** testes de ponta a ponta (12 suítes) passando (iPhone 15 simulado, 2 usuários de teste, Supabase de produção).
+- `npm test`: **71** testes de unidade passando.
+- `npm run test:db`: **14** suítes SQL (RLS, saúde, tarefas, agenda, mercado, álbum, financeiro, recorrências, treinos, cozinha, nós e metas, uso da IA, fotos, coisas da casa) passando, cada uma em banco limpo.
+- `npm run test:e2e`: **99** testes de ponta a ponta (15 suítes). Mercado às vezes oscila (offline/edição) quando roda logo após as outras; isolado passa sempre passando (iPhone 15 simulado, 2 usuários de teste, Supabase de produção).
 - `lint`, `typecheck`, `build`: passando.
 
 ## Desempenho (25/11, medido no site publicado, iPhone 15 simulado)
@@ -62,10 +65,10 @@ Causas e correções: sem estado de carregamento (`loading.tsx`); funções na V
 ## Não feito / limitações conhecidas
 - **Validação no iPhone** de tudo que veio depois do push (ver roteiro). Duda ainda não entrou.
 - Abrir o app **do zero sem internet** mostra a página offline (telas não são cacheadas por conterem dados pessoais); com o app aberto, registrar offline funciona.
-- Financeiro: importação de extrato (CSV/OFX), evolução patrimonial e simulações ainda não. Recorrências são geradas ao abrir Finanças (até o mês que vem).
+- Financeiro: evolução patrimonial e simulações ainda não. Recorrências são geradas ao abrir Finanças (até o mês que vem).
 - Lente global Tudo/Eu/Nós (D-011): por ora cada tela tem o seletor do espaço onde faz sentido.
-- Treino: fotos de evolução (Storage privado), substituições de exercício e RPE ainda não. Iniciar sessão precisa de internet (as séries não).
-- Nós: fotos nas memórias e lembrete push das datas especiais ainda não (aparecem no Hoje 7 dias antes). Metas ainda não puxam valores sozinhas do financeiro/treino.
+- Treino: substituições de exercício e RPE ainda não. Iniciar sessão precisa de internet (as séries não).
+- Nós: lembrete push das datas especiais ainda não (aparecem no Hoje 7 dias antes). Fotos de documentos em PDF não (só imagem). Metas ainda não puxam valores sozinhas do financeiro/treino.
 - Assistente: validado só com API falsa (sem custo). Com a chave real, testar no iPhone; leitura de comprovante por foto e relatório semanal automático ainda não.
 - Artes das figurinhas usam ícones Lucide (licença ISC) em composição própria; podem ganhar ilustrações exclusivas depois.
 - `npm audit` com avisos em dependências de desenvolvimento.

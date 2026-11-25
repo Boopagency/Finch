@@ -53,6 +53,12 @@ Marque ✅ ou ❌ e me mande os ❌ com print.
 - [ ] Cardápio → escrever o nome da receita no jantar de hoje → o Hoje mostra "Jantar de hoje".
 - [ ] Mercado → pegar o arroz → Finalizar compra → a despensa sobe sozinha.
 
+## Fotos, extrato e casa
+- [ ] Saúde → Nova foto (câmera) → aparece em "Antes e agora" depois da 2ª. A Duda não vê.
+- [ ] Nós → Memórias → nova memória com foto → aparece no celular da Duda.
+- [ ] Finanças → Importar extrato → escolha a conta → arquivo OFX exportado do app do banco → confira categorias → Importar. Importar de novo o mesmo arquivo: tudo "já importado".
+- [ ] Vida → Casa → Novo item (ex.: geladeira) com garantia e foto da nota → Manutenção com próxima data.
+
 ## Nós e Metas (Vida → Nós / Metas)
 - [ ] Nós → Datas → começo do namoro (repete todo ano) → contagem de dias e anos.
 - [ ] Lugares → um restaurante → "Fomos" → dar estrelas.

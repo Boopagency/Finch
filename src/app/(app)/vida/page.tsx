@@ -7,7 +7,7 @@ export const metadata = { title: "Vida" };
 // Áreas da vida.
 const areas = [
   { label: "Tarefas", Icon: CheckSquare, tone: "bg-sunflower text-on-color", href: "/tarefas" },
-  { label: "Casa", Icon: Home, tone: "bg-tangerine text-on-color", href: "/tarefas?v=casa" },
+  { label: "Casa", Icon: Home, tone: "bg-tangerine text-on-color", href: "/vida/casa" },
   { label: "Água", Icon: Droplet, tone: "bg-cobalt text-on-cobalt", href: "/vida/agua" },
   { label: "Hábitos", Icon: Sparkles, tone: "bg-sunflower text-on-color", href: "/vida/habitos" },
   { label: "Mercado", Icon: ShoppingBasket, tone: "bg-frog text-on-color", href: "/mercado" },

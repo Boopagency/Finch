@@ -6,6 +6,8 @@ import { countdownLabel } from "@/features/couple/couple";
 import { getUpcomingDates } from "@/features/couple/server/queries";
 import { isLow } from "@/features/kitchen/kitchen";
 import { getKitchen } from "@/features/kitchen/server/queries";
+import { alertText } from "@/features/home/home";
+import { getHome } from "@/features/home/server/queries";
 import { InstallHint } from "@/components/pwa/install-hint";
 import { HabitList } from "@/features/health/components/habit-list";
 import { WaterQuick } from "@/features/health/components/water-quick";
@@ -39,7 +41,7 @@ export default async function TodayPage() {
   const supabase = await createClient();
   const now = nowIn(viewer.tz);
 
-  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData, agenda, shopping, album, soonDates, kitchen] = await Promise.all([
+  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData, agenda, shopping, album, soonDates, kitchen, home] = await Promise.all([
     supabase.from("workspaces").select("id, name, workspace_members(user_id, profiles(display_name))").eq("kind", "shared"),
     supabase.from("push_subscriptions").select("id", { count: "exact", head: true }).is("revoked_at", null),
     supabase
@@ -57,6 +59,7 @@ export default async function TodayPage() {
     getAlbumSummary(),
     getUpcomingDates(viewer, 7),
     getKitchen(viewer),
+    getHome(viewer),
   ]);
   const nowHm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   const upcoming = agenda.events.filter((e) => !e.end || e.end > nowHm);
@@ -122,6 +125,7 @@ export default async function TodayPage() {
   }
   const dinner = kitchen.meals.find((m) => m.day === kitchen.today && m.slot === "jantar");
   if (dinner) bubbles.push({ key: "dinner", title: "Jantar de hoje", text: dinner.title, tone: "tangerine", href: "/vida/cozinha?v=cardapio" });
+  for (const a of home.alerts) bubbles.push({ key: `home-${a.item_id}-${a.kind}`, title: a.name, text: `${alertText(a)[0]!.toUpperCase()}${alertText(a).slice(1)}.`, tone: a.kind === "overdue" ? "coral" : "tangerine", href: "/vida/casa" });
   const low = kitchen.pantry.filter(isLow).length;
   if (low) bubbles.push({ key: "pantry", title: "Despensa", text: low === 1 ? "1 item abaixo do mínimo." : `${low} itens abaixo do mínimo.`, tone: "sunflower", href: "/vida/cozinha" });
   for (const l of shopping.lists.filter((x) => x.pending > 0)) {

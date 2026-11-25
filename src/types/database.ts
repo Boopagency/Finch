@@ -293,6 +293,18 @@ export type Database = {
         Update: { id?: string; user_id?: string; path?: string; taken_on?: string; note?: string | null; created_at?: string }
         Relationships: [{ foreignKeyName: "body_photos_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
       }
+      home_items: {
+        Row: { id: string; workspace_id: string; name: string; kind: string; bought_on: string | null; price_cents: number | null; warranty_until: string | null; notes: string | null; photo_path: string | null; created_by: string; created_at: string }
+        Insert: { id?: string; workspace_id: string; name: string; kind?: string; bought_on?: string | null; price_cents?: number | null; warranty_until?: string | null; notes?: string | null; photo_path?: string | null; created_by?: string; created_at?: string }
+        Update: { id?: string; workspace_id?: string; name?: string; kind?: string; bought_on?: string | null; price_cents?: number | null; warranty_until?: string | null; notes?: string | null; photo_path?: string | null; created_by?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "home_items_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      home_maintenance: {
+        Row: { id: string; item_id: string; workspace_id: string; done_on: string; description: string; cost_cents: number | null; next_on: string | null; created_by: string; created_at: string }
+        Insert: { id?: string; item_id: string; workspace_id?: string; done_on?: string; description: string; cost_cents?: number | null; next_on?: string | null; created_by?: string; created_at?: string }
+        Update: { id?: string; item_id?: string; workspace_id?: string; done_on?: string; description?: string; cost_cents?: number | null; next_on?: string | null; created_by?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "home_maintenance_item_id_fkey"; columns: ["item_id"]; isOneToOne: false; referencedRelation: "home_items"; referencedColumns: ["id"] }, { foreignKeyName: "home_maintenance_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
       workspace_members: {
         Row: { joined_at: string; reference_income_cents: number | null; role: string; user_id: string; workspace_id: string }
         Insert: { joined_at?: string; reference_income_cents?: number | null; role?: string; user_id: string; workspace_id: string }
