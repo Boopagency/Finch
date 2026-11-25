@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { addDays } from "@/features/health/habits";
 import { todayFor } from "@/features/health/server/queries";
 import { localDate } from "@/features/health/water";
@@ -28,7 +29,8 @@ export type TaskItem = {
   subtasks: { id: string; title: string; done: boolean }[];
 };
 
-export async function getSpaces(viewer: Viewer): Promise<Space[]> {
+/** Uma busca por requisição (várias telas e o layout pedem os espaços). */
+export const getSpaces = cache(async (viewer: Viewer): Promise<Space[]> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("workspaces")
@@ -43,7 +45,7 @@ export async function getSpaces(viewer: Viewer): Promise<Space[]> {
       name: m.user_id === viewer.id ? "Você" : ((m.profiles as { display_name: string } | null)?.display_name ?? ""),
     })),
   }));
-}
+});
 
 type SupabaseClient = Pick<Awaited<ReturnType<typeof createClient>>, "from">;
 type RecurringTask = { id: string; repeat: unknown; repeat_start: string | null; rotation: string[] | null; assignee_id: string | null };
@@ -69,27 +71,34 @@ const TASK_FIELDS =
  * Itens de tarefa visíveis: únicas (abertas, ou concluídas hoje) + ocorrências na janela
  * (abertas até `horizon` dias, atrasadas dos últimos 30 dias, concluídas hoje).
  */
-export async function getTaskItems(viewer: Viewer, horizon = 14): Promise<{ today: string; items: TaskItem[]; spaces: Space[] }> {
+export const getTaskItems = cache(async (viewer: Viewer, horizon = 14): Promise<{ today: string; items: TaskItem[]; spaces: Space[] }> => {
   const supabase = await createClient();
   const today = todayFor(viewer);
   const until = addDays(today, horizon);
-  const spaces = await getSpaces(viewer);
+  const [spaces, { data: tasks }] = await Promise.all([getSpaces(viewer), supabase.from("tasks").select(TASK_FIELDS).is("archived_at", null)]);
   const spaceOf = new Map(spaces.map((s) => [s.id, s]));
   const nameOf = new Map(spaces.flatMap((s) => s.members.map((m) => [m.id, m] as const)));
 
-  const { data: tasks } = await supabase.from("tasks").select(TASK_FIELDS).is("archived_at", null);
   const all = tasks ?? [];
-  await ensureOccurrences(supabase, all.filter((t) => t.repeat), today, until);
-
-  const recurringIds = all.filter((t) => t.repeat).map((t) => t.id);
-  const { data: occs } = recurringIds.length
-    ? await supabase
-        .from("task_occurrences")
-        .select("id, task_id, occurs_on, snoozed_to, status, assignee_id, completed_at")
-        .in("task_id", recurringIds)
-        .gte("occurs_on", addDays(today, -30))
-        .lte("occurs_on", until)
-    : { data: [] };
+  const recurring = all.filter((t) => t.repeat);
+  const recurringIds = recurring.map((t) => t.id);
+  const readOccs = () =>
+    supabase
+      .from("task_occurrences")
+      .select("id, task_id, occurs_on, snoozed_to, status, assignee_id, completed_at")
+      .in("task_id", recurringIds)
+      .gte("occurs_on", addDays(today, -30))
+      .lte("occurs_on", until);
+  let { data: occs } = recurringIds.length ? await readOccs() : { data: [] as NonNullable<Awaited<ReturnType<typeof readOccs>>["data"]> };
+  // só grava ocorrências que faltam na janela (normalmente nenhuma: o cron já materializa)
+  const have = new Set((occs ?? []).map((o) => `${o.task_id}:${o.occurs_on}`));
+  const missing = recurring.filter((t) =>
+    occurrencesBetween(t.repeat as Repeat, t.repeat_start!, today, until).some((d) => !have.has(`${t.id}:${d}`)),
+  );
+  if (missing.length) {
+    await ensureOccurrences(supabase, missing, today, until);
+    ({ data: occs } = await readOccs());
+  }
 
   const doneToday = (completedAt: string | null) => !!completedAt && localDate(new Date(completedAt), viewer.tz) === today;
 
@@ -153,7 +162,7 @@ export async function getTaskItems(viewer: Viewer, horizon = 14): Promise<{ toda
       return true;
     });
   return { today, items: filtered, spaces };
-}
+});
 
 /** Todas as tarefas (para a aba "Todas" e "Rotinas"): uma linha por tarefa, sem ocorrências. */
 export async function getTaskTemplates() {

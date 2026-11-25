@@ -89,7 +89,10 @@
 html {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  /* sem espera de duplo toque/zoom: o toque vale na hora */
+  touch-action: manipulation;
 }
+a, button, [role="button"], label, summary { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
 body {
   background: var(--bg);
   color: var(--ink);

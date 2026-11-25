@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import type { ShopItem } from "@/features/sync/ops";
 import { getSpaces, type Space } from "@/features/tasks/server/queries";
 import { createClient, type Viewer } from "@/lib/supabase/server";
@@ -6,7 +7,7 @@ import { createClient, type Viewer } from "@/lib/supabase/server";
 export type ListSummary = { id: string; name: string; workspace_id: string; shared: boolean; total: number; pending: number; budget_cents: number | null };
 
 /** Listas abertas; cria "Mercado" (no espaço Nós, se houver) quando não existe nenhuma. */
-export async function getLists(viewer: Viewer): Promise<{ lists: ListSummary[]; spaces: Space[] }> {
+export const getLists = cache(async (viewer: Viewer): Promise<{ lists: ListSummary[]; spaces: Space[] }> => {
   const supabase = await createClient();
   const spaces = await getSpaces(viewer);
   const read = () =>
@@ -32,7 +33,7 @@ export async function getLists(viewer: Viewer): Promise<{ lists: ListSummary[]; 
       pending: l.shopping_items.filter((i) => !i.checked).length,
     })),
   };
-}
+});
 
 export async function getList(viewer: Viewer, id: string) {
   const supabase = await createClient();

@@ -6,7 +6,7 @@ import { InstallHint } from "@/components/pwa/install-hint";
 import { HabitList } from "@/features/health/components/habit-list";
 import { WaterQuick } from "@/features/health/components/water-quick";
 import { habitStatus } from "@/features/health/habits";
-import { getHabits, getWaterToday } from "@/features/health/server/queries";
+import { getHabits, getWaterToday, todayFor } from "@/features/health/server/queries";
 import { formatWater } from "@/features/health/water";
 import { getAlbumSummary } from "@/features/album/server/queries";
 import { getAgenda } from "@/features/agenda/server/queries";
@@ -35,7 +35,7 @@ export default async function TodayPage() {
   const supabase = await createClient();
   const now = nowIn(viewer.tz);
 
-  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData] = await Promise.all([
+  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData, agenda, shopping, album] = await Promise.all([
     supabase.from("workspaces").select("id, name, workspace_members(user_id, profiles(display_name))").eq("kind", "shared"),
     supabase.from("push_subscriptions").select("id", { count: "exact", head: true }).is("revoked_at", null),
     supabase
@@ -47,9 +47,11 @@ export default async function TodayPage() {
       .limit(3),
     getWaterToday(viewer),
     getHabits(viewer, 7),
-    getTaskItems(viewer, 1),
+    getTaskItems(viewer, 45),
+    getAgenda(viewer, todayFor(viewer), todayFor(viewer)),
+    getLists(viewer),
+    getAlbumSummary(),
   ]);
-  const [agenda, shopping, album] = await Promise.all([getAgenda(viewer, tasksData.today, tasksData.today), getLists(viewer), getAlbumSummary()]);
   const nowHm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   const upcoming = agenda.events.filter((e) => !e.end || e.end > nowHm);
   const todayTasks = tasksData.items.filter((t) => t.date && t.date <= tasksData.today);

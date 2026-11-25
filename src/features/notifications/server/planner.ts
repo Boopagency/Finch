@@ -16,6 +16,12 @@ export async function planReminders(now = new Date()): Promise<number> {
   const db = createServiceClient();
   const { data: subs } = await db.from("push_subscriptions").select("user_id").is("revoked_at", null);
   const users = [...new Set((subs ?? []).map((s) => s.user_id))];
+  // ocorrências das rotinas para todos (as telas só preenchem o que faltar), a cada 15 min
+  if (now.getUTCMinutes() % 15 === 0) {
+    const { data: recurring } = await db.from("tasks").select("id, repeat, repeat_start, rotation, assignee_id").not("repeat", "is", null).is("archived_at", null);
+    const today = localDate(now, "America/Sao_Paulo");
+    if (recurring?.length) await ensureOccurrences(db, recurring, addDays(today, -1), addDays(today, 30));
+  }
   if (users.length === 0) return 0;
 
   const [{ data: profiles }, { data: settings }, { data: habits }] = await Promise.all([
@@ -103,10 +109,6 @@ async function planTasks(db: Db, users: string[], profiles: { id: string; tz: st
     return profiles.find((p) => p.id === u)?.tz ?? "America/Sao_Paulo";
   };
   const recurring = tasks.filter((t) => t.repeat);
-  if (now.getUTCMinutes() % 15 === 0 && recurring.length) {
-    const today = localDate(now, "America/Sao_Paulo");
-    await ensureOccurrences(db, recurring, addDays(today, -1), addDays(today, 14));
-  }
 
   const recipients = (t: { workspace_id: string; created_by: string }, assignee: string | null) =>
     (assignee ? [assignee] : (allMembers ?? []).filter((m) => m.workspace_id === t.workspace_id).map((m) => m.user_id)).filter((u) =>

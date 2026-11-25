@@ -22,7 +22,18 @@ export function SyncAgent() {
   const online = useSyncExternalStore(subscribeOnline, () => navigator.onLine, () => true);
 
   // qualquer confirmação do servidor (inclusive do envio imediato após registrar) recarrega os dados
-  useEffect(() => onAcked(() => router.refresh()), [router]);
+  // a tela já mostra o resultado na hora (otimista); recarrega do servidor uma vez, depois de uma pausa
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const off = onAcked(() => {
+      clearTimeout(t);
+      t = setTimeout(() => router.refresh(), 1200);
+    });
+    return () => {
+      clearTimeout(t);
+      off();
+    };
+  }, [router]);
 
   useEffect(() => {
     const run = () => void flush();

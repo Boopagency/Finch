@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { createClient, type Viewer } from "@/lib/supabase/server";
 import { addDays, type Habit, type HabitLog } from "../habits";
 import { localDate } from "../water";
@@ -17,7 +18,7 @@ export function todayFor(viewer: Viewer): string {
 }
 
 /** Água do dia + configurações. */
-export async function getWaterToday(viewer: Viewer) {
+export const getWaterToday = cache(async (viewer: Viewer) => {
   const supabase = await createClient();
   const today = todayFor(viewer);
   const [{ data: settings }, { data: logs }] = await Promise.all([
@@ -32,7 +33,7 @@ export async function getWaterToday(viewer: Viewer) {
     water_goal_ml: 2000, water_presets: [200, 300, 500], water_reminders: true, water_from: "09:00", water_to: "21:00", water_every_min: 90,
   };
   return { today, settings: { ...s, water_from: s.water_from.slice(0, 5), water_to: s.water_to.slice(0, 5) }, logs: logs ?? [] };
-}
+});
 
 /** Totais por dia dos últimos 7 dias (inclui hoje). */
 export async function getWaterWeek(viewer: Viewer) {
@@ -49,7 +50,7 @@ export async function getWaterWeek(viewer: Viewer) {
 }
 
 /** Hábitos ativos + registros recentes (35 dias cobre consistência e semana atual). */
-export async function getHabits(viewer: Viewer, historyDays = 35) {
+export const getHabits = cache(async (viewer: Viewer, historyDays = 35) => {
   const supabase = await createClient();
   const today = todayFor(viewer);
   const [{ data: habits }, { data: logs }] = await Promise.all([
@@ -68,4 +69,4 @@ export async function getHabits(viewer: Viewer, historyDays = 35) {
     ),
     logs: (logs ?? []) as HabitLog[],
   };
-}
+});

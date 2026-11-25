@@ -11,7 +11,6 @@ if (!(await page.getByRole("button", { name: /Abrir pacotinho/ }).count())) {
   await packPage.goto(`${BASE}/vida/album`);
 }
 const hasPack = (await packPage.getByRole("button", { name: /Abrir pacotinho/ }).count()) > 0;
-const pastedCount = async () => Number((await page.locator("header").getByText(/de 60/).innerText()).split(" ")[0]);
 
 await test("Hoje avisa quando há pacotinho", async () => {
   if (!hasPack) return console.log("    (sem pacote fechado hoje: pulado)");
