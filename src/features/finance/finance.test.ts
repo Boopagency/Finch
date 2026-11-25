@@ -61,3 +61,24 @@ describe("lançamento rápido", () => {
     expect(brl(-5)).toBe("−R$ 0,05");
   });
 });
+
+import { compareCategories, parseMoneyBRL, toCSV } from "./report";
+describe("relatório e CSV", () => {
+  it("valores em reais", () => {
+    expect(parseMoneyBRL("1.200,50")).toBe(120050);
+    expect(parseMoneyBRL("R$ 39,90")).toBe(3990);
+    expect(parseMoneyBRL("1200.5")).toBe(120050);
+    expect(parseMoneyBRL("1.200")).toBe(120000);
+    expect(parseMoneyBRL("-5")).toBeNull();
+    expect(parseMoneyBRL("abc")).toBeNull();
+  });
+  it("compara com o mês anterior", () => {
+    const r = compareCategories([{ name: "Mercado", total: 120000 }, { name: "Lazer", total: 5000 }], [{ name: "Mercado", total: 100000 }, { name: "Saúde", total: 3000 }]);
+    expect(r.map((c) => [c.name, c.delta, c.pct])).toEqual([["Mercado", 20000, 20], ["Lazer", 5000, null], ["Saúde", -3000, -100]]);
+  });
+  it("CSV com ; , decimal e aspas", () => {
+    const csv = toCSV(["Data", "Descrição", "Valor"], [["2026-11-25", 'Jantar; "especial"', 12345]]);
+    expect(csv.startsWith("﻿")).toBe(true);
+    expect(csv).toContain('2026-11-25;"Jantar; ""especial""";123,45\r\n');
+  });
+});

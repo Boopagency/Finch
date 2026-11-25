@@ -49,6 +49,7 @@ export async function getList(viewer: Viewer, id: string) {
     .eq("workspace_id", list.workspace_id)
     .order("favorite", { ascending: false })
     .order("times_bought", { ascending: false })
+    .order("updated_at", { ascending: false }) // empate: o comprado mais recente primeiro
     .limit(40);
   const members = spaces.find((s) => s.id === list.workspace_id)?.members ?? [];
   return { list, items: (items ?? []).map((i) => ({ ...i, qty: Number(i.qty) })) as ShopItem[], products: products ?? [], members };

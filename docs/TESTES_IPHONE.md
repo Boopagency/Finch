@@ -65,6 +65,8 @@ Marque ✅ ou ❌ e me mande os ❌ com print.
 - [ ] Novo lançamento → cartão → 3 parcelas → navegar os meses e ver 1/3, 2/3, 3/3 nas faturas certas.
 - [ ] Pagar fatura → o total de **Despesas** do mês não muda.
 - [ ] Receita marcada como "previsto" → não entra no Disponível até tocar ⋯ → Confirmar.
+- [ ] Recorrentes → salário todo dia 5 na sua conta → volta em Finanças: aparece como previsto → ⋯ → Confirmar.
+- [ ] Relatório → ver os 6 meses e as categorias → Exportar CSV abre/baixa no iPhone.
 - [ ] (Com a Duda) despesa "Do casal" → os dois veem o acerto; ela **não** vê suas contas pessoais.
 
 ## Notificações gerais

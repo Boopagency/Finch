@@ -53,6 +53,11 @@ export function FinanceView({ data }: { data: FinanceData }) {
   return (
     <div className="flex flex-col gap-4">
       <QuickExpense />
+      <nav aria-label="Mais do financeiro" className="flex gap-2 overflow-x-auto">
+        <Link href="/financas/recorrentes" className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-surface px-4 text-[14px] font-semibold"><Repeat2 className="size-4" /> Recorrentes</Link>
+        <Link href={`/financas/relatorio?m=${data.month.slice(0, 7)}`} className="flex min-h-10 shrink-0 items-center rounded-full bg-surface px-4 text-[14px] font-semibold">Relatório</Link>
+        <a href={`/api/financas/csv?m=${data.month.slice(0, 7)}`} download className="flex min-h-10 shrink-0 items-center rounded-full bg-surface px-4 text-[14px] font-semibold">Exportar CSV</a>
+      </nav>
 
       <div className="flex items-center justify-between">
         <Link href={`/financas?m=${addMonths(data.month, -1).slice(0, 7)}`} aria-label="Mês anterior" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></Link>

@@ -20,7 +20,8 @@ const BENEFIT = new Set(["meal", "food"]);
 export async function getFinance(viewer: Viewer, month: string) {
   const supabase = await createClient();
   const spaces = await getSpaces(viewer);
-  await Promise.all(spaces.map((s) => supabase.rpc("fin_ensure_categories", { p_workspace: s.id })));
+  // categorias padrão + recorrências do mês (idempotente: id da regra+mês; o banco limita ao mês que vem)
+  await Promise.all([...spaces.map((s) => supabase.rpc("fin_ensure_categories", { p_workspace: s.id })), supabase.rpc("fin_materialize", { p_month: month })]);
   const shared = spaces.find((s) => s.kind === "shared") ?? null;
 
   const [acc, bal, cats, entries, splits, setts, budgets, members] = await Promise.all([

@@ -67,3 +67,5 @@ Formato: contexto → decisão → alternativas. `PENDENTE` = aguarda o Jabez.
 **D-032 Espaço da casa.** Cozinha, datas, lugares e memórias moram no espaço "Nós" quando ele existe (senão no pessoal), sem seletor: é a casa de vocês. Metas têm seletor (pessoal ou do casal). Helper único: `homeSpace` em `src/features/core/server/home-space.ts`.
 
 **D-033 Despensa acompanha, não adivinha.** Finalizar compra só repõe itens que já estão na despensa (trigger em `purchases`); nada é criado sozinho. Receita e cardápio → lista pulam o que tem em casa acima do mínimo e o que já está pendente na lista.
+
+**D-034 Recorrências geradas sob demanda, idempotentes.** `fin_materialize(mês)` roda ao abrir Finanças e cria, por regra, um lançamento com id `md5(regra:mês)` via `fin_record`. Reabrir não duplica, cancelado não volta, pausar/apagar a regra não mexe no histórico. Conta comum → previsto (até o mês que vem); cartão → realizado quando o dia chega. Regra que usa a conta pessoal do outro é pulada sem erro (o dono gera). Ids derivados não seguem a versão do RFC 4122: validar ids de lançamento com `z.guid()`, não `z.uuid()`.

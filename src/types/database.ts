@@ -275,6 +275,12 @@ export type Database = {
         Update: { id?: string; workspace_id?: string; title?: string; target?: number; current?: number; unit?: string | null; due_on?: string | null; done_at?: string | null; created_by?: string; created_at?: string }
         Relationships: [{ foreignKeyName: "goals_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
       }
+      fin_recurring: {
+        Row: { id: string; workspace_id: string; kind: string; description: string; amount_cents: number; account_id: string; category_id: string | null; day_of_month: number; start_month: string; active: boolean; created_by: string; created_at: string }
+        Insert: { id?: string; workspace_id: string; kind: string; description: string; amount_cents: number; account_id: string; category_id?: string | null; day_of_month: number; start_month?: string; active?: boolean; created_by?: string; created_at?: string }
+        Update: { id?: string; workspace_id?: string; kind?: string; description?: string; amount_cents?: number; account_id?: string; category_id?: string | null; day_of_month?: number; start_month?: string; active?: boolean; created_by?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "fin_recurring_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }, { foreignKeyName: "fin_recurring_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "fin_accounts"; referencedColumns: ["id"] }, { foreignKeyName: "fin_recurring_category_id_fkey"; columns: ["category_id"]; isOneToOne: false; referencedRelation: "fin_categories"; referencedColumns: ["id"] }]
+      }
       workspace_members: {
         Row: { joined_at: string; reference_income_cents: number | null; role: string; user_id: string; workspace_id: string }
         Insert: { joined_at?: string; reference_income_cents?: number | null; role?: string; user_id: string; workspace_id: string }
@@ -309,6 +315,7 @@ export type Database = {
       }
       create_shared_workspace: { Args: { p_name: string }; Returns: string }
       goal_add: { Args: { p_goal: string; p_delta: number }; Returns: Database["public"]["Tables"]["goals"]["Row"] }
+      fin_materialize: { Args: { p_month: string }; Returns: number }
       fin_confirm: { Args: { p_id: string }; Returns: undefined }
       fin_ensure_categories: { Args: { p_workspace: string }; Returns: undefined }
       fin_record: {

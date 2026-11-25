@@ -108,14 +108,14 @@ export async function quickExpense(text: string, workspaceId?: string): Promise<
 export async function voidEntry(id: string): Promise<Result> {
   await requireViewer();
   const supabase = await createClient();
-  const { error } = await supabase.rpc("fin_void", { p_id: z.uuid().parse(id) });
+  const { error } = await supabase.rpc("fin_void", { p_id: z.guid().parse(id) });
   return done(error, "Lançamento cancelado (fica no histórico).");
 }
 
 export async function confirmEntry(id: string): Promise<Result> {
   await requireViewer();
   const supabase = await createClient();
-  const { error } = await supabase.rpc("fin_confirm", { p_id: z.uuid().parse(id) });
+  const { error } = await supabase.rpc("fin_confirm", { p_id: z.guid().parse(id) });
   return done(error, "Confirmado.");
 }
 
