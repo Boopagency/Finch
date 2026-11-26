@@ -1,5 +1,7 @@
 "use client";
 
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
 import { X } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "@/components/ui/toast";
@@ -29,14 +31,9 @@ export function BodyLogList({ logs }: { logs: Log[] }) {
               ].filter(Boolean).join(" · ")}
               {l.note && <span className="block text-[12px] text-ink-3">{l.note}</span>}
             </span>
-            <button
-              disabled={pending}
-              onClick={() => start(async () => { await deleteBodyLog(l.id); toast("Registro apagado"); })}
-              aria-label="Apagar registro"
-              className="grid size-10 place-items-center text-ink-3"
-            >
+            <ConfirmButton compact disabled={pending} label="Apagar registro" onConfirm={() => start(async () => { await deleteBodyLog(l.id); toast("Registro apagado"); })}>
               <X className="size-4" />
-            </button>
+            </ConfirmButton>
           </li>
         ))}
       </ul>

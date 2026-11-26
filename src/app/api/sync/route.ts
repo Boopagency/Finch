@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { batchSchema, type OpResult } from "@/features/sync/ops";
-import { createClient } from "@/lib/supabase/server";
+import { createTaskFromText } from "@/features/tasks/server/create";
+import { createClient, requireViewer } from "@/lib/supabase/server";
 
 /**
  * Aplica a fila offline do aparelho, em ordem. Idempotente: cada op usa o próprio id
@@ -65,6 +66,14 @@ export async function POST(request: Request) {
       case "workout.finish":
         // só fecha uma vez: reenvio não muda o horário de fim
         ({ error } = await supabase.from("workout_sessions").update({ finished_at: op.finished_at }).eq("id", op.session_id).is("finished_at", null));
+        break;
+      case "task.create": {
+        const r = await createTaskFromText(supabase, await requireViewer(), op.text, op.workspace_id, op.id);
+        error = r.ok ? null : { message: r.message };
+        break;
+      }
+      case "task.delete":
+        ({ error } = await supabase.from("tasks").delete().eq("id", op.task_id));
         break;
       case "task.toggle": {
         const patch = { completed_at: op.done ? new Date().toISOString() : null, completed_by: op.done ? userId : null };

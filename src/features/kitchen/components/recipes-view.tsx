@@ -1,5 +1,7 @@
 "use client";
 
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
 import { ChefHat, Clock, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
@@ -81,7 +83,7 @@ function RecipeCard({ r, onEdit }: { r: Recipe; onEdit: () => void }) {
               <ShoppingCart className="size-4" /> Ingredientes para a lista
             </Button>
             <Button variant="secondary" onClick={onEdit}>Editar</Button>
-            <Button variant="danger" disabled={pending} onClick={() => start(async () => { await deleteRecipe(r.id); toast("Receita apagada"); })}>Apagar</Button>
+            <ConfirmButton disabled={pending} onConfirm={() => start(async () => { await deleteRecipe(r.id); toast("Receita apagada"); })}>Apagar</ConfirmButton>
           </div>
         </div>
       )}

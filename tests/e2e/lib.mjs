@@ -49,3 +49,9 @@ export async function close() {
 export async function shot(page, name) {
   if (process.env.E2E_SHOTS) await page.screenshot({ path: `${process.env.E2E_SHOTS}/${name}.png` });
 }
+
+/** Excluir em dois toques (padrão do app): toca no botão e confirma no "Toque de novo para …". */
+export async function confirmTap(page, locator) {
+  await locator.click();
+  await page.getByRole("button", { name: /^Toque de novo para / }).first().click();
+}

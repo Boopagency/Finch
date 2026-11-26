@@ -1,6 +1,8 @@
 "use client";
 
-import { AlertTriangle, Plus, Trash2, Wrench } from "lucide-react";
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
+import { AlertTriangle, Plus, Wrench } from "lucide-react";
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -76,16 +78,16 @@ function ItemCard({ item, today }: { item: HomeItem; today: string }) {
             {item.maintenance.map((m) => (
               <div key={m.id} className="flex items-center gap-2 text-[14px]">
                 <span className="flex-1"><b>{m.description}</b> <span className="text-ink-3">· {fmt(m.done_on)}{m.cost_cents !== null ? ` · ${brl(m.cost_cents)}` : ""}</span></span>
-                <button disabled={busy} onClick={() => start(async () => { await deleteMaintenance(m.id); toast("Manutenção apagada"); })} aria-label={`Apagar manutenção ${m.description}`} className="grid size-9 place-items-center text-ink-3"><Trash2 className="size-4" /></button>
+                <ConfirmButton compact disabled={busy} label={`Apagar manutenção ${m.description}`} onConfirm={() => start(async () => { await deleteMaintenance(m.id); toast("Manutenção apagada"); })} />
               </div>
             ))}
             {adding ? <MaintenanceForm itemId={item.id} today={today} onDone={() => setAdding(false)} /> : (
               <Button variant="secondary" onClick={() => setAdding(true)} className="self-start"><Plus className="size-4" /> Manutenção</Button>
             )}
           </section>
-          <Button variant="danger" disabled={busy} onClick={() => start(async () => { await deleteItem(item.id); toast(`${item.name} removido`); })} className="self-start">
-            <Trash2 className="size-4" /> Remover {item.name}
-          </Button>
+          <ConfirmButton disabled={busy} onConfirm={() => start(async () => { await deleteItem(item.id); toast(`${item.name} removido`); })} className="self-start">
+            Remover {item.name}
+          </ConfirmButton>
         </div>
       )}
     </li>

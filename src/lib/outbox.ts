@@ -8,7 +8,7 @@ import type { Op, OpResult } from "@/features/sync/ops";
  * grava no aparelho primeiro, tenta enviar na hora e reenvia ao voltar a conexão.
  * O id da op é a chave do registro no servidor, então reenviar nunca duplica.
  */
-type Entry = { op: Op; created_at: number; acked: boolean };
+type Entry = { op: Op; created_at: number; acked: boolean; hold_until?: number };
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 function db() {
@@ -39,20 +39,40 @@ export async function loadOutbox() {
   try {
     // a chave é o id (uuid aleatório): sem ordenar, "remover" podia vir antes de "adicionar" ao recarregar
     entries = ((await (await db()).getAll("outbox")) as Entry[]).sort((a, b) => a.created_at - b.created_at);
+    entries.forEach((e) => e.hold_until && schedule(e.hold_until));
     emit();
   } catch {
     // IndexedDB indisponível (modo privado): segue só com memória
   }
 }
 
-export async function enqueue(op: Op) {
+/**
+ * `holdMs`: segura o envio (janela do "Desfazer" via cancelPending). Fica gravada no aparelho:
+ * se o app fechar antes, vai na próxima abertura.
+ */
+export async function enqueue(op: Op, opts?: { holdMs?: number }) {
   const entry: Entry = { op, created_at: Date.now(), acked: false };
+  if (opts?.holdMs) entry.hold_until = entry.created_at + opts.holdMs;
   entries.push(entry);
   emit();
   try {
     await (await db()).put("outbox", entry);
   } catch {}
-  void flush();
+  if (entry.hold_until) schedule(entry.hold_until);
+  else void flush();
+}
+
+function schedule(at: number) {
+  setTimeout(() => void flush(), Math.max(0, at - Date.now()) + 50);
+}
+
+// avisados quando o servidor recusa uma op (a UI otimista já desfez; mostrar o erro)
+const rejectListeners = new Set<(op: Op) => void>();
+export function onRejected(cb: (op: Op) => void) {
+  rejectListeners.add(cb);
+  return () => {
+    rejectListeners.delete(cb);
+  };
 }
 
 /** Tira da fila uma op ainda não enviada (desfazer instantâneo). Retorna false se já foi. */
@@ -111,8 +131,10 @@ export function flush(): Promise<boolean> {
 let again = false;
 
 async function doFlush(): Promise<boolean> {
-  const batch = entries.filter((e) => !e.acked).slice(0, 100);
+  const now = Date.now();
+  const batch = entries.filter((e) => !e.acked && !(e.hold_until && e.hold_until > now)).slice(0, 100);
   if (!batch.length || (typeof navigator !== "undefined" && !navigator.onLine)) return false;
+  batch.forEach((e) => delete e.hold_until);
   batch.forEach((e) => inFlight.add(e.op.id));
   try {
     const res = await fetch("/api/sync", {
@@ -130,6 +152,7 @@ async function doFlush(): Promise<boolean> {
         // dado inválido: descarta para não travar a fila
         entries = entries.filter((x) => x !== e);
         await d?.delete("outbox", r.id).catch(() => {});
+        rejectListeners.forEach((l) => l(e.op));
       } else {
         e.acked = true;
         await d?.put("outbox", e).catch(() => {});

@@ -1,4 +1,4 @@
-import { assert, B, BASE, close, phone, summary, test } from "./lib.mjs";
+import { assert, B, BASE, close, phone, summary, test, confirmTap } from "./lib.mjs";
 
 console.log("Finanças 2: recorrentes, relatório, CSV");
 const run = Date.now() % 100000;
@@ -76,7 +76,7 @@ await test("Pausar e apagar a regra mantém o que já foi lançado", async () =>
   await page.goto(`${BASE}/financas/recorrentes`);
   await page.getByRole("button", { name: `Pausar ${name}` }).click();
   await toast("Pausada");
-  await page.getByRole("button", { name: `Apagar ${name}` }).click();
+  await confirmTap(page, page.getByRole("button", { name: `Apagar ${name}` }));
   await toast("Recorrência apagada");
   await page.goto(`${BASE}/financas`);
   await page.locator("li").filter({ hasText: name }).first().waitFor();

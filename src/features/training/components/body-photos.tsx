@@ -1,5 +1,7 @@
 "use client";
 
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
 import { Camera, Trash2 } from "lucide-react";
 import { useRef, useState, useTransition } from "react";
 import { toast } from "@/components/ui/toast";
@@ -57,9 +59,16 @@ export function BodyPhotos({ photos, spaceId, today }: { photos: Photo[]; spaceI
             <li key={p.id} className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element -- link assinado e temporário */}
               {p.url && <img src={p.url} alt={`Foto de ${fmt(p.taken_on)}`} loading="lazy" className="aspect-[3/4] w-full rounded-[10px] object-cover" />}
-              <button disabled={busy} onClick={() => start(async () => { await deleteBodyPhoto(p.id); toast("Foto apagada"); })} aria-label={`Apagar foto de ${fmt(p.taken_on)}`} className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-ink/70 text-bg">
+              <ConfirmButton
+                compact
+                disabled={busy}
+                label={`Apagar foto de ${fmt(p.taken_on)}`}
+                idle="size-8 justify-center bg-ink/70 text-bg"
+                className="absolute right-1 top-1 max-w-[calc(100%-8px)] whitespace-normal text-left leading-tight"
+                onConfirm={() => start(async () => { await deleteBodyPhoto(p.id); toast("Foto apagada"); })}
+              >
                 <Trash2 className="size-3.5" />
-              </button>
+              </ConfirmButton>
             </li>
           ))}
         </ul>

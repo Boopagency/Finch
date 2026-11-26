@@ -120,6 +120,7 @@ body {
   /* iOS: sem a aparência nativa o valor gruda no topo; o padding centraliza na altura de 48 px dos campos */
   input[type="date"], input[type="time"], input[type="datetime-local"], input[type="month"] { line-height: 1.5rem; padding-block: 11px; }
   input::-webkit-date-and-time-value { text-align: left; min-height: 1.5rem; margin: 0; }
+  input.text-center::-webkit-date-and-time-value { text-align: center; }
   /* Chrome em celular desenha um ícone que espreme o horário; no toque o seletor abre pelo campo todo */
   @media (pointer: coarse) { input::-webkit-calendar-picker-indicator { display: none; } }
 
@@ -156,6 +157,10 @@ body {
   }
   input, select, textarea, button { font: inherit; }
 }
+
+/* a barra de baixo flutua sobre o conteúdo: rolar até um elemento (foco, leitor de tela, automação, âncora)
+   deixa ele acima dela — antes, o toque no meio do cartão caía na barra (no "Hoje") */
+html { scroll-padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); scroll-padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
 
 /* iOS, app instalado com barra de status translúcida: "100%" desconta a barra de status (47 pt no 13/14)
    e, em telas curtas, a barra de baixo subia essa medida. A página passa a cobrir a tela inteira. */

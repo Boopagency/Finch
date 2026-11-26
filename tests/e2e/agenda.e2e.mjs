@@ -39,7 +39,7 @@ await test("Editar pelo formulário (dia inteiro, vários dias)", async () => {
   await page.getByRole("button", { name: new RegExp(`Dentista ${run}`) }).click();
   const d = page.getByRole("dialog");
   await d.getByRole("textbox", { name: "Título" }).fill(`Viagem ${run}`);
-  await d.getByRole("checkbox", { name: "Dia inteiro" }).check();
+  await d.getByRole("switch", { name: "Dia inteiro" }).check();
   const today = await d.getByLabel("Começa").inputValue();
   const end = new Date(Date.parse(`${today}T12:00:00Z`) + 2 * 86400000).toISOString().slice(0, 10);
   await d.getByLabel("Termina").fill(end);
@@ -67,6 +67,7 @@ await test("Apagar evento", async () => {
   await page.goto(`${BASE}/agenda`);
   await page.getByRole("button", { name: new RegExp(`Call ${run}`) }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Apagar evento" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Toque de novo para apagar" }).click();
   await page.getByRole("status").filter({ hasText: "Evento apagado" }).waitFor();
   await page.getByRole("button", { name: new RegExp(`Call ${run}`) }).waitFor({ state: "detached" });
   await page.reload();

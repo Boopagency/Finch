@@ -11,7 +11,7 @@ export default async function AlbumPage() {
   const pasted = new Set(album.mine.filter((i) => i.pasted_at).map((i) => i.sticker_code)).size;
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-2 px-gutter pt-safe">
-      <PageHeader title="Álbum" meta={`${pasted} de ${album.stickers.length}`} />
+      <PageHeader back="/vida" title="Álbum" meta={`${pasted} de ${album.stickers.length}`} />
       <AlbumView album={album} />
     </main>
   );

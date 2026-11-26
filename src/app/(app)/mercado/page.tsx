@@ -14,7 +14,7 @@ export default async function ShoppingPage() {
   const [{ lists, spaces }, purchases] = await Promise.all([getLists(viewer), getRecentPurchases()]);
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Mercado" meta={`${lists.length} ${lists.length === 1 ? "lista" : "listas"}`} />
+      <PageHeader back="/vida" title="Mercado" meta={`${lists.length} ${lists.length === 1 ? "lista" : "listas"}`} />
       <ul className="flex flex-col gap-2">
         {lists.map((l) => (
           <li key={l.id}>

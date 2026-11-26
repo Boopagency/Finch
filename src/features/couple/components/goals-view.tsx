@@ -1,6 +1,8 @@
 "use client";
 
-import { Plus, Target, Trash2 } from "lucide-react";
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
+import { Plus, Target } from "lucide-react";
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -28,7 +30,7 @@ function GoalCard({ g, today, spaceName }: { g: Goal; today: string; spaceName: 
             {late && <b className="text-danger"> · prazo passou</b>}
           </span>
         </span>
-        <button disabled={busy} onClick={() => start(async () => { await deleteGoal(g.id); toast("Meta apagada"); })} aria-label={`Apagar ${g.title}`} className="grid size-10 place-items-center opacity-60"><Trash2 className="size-4" /></button>
+        <ConfirmButton compact disabled={busy} label={`Apagar ${g.title}`} idle="size-11 justify-center opacity-60" onConfirm={() => start(async () => { await deleteGoal(g.id); toast("Meta apagada"); })} />
       </div>
       <div>
         <div className="mb-1 flex items-baseline justify-between text-[14px]">

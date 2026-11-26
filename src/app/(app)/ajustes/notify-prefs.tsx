@@ -2,6 +2,7 @@
 
 import { CalendarDays, CheckSquare, Droplet, Sparkles } from "lucide-react";
 import { useState, useTransition } from "react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/toast";
 import { setNotify } from "@/features/notifications/server/actions";
 
@@ -11,22 +12,6 @@ const ITEMS = [
   { key: "task", label: "Tarefas", hint: "Tarefas com horário marcado", Icon: CheckSquare, tone: "bg-coral text-on-color" },
   { key: "event", label: "Agenda", hint: "Antes dos compromissos", Icon: CalendarDays, tone: "bg-lavender text-on-color" },
 ] as const;
-
-/** Interruptor acessível (role=switch) com resposta imediata. */
-function Switch({ on, label, onChange }: { on: boolean; label: string; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      aria-label={label}
-      onClick={() => onChange(!on)}
-      className={`relative h-8 w-[52px] shrink-0 rounded-full transition-colors duration-200 ${on ? "bg-frog" : "bg-surface-2"}`}
-    >
-      <span className={`absolute top-1 size-6 rounded-full bg-white shadow transition-transform duration-300 [transition-timing-function:var(--ease-soft)] ${on ? "translate-x-[24px]" : "translate-x-1"}`} />
-    </button>
-  );
-}
 
 export function NotifyPrefs({ initial }: { initial: Record<string, boolean> }) {
   const [state, setState] = useState(initial);
@@ -41,9 +26,10 @@ export function NotifyPrefs({ initial }: { initial: Record<string, boolean> }) {
             <span className="text-[12px] text-ink-3">{hint}</span>
           </span>
           <Switch
-            on={state[key] ?? true}
-            label={`Avisos de ${label}`}
-            onChange={(v) => {
+            checked={state[key] ?? true}
+            aria-label={`Avisos de ${label}`}
+            onChange={(e) => {
+              const v = e.target.checked;
               setState({ ...state, [key]: v });
               start(async () => {
                 const r = await setNotify(key, v);

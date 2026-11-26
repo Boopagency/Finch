@@ -100,6 +100,7 @@ await test("Finalizar compra repõe a despensa", async () => {
 
 await test("Limpeza: tira o item da despensa", async () => {
   await a.page.getByRole("button", { name: `Tirar ${item}` }).click();
+  await a.page.getByRole("button", { name: "Toque de novo para apagar" }).click();
   await toast(a.page, "saiu da despensa");
   await a.page.reload();
   assert.equal(await a.page.getByRole("button", { name: `Editar ${item}` }).count(), 0);

@@ -1,4 +1,4 @@
-import { assert, B, BASE, close, phone, summary, test } from "./lib.mjs";
+import { assert, B, BASE, close, phone, summary, test, confirmTap } from "./lib.mjs";
 
 console.log("Coisas da casa");
 const run = Date.now() % 100000;
@@ -55,7 +55,7 @@ await test("Próxima manutenção antes da feita é recusada", async () => {
 await test("Remover item tira avisos", async () => {
   await a.page.goto(`${BASE}/vida/casa`);
   await a.page.getByRole("button", { name: new RegExp(item) }).click();
-  await a.page.getByRole("button", { name: `Remover ${item}` }).click();
+  await confirmTap(a.page, a.page.getByRole("button", { name: `Remover ${item}` }));
   await toast(a.page, `${item} removido`);
   await a.page.reload();
   assert.equal(await a.page.getByText(item).count(), 0);

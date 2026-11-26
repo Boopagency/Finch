@@ -3,10 +3,11 @@
 import { AlertTriangle, ChevronLeft, ChevronRight, MapPin, Plus, Repeat2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Segmented } from "@/components/ui/segmented";
-import { useOptimistic, useState, useTransition } from "react";
+import { useEffect, useOptimistic, useState, useTransition } from "react";
 import { toast } from "@/components/ui/toast";
 import { addDays } from "@/features/health/habits";
 import { TaskList } from "@/features/tasks/components/task-list";
+import { useTaskItems } from "@/features/tasks/components/use-task-items";
 import { parseQuickTask } from "@/features/tasks/quick-parse";
 import type { Space, TaskItem } from "@/features/tasks/server/queries";
 import { conflicts, monthGrid, type EventInstance, type EventRow } from "../expand";
@@ -28,23 +29,49 @@ function period(v: View, d: string) {
   return `${Number(ws.slice(8))}${ws.slice(5, 7) === we.slice(5, 7) ? "" : ` de ${fmt(ws, { month: "short" })}`} – ${fmt(we, { day: "numeric", month: "long" })}`;
 }
 
-/** Dia/semana/mês e as setas trocam na hora dentro do intervalo carregado (3 meses); fora dele, busca no servidor. */
-export function AgendaView({ view: view0, date: date0, from, to, today, events: serverEvents, tasks, spaces }: { view: View; date: string; from: string; to: string; today: string; events: EventInstance[]; tasks: TaskItem[]; spaces: Space[] }) {
+/** Mês anterior e seguinte ao mostrado, em dias da grade: o que precisa estar carregado antes do toque. */
+function around(d: string): [string, string] {
+  return [monthGrid(addDays(`${d.slice(0, 7)}-01`, -1))[0]![0]!, monthGrid(addDays(`${d.slice(0, 7)}-28`, 7)).at(-1)!.at(-1)!];
+}
+const dedupe = <T extends { key: string }>(l: T[]) => { const seen = new Set<string>(); return l.filter((x) => !seen.has(x.key) && !!seen.add(x.key)); };
+
+/**
+ * Dia/semana/mês, setas e dias trocam na hora (estado no aparelho; a URL acompanha). O servidor manda 3 meses;
+ * os vizinhos do que está na tela são buscados antes do toque (/api/agenda), então trocar de mês nunca espera.
+ */
+export function AgendaView({ view: view0, date: date0, from, to, today, events: serverEvents, tasks: serverTasks, spaces }: { view: View; date: string; from: string; to: string; today: string; events: EventInstance[]; tasks: TaskItem[]; spaces: Space[] }) {
   const router = useRouter();
-  const [events, addEvent] = useOptimistic(serverEvents, (l: EventInstance[], e: EventInstance) => [...l, e]);
   const [nav, setNav] = useState({ view: view0, date: date0, from });
   if (nav.from !== from) setNav({ view: view0, date: date0, from }); // chegou outro intervalo do servidor
   const { view, date } = nav;
+  // o que já veio além do intervalo do servidor (zera quando o servidor manda dados novos)
+  const [more, setMore] = useState({ base: serverEvents, lo: from, hi: to, events: [] as EventInstance[], tasks: [] as TaskItem[] });
+  if (more.base !== serverEvents) setMore({ base: serverEvents, lo: from, hi: to, events: [], tasks: [] });
+  const [optimistic, addEvent] = useOptimistic(serverEvents, (l: EventInstance[], e: EventInstance) => [...l, e]);
+  const events = more.events.length ? dedupe([...optimistic, ...more.events]) : optimistic;
+  const tasks = useTaskItems(more.tasks.length ? dedupe([...serverTasks, ...more.tasks]) : serverTasks, today, spaces);
   const [sheet, setSheet] = useState<{ event?: EventRow; date: string } | null>(null);
   const [text, setText] = useState("");
   const [, start] = useTransition();
-  const [moving, move] = useTransition();
+
+  useEffect(() => {
+    const [a, b] = around(date);
+    const pieces = [...(a < more.lo ? [[a, addDays(more.lo, -1)]] : []), ...(b > more.hi ? [[addDays(more.hi, 1), b]] : [])];
+    if (!pieces.length) return;
+    const base = more.base;
+    void Promise.all(pieces.map(([f, t]) => fetch(`/api/agenda?from=${f}&to=${t}`).then((r) => (r.ok ? (r.json() as Promise<{ events: EventInstance[]; tasks: TaskItem[] }>) : null))))
+      .then((res) => {
+        if (res.some((r) => !r)) return;
+        setMore((m) => (m.base !== base ? m : { ...m, lo: a < m.lo ? a : m.lo, hi: b > m.hi ? b : m.hi, events: dedupe([...m.events, ...res.flatMap((r) => r!.events)]), tasks: dedupe([...m.tasks, ...res.flatMap((r) => r!.tasks)]) }));
+      })
+      .catch(() => {}); // sem rede: o mês aparece sem os itens e tenta de novo no próximo toque
+  }, [date, more.lo, more.hi, more.base]);
+
   const go = (v: View, d: string) => {
-    const days = v === "mes" ? monthGrid(d).flat() : (() => { const ws = addDays(d, -((new Date(`${d}T12:00:00Z`).getUTCDay() + 6) % 7)); return [ws, addDays(ws, 6)]; })();
-    if (days[0]! >= from && days.at(-1)! <= to) {
-      setNav({ view: v, date: d, from });
-      window.history.replaceState(null, "", href(v, d));
-    } else move(() => router.replace(href(v, d), { scroll: false }));
+    // pulo muito longe (ex.: URL antiga): o servidor monta tudo de novo
+    if (Math.abs(Date.parse(d) - Date.parse(date)) > 300 * 86_400_000) return router.replace(href(v, d), { scroll: false });
+    setNav({ view: v, date: d, from });
+    window.history.replaceState(null, "", href(v, d));
   };
   const clash = conflicts(events.map((e) => ({ key: e.key, date: e.date, start: e.start, end: e.end })));
   const step = view === "dia" ? 1 : view === "semana" ? 7 : 0;
@@ -97,14 +124,19 @@ export function AgendaView({ view: view0, date: date0, from, to, today, events: 
           const id = `pending:${crypto.randomUUID()}`;
           const ws = (p.shared && spaces.find((s) => s.kind === "shared")) || spaces[0];
           setText("");
+          const when = day === today ? "hoje" : day === addDays(today, 1) ? "amanhã" : fmt(day, { weekday: "short", day: "numeric", month: "short" });
+          const elsewhere = !(view === "dia" && day === date);
+          toast(`Na agenda: ${when}${p.due_time ? `, ${p.due_time}` : ""} — ${p.title}`, elsewhere ? { label: "Ver", run: () => go("dia", day) } : undefined);
           start(async () => {
             addEvent({
               key: id, date: day, start: p.due_time ?? null, end: null, day: 1, span: 1,
               event: { id, title: p.title, workspace_id: ws?.id ?? "", start_date: day, end_date: day, start_time: p.due_time ?? null, end_time: null, repeat: null, repeat_until: null, location: null, notes: null, category: ws?.kind === "shared" ? "nos" : "geral", remind_min: null },
             });
             const r = await createEventQuick(typed, spaces[0]?.id, date);
-            toast(r.message);
-            if (!r.ok) setText(typed);
+            if (!r.ok) {
+              toast(`${r.message} O compromisso não foi salvo.`);
+              setText(typed);
+            }
           });
         }}
         className="field-shell flex items-center gap-2 rounded-[22px] bg-surface p-2 pl-4 transition-shadow"
@@ -118,7 +150,7 @@ export function AgendaView({ view: view0, date: date0, from, to, today, events: 
 
       <Segmented label="Visão" value={view} onChange={(v) => go(v, date)} options={(["dia", "semana", "mes"] as const).map((v) => ({ value: v, label: v === "mes" ? "Mês" : v === "dia" ? "Dia" : "Semana" }))} />
 
-      <div className={`flex items-center gap-1 transition-opacity ${moving ? "opacity-60" : ""}`}>
+      <div className="flex items-center gap-1">
         <h2 className="min-w-0 flex-1 px-2 text-[17px] font-bold leading-tight first-letter:uppercase">{period(view, date)}</h2>
         <button type="button" onClick={() => go(view, prev)} aria-label="Anterior" className="press grid size-11 shrink-0 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></button>
         {date !== today && <button type="button" onClick={() => go(view, today)} aria-label="Ir para hoje" className="press grid min-h-11 shrink-0 place-items-center rounded-full bg-surface px-3 text-[13px] font-semibold">Hoje</button>}

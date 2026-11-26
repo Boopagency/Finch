@@ -61,7 +61,7 @@ await test("Receita prevista não entra no disponível até confirmar", async ()
   await d.getByLabel("Valor (R$)").fill("500");
   await d.getByLabel("Entrou em").selectOption({ label: `Banco ${run} · Conta corrente` });
   await d.getByLabel("Descrição").fill(`Freela ${run}`);
-  await d.getByRole("checkbox", { name: /previsto/ }).check();
+  await d.getByRole("switch", { name: /previsto/ }).check();
   await d.getByRole("button", { name: "Registrar" }).click();
   await page.getByRole("status").filter({ hasText: "Receita registrada." }).waitFor();
   assert.equal(await page.locator("section[aria-label='Saldos'] .font-display").innerText(), before);
@@ -116,6 +116,7 @@ await test("Cancelar compra parcelada cancela todas as parcelas", async () => {
     if (await row.count()) {
       await row.first().getByLabel("Mais ações").click();
       await row.first().getByRole("button", { name: "Cancelar compra (todas)" }).click();
+      await row.first().getByRole("button", { name: "Toque de novo para cancelar" }).click();
       await page.getByRole("status").filter({ hasText: "cancelado" }).waitFor();
       break;
     }

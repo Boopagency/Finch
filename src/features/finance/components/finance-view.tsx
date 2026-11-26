@@ -1,5 +1,7 @@
 "use client";
 
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
 import { ArrowDownLeft, ArrowUpRight, ChevronLeft, ChevronRight, CreditCard, Repeat2, Users } from "lucide-react";
 import Link from "next/link";
 import { useId, useState, useTransition } from "react";
@@ -41,6 +43,16 @@ export function QuickExpense({ workspaceId, onDone }: { workspaceId?: string; on
 
 export function FinanceView({ data }: { data: FinanceData }) {
   const [sheet, setSheet] = useState<null | { kind?: string; to?: string; amount?: string }>(null);
+  // mês pedido nas setas: o título e o esqueleto trocam no toque, os números chegam em seguida
+  const [going, setGoing] = useState<string | null>(null);
+  const [seen, setSeen] = useState(data.month);
+  if (seen !== data.month) {
+    setSeen(data.month);
+    setGoing(null);
+  }
+  const shown = going ?? data.month;
+  const prevM = addMonths(shown, -1);
+  const nextM = addMonths(shown, 1);
   const [pending, start] = useTransition();
   const t = data.totals;
   const accName = new Map(data.accounts.map((a) => [a.id, a.name]));
@@ -61,11 +73,22 @@ export function FinanceView({ data }: { data: FinanceData }) {
       </nav>
 
       <div className="flex items-center justify-between">
-        <Link prefetch href={`/financas?m=${addMonths(data.month, -1).slice(0, 7)}`} aria-label="Mês anterior" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></Link>
-        <span className="text-[15px] font-bold first-letter:uppercase">{monthLabel(data.month)}</span>
-        <Link prefetch href={`/financas?m=${addMonths(data.month, 1).slice(0, 7)}`} aria-label="Próximo mês" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronRight className="size-5" /></Link>
+        <Link prefetch href={`/financas?m=${prevM.slice(0, 7)}`} onClick={() => setGoing(prevM)} aria-label="Mês anterior" className="press grid size-11 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></Link>
+        <span aria-live="polite" className="text-[15px] font-bold first-letter:uppercase">{monthLabel(shown)}</span>
+        <Link prefetch href={`/financas?m=${nextM.slice(0, 7)}`} onClick={() => setGoing(nextM)} aria-label="Próximo mês" className="press grid size-11 place-items-center rounded-full bg-surface"><ChevronRight className="size-5" /></Link>
       </div>
 
+      {going ? (
+        <div aria-busy="true" aria-label="Carregando o mês" className="flex flex-col gap-2">
+          <div className="h-[118px] rounded-[22px] bg-surface motion-safe:animate-pulse" />
+          <div className="grid grid-cols-2 gap-2">
+            <div className="h-20 rounded-[20px] bg-surface motion-safe:animate-pulse" />
+            <div className="h-20 rounded-[20px] bg-surface motion-safe:animate-pulse" />
+          </div>
+          <div className="h-48 rounded-[20px] bg-surface motion-safe:animate-pulse" />
+        </div>
+      ) : (
+        <>
       <section aria-label="Saldos" className="grid grid-cols-2 gap-2">
         <div className="col-span-2 flex flex-col gap-1 rounded-[22px] bg-ink p-4 text-bg">
           <span className="text-[13px] opacity-70">Disponível em contas</span>
@@ -177,7 +200,7 @@ export function FinanceView({ data }: { data: FinanceData }) {
                   <summary className="grid size-9 cursor-pointer list-none place-items-center rounded-full text-ink-3" aria-label="Mais ações">⋯</summary>
                   <div className="absolute right-0 z-10 mt-1 flex w-44 flex-col rounded-[14px] bg-surface p-1 shadow-[var(--shadow-float)]">
                     {e.status === "planned" && <button disabled={pending} onClick={() => run(() => confirmEntry(e.id))} className="min-h-11 rounded-[10px] px-3 text-left text-[14px] font-semibold">Confirmar</button>}
-                    <button disabled={pending} onClick={() => run(() => voidEntry(e.id))} className="min-h-11 rounded-[10px] px-3 text-left text-[14px] font-semibold text-danger">{e.installments ? "Cancelar compra (todas)" : "Cancelar"}</button>
+                    <ConfirmButton disabled={pending} confirmText="Toque de novo para cancelar" className="justify-start whitespace-normal rounded-[10px] px-3 text-left text-[14px]" onConfirm={() => run(() => voidEntry(e.id))}>{e.installments ? "Cancelar compra (todas)" : "Cancelar"}</ConfirmButton>
                   </div>
                 </details>
               </li>
@@ -185,6 +208,9 @@ export function FinanceView({ data }: { data: FinanceData }) {
           })}
         </ul>
       </section>
+
+        </>
+      )}
 
       <Button onClick={() => setSheet({})}>Novo lançamento</Button>
       {sheet && <EntrySheet data={data} preset={sheet} onClose={() => setSheet(null)} />}

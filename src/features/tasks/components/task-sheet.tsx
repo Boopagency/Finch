@@ -1,13 +1,19 @@
 "use client";
 
-import { Plus, Trash2, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+
+import { cancelPending, enqueue } from "@/lib/outbox";
+
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
+import { Plus, X } from "lucide-react";
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
 import { addDays } from "@/features/health/habits";
 import type { Space, TaskItem } from "../server/queries";
-import { addSubtask, deleteSubtask, deleteTask, saveTask, snoozeTask, toggleSubtask } from "../server/actions";
+import { addSubtask, deleteSubtask, saveTask, snoozeTask, toggleSubtask } from "../server/actions";
 
 const CATS = [
   ["geral", "Geral"], ["casa", "Casa"], ["contas", "Contas"], ["trabalho", "Trabalho"], ["saude", "Saúde"], ["compras", "Compras"], ["nos", "Nós"],
@@ -144,7 +150,7 @@ export function TaskSheet({ item, spaces, today, onClose }: { item: TaskItem; sp
           {freq !== "none" && shared && members.length > 1 && (
             <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">
               Rodízio entre vocês
-              <input type="checkbox" name="rotation" defaultChecked={!!item.rotation?.length} className="switch" />
+              <Switch name="rotation" defaultChecked={!!item.rotation?.length} />
             </label>
           )}
 
@@ -154,7 +160,7 @@ export function TaskSheet({ item, spaces, today, onClose }: { item: TaskItem; sp
           </div>
           <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">
             Lembrar no horário
-            <input type="checkbox" name="remind" defaultChecked={item.remind} className="switch" />
+            <Switch name="remind" defaultChecked={item.remind} />
           </label>
 
           {state && !state.ok && <p role="alert" className="text-sm font-medium text-danger">{state.message}</p>}
@@ -173,9 +179,9 @@ export function TaskSheet({ item, spaces, today, onClose }: { item: TaskItem; sp
                 className="size-6"
               />
               <span className={`flex-1 text-[15px] ${s.done ? "text-ink-3 line-through" : ""}`}>{s.title}</span>
-              <button onClick={() => start(() => deleteSubtask(s.id))} aria-label={`Remover ${s.title}`} className="grid size-10 place-items-center text-ink-3">
+              <ConfirmButton compact label={`Remover ${s.title}`} onConfirm={() => start(() => deleteSubtask(s.id))}>
                 <X className="size-4" />
-              </button>
+              </ConfirmButton>
             </div>
           ))}
           <form
@@ -197,19 +203,20 @@ export function TaskSheet({ item, spaces, today, onClose }: { item: TaskItem; sp
           </form>
         </section>
 
-        <Button
-          variant="danger"
-          onClick={() =>
-            start(async () => {
-              await deleteTask(item.task_id);
-              toast(item.repeat ? "Rotina apagada" : "Tarefa apagada");
-              ref.current?.close();
-            })
-          }
+        <ConfirmButton
           className="self-start"
+          onConfirm={() => {
+            // some na hora; o envio espera 5 s na fila (janela do Desfazer)
+            const id = crypto.randomUUID();
+            // a tarefa some da lista na hora e esta folha desmonta antes do evento "close": avisa já,
+            // senão o Desfazer traria a tarefa de volta com a folha aberta
+            onClose();
+            void enqueue({ id, type: "task.delete", task_id: item.task_id }, { holdMs: 5000 });
+            toast(item.repeat ? "Rotina apagada" : "Tarefa apagada", { label: "Desfazer", run: () => void cancelPending(id) });
+          }}
         >
-          <Trash2 className="size-4" /> {item.repeat ? "Apagar a rotina inteira" : "Apagar tarefa"}
-        </Button>
+          {item.repeat ? "Apagar a rotina inteira" : "Apagar tarefa"}
+        </ConfirmButton>
       </div>
     </dialog>
   );

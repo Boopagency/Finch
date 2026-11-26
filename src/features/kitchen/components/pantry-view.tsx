@@ -1,6 +1,8 @@
 "use client";
 
-import { AlertTriangle, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
+import { AlertTriangle, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -89,7 +91,7 @@ export function PantryView({ pantry, today }: { pantry: PantryItem[]; today: str
                 </button>
                 <button onClick={() => start(() => adjustPantry(p.id, -1))} disabled={pending || p.qty <= 0} aria-label={`Menos ${p.name}`} className="press grid size-11 place-items-center rounded-full bg-surface-2 disabled:opacity-40"><Minus className="size-4" /></button>
                 <button onClick={() => start(() => adjustPantry(p.id, 1))} disabled={pending} aria-label={`Mais ${p.name}`} className="press grid size-11 place-items-center rounded-full bg-surface-2"><Plus className="size-4" /></button>
-                <button onClick={() => start(async () => { await deletePantryItem(p.id); toast(`${p.name} saiu da despensa`); })} aria-label={`Tirar ${p.name}`} className="grid size-10 place-items-center text-ink-3"><Trash2 className="size-4" /></button>
+                <ConfirmButton compact label={`Tirar ${p.name}`} onConfirm={() => start(async () => { await deletePantryItem(p.id); toast(`${p.name} saiu da despensa`); })} />
               </li>
             ),
           )}

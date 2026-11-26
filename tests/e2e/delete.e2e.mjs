@@ -16,7 +16,7 @@ await test("Treino: descartar sessão aberta e excluir treino concluído (dois t
   await page.waitForURL(/\/vida\/treino\/[0-9a-f-]{36}$/);
   const discard = page.getByRole("button", { name: "Descartar treino" });
   await discard.click();
-  await page.getByRole("button", { name: "Toque de novo para excluir" }).click();
+  await page.getByRole("button", { name: "Toque de novo para descartar" }).click();
   await toast("Treino descartado");
   await page.waitForURL(`${BASE}/vida/treino`);
   assert.equal(await page.getByRole("link", { name: /^Continuar/ }).count(), 0);
@@ -34,7 +34,7 @@ await test("Treino: descartar sessão aberta e excluir treino concluído (dois t
   await page.waitForTimeout(1500);
   await page.goto(url);
   await page.getByRole("button", { name: "Excluir este treino" }).click();
-  await page.getByRole("button", { name: "Toque de novo para excluir" }).click();
+  await page.getByRole("button", { name: "Toque de novo para apagar" }).click();
   await toast("Treino excluído");
   await page.waitForURL(`${BASE}/vida/treino`);
   await page.goto(url);
@@ -53,10 +53,10 @@ await test("Treino: excluir ficha e exercício próprio", async () => {
   await page.getByRole("button", { name: `Editar Ficha del ${run}` }).click();
   await page.getByText("Exercícios que você criou").click();
   await page.getByRole("button", { name: `Excluir exercício Exerc del ${run}` }).click();
-  await page.getByRole("button", { name: "Apaga também o histórico" }).click();
+  await page.getByRole("button", { name: "Toque de novo para apagar (e o histórico)" }).click();
   await toast("Exercício excluído.");
   await page.getByRole("button", { name: `Excluir ficha Ficha del ${run}` }).click();
-  await page.getByRole("button", { name: "Toque de novo para excluir" }).click();
+  await page.getByRole("button", { name: "Toque de novo para apagar" }).click();
   await toast("Ficha excluída");
   await page.reload();
   assert.equal(await page.getByText(`Ficha del ${run}`).count(), 0);
@@ -69,7 +69,7 @@ await test("Mercado: excluir lista", async () => {
   await page.getByRole("link", { name: new RegExp(`Lista del ${run}`) }).click();
   await page.waitForURL(/\/mercado\/[0-9a-f-]{36}$/);
   await page.getByRole("button", { name: `Excluir lista Lista del ${run}` }).click();
-  await page.getByRole("button", { name: "Toque de novo para excluir" }).click();
+  await page.getByRole("button", { name: "Toque de novo para apagar" }).click();
   await page.waitForURL(`${BASE}/mercado`);
   await page.waitForTimeout(500);
   assert.equal(await page.getByRole("link", { name: new RegExp(`Lista del ${run}`) }).count(), 0);

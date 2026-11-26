@@ -16,7 +16,7 @@ export default async function TasksPage({ searchParams }: PageProps<"/tarefas">)
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Tarefas" meta={openToday ? `${openToday} para hoje` : "dia livre"} />
+      <PageHeader back="/vida" title="Tarefas" meta={openToday ? `${openToday} para hoje` : "dia livre"} />
       <TaskViews initial={view} items={items} spaces={spaces} today={today} />
     </main>
   );

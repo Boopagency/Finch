@@ -1,5 +1,7 @@
 "use client";
 
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
 import { X } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 import { cancelPending, enqueue } from "@/lib/outbox";
@@ -29,9 +31,9 @@ export function WaterLog({ serverLogs }: { serverLogs: { id: string; amount_ml: 
               <span className="tabular text-[13px] text-ink-3">
                 {at ? new Date(at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "agora"}
               </span>
-              <button onClick={() => void remove(l.id, l.amount_ml)} aria-label={`Remover ${formatWater(l.amount_ml)}`} className="grid size-11 place-items-center text-ink-3">
+              <ConfirmButton compact label={`Remover ${formatWater(l.amount_ml)}`} onConfirm={() => void remove(l.id, l.amount_ml)}>
                 <X className="size-4" />
-              </button>
+              </ConfirmButton>
             </li>
           );
         })}

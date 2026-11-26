@@ -58,3 +58,28 @@ describe("adição rápida", () => {
     expect(p("Ler 20 páginas").title).toBe("Ler 20 páginas");
   });
 });
+
+describe("mergeTasks (fila: criar/apagar na hora)", async () => {
+  const { mergeTasks } = await import("./components/use-task-items");
+  const spaces = [
+    { id: "00000000-0000-4000-8000-0000000000a1", kind: "personal" as const, name: "Só eu", members: [] },
+    { id: "00000000-0000-4000-8000-0000000000b1", kind: "shared" as const, name: "Nós", members: [] },
+  ];
+  const real = { key: "t1", task_id: "00000000-0000-4000-8000-000000000001", occurrence_id: null, title: "Real", notes: null, date: "2026-11-26", time: null, status: "open" as const, category: "geral", priority: 0, space: { id: spaces[0]!.id, kind: "personal" as const, name: "Só eu" }, assignee: null, repeat: null, repeatLabel: null, rotation: null, remind: false, subtasks: [] };
+  const create = { id: "00000000-0000-4000-8000-0000000000c1", type: "task.create" as const, text: "regar plantas amanhã 9h @nós", workspace_id: spaces[0]!.id };
+
+  it("tarefa criada aparece na hora, lida da frase", () => {
+    const [draft, first] = mergeTasks([real], [create], "2026-11-26", spaces as never);
+    expect(draft).toMatchObject({ key: `pending:${create.id}`, title: "Regar plantas", date: "2026-11-27", time: "09:00", space: { kind: "shared" } });
+    expect(first).toBe(real);
+  });
+  it("quando o servidor devolve a tarefa, o rascunho some (sem duplicar)", () => {
+    const back = { ...real, key: "t2", task_id: create.id, title: "regar plantas" };
+    expect(mergeTasks([back, real], [create], "2026-11-26", spaces as never)).toHaveLength(2);
+  });
+  it("apagar some na hora; desfazer (op cancelada) traz de volta", () => {
+    const del = { id: "00000000-0000-4000-8000-0000000000d1", type: "task.delete" as const, task_id: real.task_id };
+    expect(mergeTasks([real], [del], "2026-11-26", spaces as never)).toHaveLength(0);
+    expect(mergeTasks([real], [], "2026-11-26", spaces as never)).toHaveLength(1);
+  });
+});

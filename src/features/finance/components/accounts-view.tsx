@@ -1,5 +1,7 @@
 "use client";
 
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -33,7 +35,7 @@ export function AccountsView({ data, viewerId }: { data: FinanceData; viewerId: 
               <span className="text-[12px] text-ink-3">{ACCOUNT_KIND[a.kind]} · {spaceName(a.workspace_id)}{a.kind === "credit_card" ? ` · fecha dia ${a.closing_day}, vence dia ${a.due_day}` : ""}</span>
             </span>
             <span className="tabular text-[15px] font-bold">{a.kind === "credit_card" ? `deve ${brl(Math.max(0, -a.balance))}` : brl(a.balance)}</span>
-            <button onClick={() => run(() => archiveAccount(a.id))} disabled={pending} className="min-h-11 px-2 text-[12px] font-semibold text-ink-3">arquivar</button>
+            <ConfirmButton compact disabled={pending} label={`Arquivar ${a.name}`} confirmText="Toque de novo para arquivar" idle="min-h-11 px-2 text-[12px] text-ink-3" onConfirm={() => run(() => archiveAccount(a.id))}>arquivar</ConfirmButton>
           </li>
         ))}
         {data.accounts.filter((a) => !a.archived).length === 0 && <li className="px-4 py-6 text-center text-[15px] text-ink-3">Cadastre sua primeira conta abaixo.</li>}

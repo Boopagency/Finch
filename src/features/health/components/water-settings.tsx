@@ -1,5 +1,7 @@
 "use client";
 
+import { Switch } from "@/components/ui/switch";
+
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -16,11 +18,11 @@ export function WaterSettingsForm({ settings }: { settings: WaterSettings }) {
       </div>
       <label className="flex min-h-11 items-center justify-between gap-3 text-[15px] font-semibold">
         Lembretes de água
-        <input type="checkbox" name="water_reminders" defaultChecked={settings.water_reminders} className="switch" />
+        <Switch name="water_reminders" defaultChecked={settings.water_reminders} />
       </label>
       <div className="grid grid-cols-3 gap-3">
-        <Field id="water_from" name="water_from" type="time" label="Das" defaultValue={settings.water_from} required />
-        <Field id="water_to" name="water_to" type="time" label="Até" defaultValue={settings.water_to} required />
+        <Field id="water_from" name="water_from" type="time" label="Das" defaultValue={settings.water_from} required className="text-center" />
+        <Field id="water_to" name="water_to" type="time" label="Até" defaultValue={settings.water_to} required className="text-center" />
         <label htmlFor="water_every_min" className="flex flex-col gap-1.5">
           <span className="text-[13px] font-semibold text-ink-2">A cada</span>
           <select id="water_every_min" name="water_every_min" defaultValue={settings.water_every_min} className="min-h-12 rounded-[14px] border border-line bg-surface px-3 text-[16px]">

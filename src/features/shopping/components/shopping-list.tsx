@@ -1,5 +1,9 @@
 "use client";
 
+import { Switch } from "@/components/ui/switch";
+
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
 import { Check, ShoppingCart, Star, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
 import { mergeShopping, type ShopItem } from "@/features/sync/ops";
-import { enqueue, forgetAcked } from "@/lib/outbox";
+import { cancelPending, enqueue, forgetAcked } from "@/lib/outbox";
 import { CATEGORIES, formatMoney, parseItems } from "../parse";
 import { finishShopping, toggleFavorite, updateItem } from "../server/actions";
 
@@ -39,7 +43,7 @@ export function QuickItems({ listId, onAdded }: { listId: string; onAdded?: () =
       className="field-shell flex items-center gap-2 rounded-[22px] bg-surface p-2 pl-4 transition-shadow"
     >
       <label htmlFor={id} className="sr-only">Adicionar à lista</label>
-      <input id={id} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ex.: 2 leite, ovos e detergente" maxLength={300} autoComplete="off" enterKeyHint="send" className="min-h-11 min-w-0 flex-1 bg-transparent text-[16px] field-inline" />
+      <input id={id} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ex.: 2 leite, ovos" maxLength={300} autoComplete="off" enterKeyHint="send" className="min-h-11 min-w-0 flex-1 bg-transparent text-[16px] field-inline" />
       <button type="submit" disabled={!text.trim()} className="min-h-11 rounded-full bg-frog px-4 text-[15px] font-bold text-on-color disabled:opacity-40">
         Adicionar
       </button>
@@ -79,8 +83,9 @@ export function ShoppingList({ listId, serverItems, products, members, superMode
 
   const check = (i: ShopItem) => void enqueue({ id: crypto.randomUUID(), type: "shop.check", item_id: i.id, checked: !i.checked });
   const remove = (i: ShopItem) => {
-    void enqueue({ id: crypto.randomUUID(), type: "shop.remove", item_id: i.id });
-    toast(`${i.name} removido`);
+    const id = crypto.randomUUID();
+    void enqueue({ id, type: "shop.remove", item_id: i.id }, { holdMs: 5000 });
+    toast(`${i.name} removido`, { label: "Desfazer", run: () => void cancelPending(id) });
   };
 
   const groups = CATEGORIES.map(([key, label]) => ({
@@ -111,7 +116,7 @@ export function ShoppingList({ listId, serverItems, products, members, superMode
 
       {!superMode && <QuickItems listId={listId} />}
       {!superMode && suggestions.length > 0 && (
-        <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4" aria-label="Sugestões">
+        <div data-scroll-x className="-mx-4 flex gap-1.5 overflow-x-auto px-4" aria-label="Sugestões">
           {suggestions.map((p) => (
             <button key={p.id} onClick={() => addToList(listId, p.name)} className="flex shrink-0 items-center gap-1 rounded-full bg-surface px-3 py-2 text-[13px] font-semibold">
               {p.favorite && <Star className="size-3 fill-sunflower text-sunflower" />}+ {p.name}
@@ -215,7 +220,7 @@ function ItemSheet({ item, product, onRemove, onClose }: { item: ShopItem; produ
             <Star className={`size-4 ${product.favorite ? "fill-sunflower text-sunflower" : ""}`} /> {product.favorite ? "Desfavoritar" : "Favoritar"}
           </Button>
         )}
-        <Button variant="danger" onClick={onRemove}>Remover da lista</Button>
+        <ConfirmButton onConfirm={onRemove}>Remover da lista</ConfirmButton>
       </div>
     </Sheet>
   );
@@ -254,7 +259,7 @@ function FinishSheet({ listId, members, viewerId, today, estimate, pendingCount,
         {pendingCount > 0 && (
           <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">
             Levar {pendingCount} {pendingCount === 1 ? "item que faltou" : "itens que faltaram"} para a próxima lista
-            <input type="checkbox" name="carry_over" defaultChecked className="switch" />
+            <Switch name="carry_over" defaultChecked />
           </label>
         )}
         <p className="text-[13px] text-ink-3">A compra entra nas finanças como despesa (sem duplicar) e repõe o que a despensa acompanha.</p>

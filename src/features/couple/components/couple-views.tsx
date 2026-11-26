@@ -1,6 +1,10 @@
 "use client";
 
-import { Heart, MapPin, Plus, Star, Trash2, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
+import { Heart, MapPin, Plus, Star, X } from "lucide-react";
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -56,7 +60,7 @@ export function DatesView({ dates, today }: { dates: SpecialDate[]; today: strin
               {d.yearly && d.on_date < today && <span className={`block text-[12px] ${i === 0 ? "" : "text-ink-3"}`}>há {sinceLabel(d.on_date, today)}</span>}
             </span>
             <b className="tabular font-display text-[28px] leading-none">{d.next.days}<span className="ml-0.5 text-[12px] font-semibold">d</span></b>
-            <button disabled={busy} onClick={() => start(async () => { await deleteDate(d.id); toast("Data apagada"); })} aria-label={`Apagar ${d.title}`} className="grid size-10 place-items-center opacity-60"><Trash2 className="size-4" /></button>
+            <ConfirmButton compact disabled={busy} label={`Apagar ${d.title}`} idle="size-11 justify-center opacity-60" onConfirm={() => start(async () => { await deleteDate(d.id); toast("Data apagada"); })} />
           </li>
         ))}
       </ul>
@@ -64,7 +68,7 @@ export function DatesView({ dates, today }: { dates: SpecialDate[]; today: strin
         <form action={action} className="flex flex-col gap-3">
           <Field id="d-title" name="title" label="O quê" required maxLength={60} placeholder="Começo do namoro" />
           <Field id="d-date" name="on_date" type="date" label="Quando" required />
-          <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">Repete todo ano<input type="checkbox" name="yearly" defaultChecked className="switch" /></label>
+          <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">Repete todo ano<Switch name="yearly" defaultChecked /></label>
           <Err s={state} />
           <div className="flex gap-2"><Button type="submit" disabled={pending}>Guardar</Button><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button></div>
         </form>
@@ -106,7 +110,7 @@ export function PlacesView({ places }: { places: Place[] }) {
         ) : (
           <button disabled={busy} onClick={() => start(() => markVisited(p.id, null))} aria-label={`Voltar ${p.name} para queremos ir`} className="grid size-10 place-items-center text-ink-3"><X className="size-4" /></button>
         )}
-        <button disabled={busy} onClick={() => start(async () => { await deletePlace(p.id); toast("Lugar apagado"); })} aria-label={`Apagar ${p.name}`} className="grid size-10 place-items-center text-ink-3"><Trash2 className="size-4" /></button>
+        <ConfirmButton compact disabled={busy} label={`Apagar ${p.name}`} onConfirm={() => start(async () => { await deletePlace(p.id); toast("Lugar apagado"); })} />
       </div>
       {p.note && <p className="pl-8 text-[14px] text-ink-2">{p.note}</p>}
       {p.status === "fomos" && <div className="pl-6"><Stars place={p} /></div>}
@@ -175,7 +179,7 @@ export function MemoriesView({ memories, today, spaceId }: { memories: Memory[];
                 <span className="block text-[12px] font-semibold text-ink-3">{fmtDay(m.happened_on, true)}</span>
                 <b className="block text-[16px]">{m.title}</b>
               </span>
-              <button disabled={busy} onClick={() => start(async () => { await deleteMemory(m.id); toast("Memória apagada"); })} aria-label={`Apagar ${m.title}`} className="grid size-10 place-items-center text-ink-3"><Trash2 className="size-4" /></button>
+              <ConfirmButton compact disabled={busy} label={`Apagar ${m.title}`} onConfirm={() => start(async () => { await deleteMemory(m.id); toast("Memória apagada"); })} />
             </div>
             {m.photo_url && (
               // eslint-disable-next-line @next/next/no-img-element -- link assinado e temporário, sem otimização de imagem

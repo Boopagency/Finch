@@ -49,7 +49,7 @@ export function ClaudeSection({ url, grants }: { url: string; grants: Grant[] })
               </span>
               <ConfirmButton
                 label={`Desconectar ${g.client_name}`}
-                confirmText="Toque de novo"
+                confirmText="Toque de novo para desconectar"
                 className="min-h-9 px-3 text-[13px]"
                 onConfirm={() =>
                   start(async () => {

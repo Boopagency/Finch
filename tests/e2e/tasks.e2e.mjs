@@ -19,8 +19,9 @@ await test("Adição rápida entende recorrência, categoria e espaço (prévia)
 
 await test("Rotina aparece na aba Casa com rodízio entre os dois", async () => {
   await page.goto(`${BASE}/tarefas?v=casa`);
-  const row = page.locator("main li").filter({ hasText: `Lavar roupa ${run}` }).first();
-  await row.waitFor();
+  // a tarefa aparece na hora como rascunho (fila); o responsável do rodízio vem quando o servidor devolve
+  const row = page.locator("main li:not([aria-busy])").filter({ hasText: `Lavar roupa ${run}` }).first();
+  await row.waitFor({ timeout: 15000 });
   assert.match(await row.innerText(), /Toda quarta/);
   assert.match(await row.innerText(), /(Você|Teste B)/); // responsável vem do rodízio
   await shot(page, "tarefas-casa");

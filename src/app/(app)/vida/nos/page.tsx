@@ -20,7 +20,7 @@ export default async function CouplePage({ searchParams }: PageProps<"/vida/nos"
   const memories = await withPhotoUrls(c.memories);
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Nós" meta={c.space.kind === "shared" ? "de vocês dois" : "convide alguém em Ajustes"} />
+      <PageHeader back="/vida" title="Nós" meta={c.space.kind === "shared" ? "de vocês dois" : "convide alguém em Ajustes"} />
       {faces.sharedId && (
         <div className="relative overflow-hidden rounded-[24px] bg-lavender">
           {faces.cover ? (

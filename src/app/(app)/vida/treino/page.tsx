@@ -11,7 +11,7 @@ export default async function TrainingPage() {
   const week = t.history.filter((s) => s.finished_at && Date.parse(s.logged_at) > Date.parse(`${t.today}T00:00:00Z`) - 6 * 864e5).length;
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Treino" meta={week ? `${week} nos últimos 7 dias` : undefined} />
+      <PageHeader back="/vida" title="Treino" meta={week ? `${week} nos últimos 7 dias` : undefined} />
       <TrainingHome workouts={t.workouts} exercises={t.exercises} open={t.open} history={t.history} prs={t.prs} />
     </main>
   );

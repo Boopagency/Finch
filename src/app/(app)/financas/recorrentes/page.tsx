@@ -17,7 +17,7 @@ export default async function RecurringPage() {
   ]);
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Recorrentes" meta="entram sozinhos todo mês" />
+      <PageHeader back="/financas" title="Recorrentes" meta="entram sozinhos todo mês" />
       <RecurringView
         rules={(rules.data ?? []).map((r) => ({ ...r, amount_cents: Number(r.amount_cents) }))}
         accounts={accounts.data ?? []}

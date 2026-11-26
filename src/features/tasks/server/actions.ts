@@ -5,56 +5,20 @@ import { z } from "zod";
 import { addDays } from "@/features/health/habits";
 import { todayFor } from "@/features/health/server/queries";
 import { createClient, requireViewer } from "@/lib/supabase/server";
-import { parseQuickTask } from "../quick-parse";
 import type { Repeat } from "../recurrence";
+import { createTaskFromText } from "./create";
 import { ensureOccurrences } from "./queries";
 
 type Result = { ok: boolean; message: string };
-
-async function spacesOf(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const { data } = await supabase.from("workspaces").select("id, kind");
-  return data ?? [];
-}
 
 /** Adição rápida: "Lavar roupa toda quarta #casa @nós". */
 export async function createTaskQuick(text: string, workspaceId?: string): Promise<Result> {
   const viewer = await requireViewer();
   const raw = z.string().trim().min(1).max(300).safeParse(text);
   if (!raw.success) return { ok: false, message: "Escreva a tarefa." };
-  const today = todayFor(viewer);
-  const p = parseQuickTask(raw.data, today);
-  if (!p.title) return { ok: false, message: "Faltou o nome da tarefa." };
-
-  const supabase = await createClient();
-  const spaces = await spacesOf(supabase);
-  const shared = spaces.find((s) => s.kind === "shared");
-  const personal = spaces.find((s) => s.kind === "personal");
-  const chosen = p.shared && shared ? shared.id : spaces.some((s) => s.id === workspaceId) ? workspaceId! : personal?.id;
-  if (!chosen) return { ok: false, message: "Não encontrei seu espaço." };
-
-  const isShared = chosen === shared?.id;
-  const { data: members } = isShared ? await supabase.from("workspace_members").select("user_id").eq("workspace_id", chosen) : { data: null };
-  const start = p.due_date ?? today;
-  const { data: task, error } = await supabase
-    .from("tasks")
-    .insert({
-      workspace_id: chosen,
-      title: p.title,
-      category: p.category ?? (isShared ? "casa" : "geral"),
-      priority: p.priority ?? 0,
-      due_date: p.repeat ? null : (p.due_date ?? null),
-      due_time: p.due_time ?? null,
-      repeat: p.repeat ?? null,
-      repeat_start: p.repeat ? start : null,
-      // tarefa recorrente da casa alterna entre os dois por padrão
-      rotation: p.repeat && isShared && (members?.length ?? 0) > 1 ? members!.map((m) => m.user_id) : null,
-    })
-    .select("id, repeat, repeat_start, rotation, assignee_id")
-    .single();
-  if (error || !task) return { ok: false, message: "Não consegui criar a tarefa." };
-  if (task.repeat) await ensureOccurrences(supabase, [task], today, addDays(today, 14));
-  revalidatePath("/", "layout");
-  return { ok: true, message: p.repeat ? `Criada: ${p.title} (recorrente)` : `Criada: ${p.title}` };
+  const r = await createTaskFromText(await createClient(), viewer, raw.data, workspaceId);
+  if (r.ok) revalidatePath("/", "layout");
+  return r;
 }
 
 const saveSchema = z.object({
@@ -124,13 +88,6 @@ export async function saveTask(_prev: Result | null, form: FormData): Promise<Re
   await supabase.from("notification_jobs").delete().eq("source_id", v.id).eq("status", "pending");
   revalidatePath("/", "layout");
   return { ok: true, message: "Tarefa salva." };
-}
-
-export async function deleteTask(id: string) {
-  await requireViewer();
-  const supabase = await createClient();
-  await supabase.from("tasks").delete().eq("id", z.uuid().parse(id));
-  revalidatePath("/", "layout");
 }
 
 /** Adiar: tarefa única muda a data; ocorrência ganha snoozed_to. */

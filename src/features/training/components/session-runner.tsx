@@ -171,13 +171,13 @@ export function SessionRunner({
                         </span>
                         {pr && <Trophy className="size-4 text-tangerine" aria-label="Recorde" />}
                         {!done && (
-                          <button
-                            onClick={async () => { if (!(await cancelPending(s.id))) void enqueue({ id: crypto.randomUUID(), type: "set.remove", target_id: s.id }); }}
-                            aria-label={`Apagar série ${i + 1}`}
-                            className="grid size-9 place-items-center text-ink-3"
+                          <ConfirmButton
+                            compact
+                            label={`Apagar série ${i + 1}`}
+                            onConfirm={async () => { if (!(await cancelPending(s.id))) void enqueue({ id: crypto.randomUUID(), type: "set.remove", target_id: s.id }); }}
                           >
                             <X className="size-4" />
-                          </button>
+                          </ConfirmButton>
                         )}
                       </li>
                     );
@@ -242,6 +242,7 @@ export function SessionRunner({
       )}
       <ConfirmButton
         label={done ? "Excluir este treino" : "Descartar treino"}
+        confirmText={done ? "Toque de novo para apagar" : "Toque de novo para descartar"}
         className="self-center"
         onConfirm={async () => {
           writeRest(session.id, null);

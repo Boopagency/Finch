@@ -1,4 +1,4 @@
-import { assert, B, BASE, close, phone, summary, test } from "./lib.mjs";
+import { assert, B, BASE, close, phone, summary, test, confirmTap } from "./lib.mjs";
 
 console.log("Nós e metas");
 const run = Date.now() % 100000;
@@ -90,7 +90,7 @@ await test("Meta pessoal não aparece para a parceira", async () => {
 await test("Limpeza: apaga o que o teste criou", async () => {
   for (const [url, label] of [[`/vida/nos`, `Apagar Namoro ${run}`], [`/vida/nos?v=lugares`, `Apagar Sushi ${run}`], [`/vida/nos?v=memorias`, `Apagar Piquenique ${run}`], [`/vida/metas`, `Apagar Reserva ${run}`], [`/vida/metas`, `Apagar Ler ${run}`]]) {
     await a.page.goto(`${BASE}${url}`);
-    await a.page.getByRole("button", { name: label }).click();
+    await confirmTap(a.page, a.page.getByRole("button", { name: label }));
     await a.page.getByRole("status").first().waitFor();
     await a.page.waitForTimeout(400);
   }

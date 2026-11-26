@@ -20,7 +20,7 @@ export default async function KitchenPage({ searchParams }: PageProps<"/vida/coz
   const low = k.pantry.filter(isLow).length;
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Cozinha" meta={k.space.kind === "shared" ? "de vocês dois" : undefined} />
+      <PageHeader back="/vida" title="Cozinha" meta={k.space.kind === "shared" ? "de vocês dois" : undefined} />
       <Tabs
         label="Seções"
         path="/vida/cozinha"

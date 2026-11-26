@@ -13,7 +13,7 @@ export default async function FinancePage({ searchParams }: PageProps<"/financas
   const data = await getFinance(viewer, month);
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-2 px-gutter pt-safe">
-      <PageHeader title="Finanças" meta="privado por padrão" />
+      <PageHeader back="/vida" title="Finanças" meta="privado por padrão" />
       <FinanceView data={data} />
     </main>
   );

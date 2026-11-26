@@ -1,4 +1,4 @@
-import { assert, B, BASE, close, phone, summary, test } from "./lib.mjs";
+import { assert, B, BASE, close, phone, summary, test, confirmTap } from "./lib.mjs";
 
 console.log("Treino e saúde");
 const run = Date.now() % 100000;
@@ -75,7 +75,7 @@ await test("Apagar série tira do treino", async () => {
   await page.getByRole("button", { name: "Registrar série de Supino reto" }).click();
   await page.getByText("42,5 kg × 3 reps").waitFor();
   await page.waitForTimeout(1500);
-  await page.getByRole("button", { name: "Apagar série 3" }).click();
+  await confirmTap(page, page.getByRole("button", { name: "Apagar série 3" }));
   await page.waitForTimeout(2500);
   await page.reload();
   await page.getByText("42,5 kg × 8 reps").waitFor();

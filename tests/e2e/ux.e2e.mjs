@@ -9,18 +9,20 @@ const { page } = await phone();
 const nav = page.getByRole("navigation", { name: "Principal" });
 const PAGES = ["/", "/agenda", "/vida", "/tarefas", "/tarefas?v=quadro", "/mercado", "/financas", "/financas/contas", "/financas/recorrentes", "/financas/relatorio", "/financas/importar", "/vida/agua", "/vida/habitos", "/vida/treino", "/vida/saude", "/vida/cozinha", "/vida/cozinha?v=cardapio", "/vida/nos", "/vida/metas", "/vida/casa", "/vida/album", "/finch", "/ajustes", "/agenda?v=mes"];
 
-await test("Nenhuma tela estoura para o lado (iPhone 13 e SE)", async () => {
+await test("Nenhuma tela estoura para o lado (393×852 e 375×667)", async () => {
   const browser = await chromium.launch();
   const bad = [];
-  for (const dev of ["iPhone 13", "iPhone SE"]) {
-    const ctx = await browser.newContext({ ...devices[dev], locale: "pt-BR" });
+  for (const [dev, viewport] of [["393×852", { width: 393, height: 852 }], ["375×667", { width: 375, height: 667 }]]) {
+    const ctx = await browser.newContext({ viewport, deviceScaleFactor: 2, isMobile: true, hasTouch: true, userAgent: devices["iPhone 13"].userAgent, locale: "pt-BR" });
     const p = await ctx.newPage();
     await p.goto(`${BASE}/entrar`);
     await p.getByLabel("E-mail").fill(A);
     await p.getByLabel("Senha").fill(PASSWORD);
     await p.getByRole("button", { name: "Entrar" }).click();
     await p.waitForURL(`${BASE}/`);
-    for (const path of PAGES) {
+    await p.goto(`${BASE}/mercado`);
+    const list = await p.locator('main a[href^="/mercado/"]').first().getAttribute("href").catch(() => null);
+    for (const path of [...PAGES, ...(list ? [list] : [])]) {
       await p.goto(`${BASE}${path}`);
       await p.locator("h1").first().waitFor({ timeout: 8000 }).catch(() => {});
       // abre formulários escondidos atrás de "Nova…" para medir também os campos de data
@@ -48,7 +50,7 @@ await test("+ abre sem focar campo (sem teclado), continua aberto após adiciona
   const sheet = page.getByRole("dialog", { name: "Registrar" });
   await sheet.waitFor();
   const focused = await page.evaluate(() => document.activeElement?.tagName + ":" + (document.activeElement?.getAttribute("aria-label") ?? ""));
-  assert.equal(focused, "BUTTON:Fechar", `foco inicial em ${focused}`);
+  assert.equal(focused, "H2:", `foco inicial em ${focused}`); // título: sem teclado e sem anel no X
   await sheet.getByRole("textbox", { name: "Nova tarefa" }).fill(`Tarefa ux ${run}`);
   await sheet.getByRole("button", { name: "Criar tarefa" }).click();
   const t = page.getByRole("status").filter({ hasText: `Tarefa ux ${run}` });

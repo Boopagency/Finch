@@ -21,7 +21,7 @@ export default async function ReportPage({ searchParams }: PageProps<"/financas/
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Relatório" meta="só realizado" />
+      <PageHeader back="/financas" title="Relatório" meta="só realizado" />
       <div className="flex items-center justify-between">
         <Link prefetch href={`/financas/relatorio?m=${addMonths(month, -1).slice(0, 7)}`} aria-label="Mês anterior" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></Link>
         <span className="text-[15px] font-bold first-letter:uppercase">{label(month, { month: "long", year: "numeric" })}</span>

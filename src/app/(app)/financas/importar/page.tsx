@@ -9,7 +9,7 @@ export default async function ImportPage() {
   const { data } = await (await createClient()).from("fin_accounts").select("id, name, kind").is("archived_at", null).order("created_at");
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Importar" meta="extrato do banco" />
+      <PageHeader back="/financas" title="Importar" meta="extrato do banco" />
       <ImportView accounts={data ?? []} />
     </main>
   );

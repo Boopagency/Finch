@@ -22,6 +22,9 @@ export const opSchema = z.discriminatedUnion("type", [
   z.object({ id: z.uuid(), type: z.literal("shop.check"), item_id: z.uuid(), checked: z.boolean() }),
   z.object({ id: z.uuid(), type: z.literal("shop.remove"), item_id: z.uuid() }),
   z.object({ id: z.uuid(), type: z.literal("task.toggle"), task_id: z.uuid(), occurrence_id: z.uuid().nullable(), done: z.boolean() }),
+  // criar: o id da op vira o id da tarefa (reenviar não duplica); o servidor interpreta o texto de novo
+  z.object({ id: z.uuid(), type: z.literal("task.create"), text: z.string().trim().min(1).max(300), workspace_id: z.uuid().nullable() }),
+  z.object({ id: z.uuid(), type: z.literal("task.delete"), task_id: z.uuid() }),
   z.object({
     id: z.uuid(),
     type: z.literal("set.add"),

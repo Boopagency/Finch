@@ -1,5 +1,7 @@
 "use client";
 
+import { Switch } from "@/components/ui/switch";
+
 import { Segmented } from "@/components/ui/segmented";
 import { X } from "lucide-react";
 import { useActionState, useEffect, useRef, useState } from "react";
@@ -112,7 +114,7 @@ export function EntrySheet({ data, onClose, preset }: { data: FinanceData; onClo
           {(kind === "expense" || kind === "income") && !isCard && (
             <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">
               Ainda não aconteceu (previsto)
-              <input type="checkbox" name="planned" className="switch" />
+              <Switch name="planned" />
             </label>
           )}
           {state && !state.ok && <p role="alert" className="text-sm font-medium text-danger">{state.message}</p>}

@@ -97,3 +97,6 @@ Marque ✅ ou ❌ e me mande os ❌ com print.
 - [ ] Agenda: Dia/Semana/Mês, setas e dias da semana trocam na hora; "Semana" aparece inteiro.
 - [ ] Cozinha e Nós: abas trocam na hora. Água → Lembretes: interruptor verde e horários centralizados.
 - [ ] Teste no computador com a extensão do Claude: [PROMPT_TESTE_NAVEGADOR.md](PROMPT_TESTE_NAVEGADOR.md).
+- [ ] Excluir (tarefa, item do mercado, evento, lista…): 1º toque fica vermelho "Toque de novo para apagar"; espere 3 s e ele volta; 2º toque apaga; "Desfazer" no aviso traz de volta.
+- [ ] Ajustes → O que receber: bolinha dentro do trilho, ligado e desligado.
+- [ ] Telas internas (lista do Mercado, Relatório, Ajustes, Água…): "‹" volta para onde você estava.

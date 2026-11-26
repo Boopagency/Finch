@@ -2,8 +2,9 @@
 
 import { CalendarDays, LayoutGrid, Plus, Sun } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import type { PrefetchKind } from "next/dist/client/components/router-reducer/router-reducer-types";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { BrandMark } from "@/components/brand/mark";
 import { RegisterSheet, type QuickData } from "./register-sheet";
 
@@ -24,8 +25,17 @@ function slotOf(path: string): number {
   return 3; // Vida e tudo que mora nela (tarefas, mercado, finanças…)
 }
 
-export function TabBar({ quick }: { quick: QuickData }) {
+// telas fora da barra que se abrem muito (Vida → Mercado, ícone de Ajustes no Hoje): já ficam prontas
+const WARM = ["/mercado", "/ajustes"];
+
+/** `quick` é uma promessa (o layout não espera o banco): a barra aparece na hora e o "+" abre sempre. */
+export function TabBar({ quick }: { quick: Promise<QuickData> }) {
   const path = usePathname();
+  const router = useRouter();
+  useEffect(() => {
+    const t = setTimeout(() => WARM.forEach((h) => router.prefetch(h, { kind: "full" as PrefetchKind })), 1500);
+    return () => clearTimeout(t);
+  }, [router]);
   const [open, setOpen] = useState(false);
   // destaque se move no toque, sem esperar a tela nova (vale até a rota mudar)
   const [tapped, setTapped] = useState<{ idx: number; from: string } | null>(null);

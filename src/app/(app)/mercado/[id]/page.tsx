@@ -18,7 +18,7 @@ export default async function ListPage({ params, searchParams }: PageProps<"/mer
   const superMode = sp.modo === "super";
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-3 px-gutter pt-safe">
-      <PageHeader title={superMode ? "No mercado" : data.list.name} meta={data.list.status === "done" ? "finalizada" : undefined} />
+      <PageHeader back="/mercado" title={superMode ? "No mercado" : data.list.name} meta={data.list.status === "done" ? "finalizada" : undefined} />
       <ListRealtime listId={id} />
       <ShoppingList
         listId={id}

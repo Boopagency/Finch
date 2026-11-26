@@ -19,7 +19,7 @@ import { formatWater } from "@/features/health/water";
 import { getAlbumSummary } from "@/features/album/server/queries";
 import { getAgenda } from "@/features/agenda/server/queries";
 import { getLists } from "@/features/shopping/server/queries";
-import { TaskList } from "@/features/tasks/components/task-list";
+import { TodayTasks } from "@/features/tasks/components/today-tasks";
 import { getTaskItems } from "@/features/tasks/server/queries";
 import { buildSentence, type DayItem, type Tone } from "@/features/today/sentence";
 import { createClient, requireViewer } from "@/lib/supabase/server";
@@ -202,21 +202,7 @@ export default async function TodayPage() {
               ))}
             </ul>
           )}
-          {todayTasks.length > 0 && (
-            <>
-              <TaskList
-                items={[...todayTasks].sort((a, b) => Number(a.status === "done") - Number(b.status === "done")).slice(0, 6)}
-                spaces={tasksData.spaces}
-                today={tasksData.today}
-                group={overdue > 0}
-              />
-              {todayTasks.length > 6 && (
-                <Link prefetch href="/tarefas" className="px-2 text-[13px] font-semibold text-ink-3">
-                  Ver todas as {todayTasks.length} tarefas de hoje →
-                </Link>
-              )}
-            </>
-          )}
+          <TodayTasks items={todayTasks} today={tasksData.today} spaces={tasksData.spaces} />
           <WaterQuick serverLogs={water.logs} goal={waterGoal} presets={water.settings.water_presets} />
           <HabitList habits={habitsData.habits} serverLogs={habitsData.logs} today={habitsData.today} onlyPendingToday />
           <div className="flex items-baseline justify-between px-2 pt-2">

@@ -1,5 +1,7 @@
 "use client";
 
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -105,9 +107,9 @@ export function HabitForm({ habit, onDone }: { habit?: Habit; onDone?: () => voi
       <div className="flex items-center gap-2">
         <Button type="submit" disabled={pending}>{habit ? "Salvar" : "Criar hábito"}</Button>
         {habit && (
-          <Button type="button" variant="danger" onClick={() => void archiveHabit(habit.id).then(onDone)}>
+          <ConfirmButton confirmText="Toque de novo para arquivar" onConfirm={() => void archiveHabit(habit.id).then(onDone)}>
             Arquivar
-          </Button>
+          </ConfirmButton>
         )}
       </div>
     </form>

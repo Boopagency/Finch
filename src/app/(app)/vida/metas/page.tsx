@@ -11,7 +11,7 @@ export default async function GoalsPage() {
   const open = goals.filter((g) => !g.done_at).length;
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Metas" meta={goals.length ? `${open} em andamento` : undefined} />
+      <PageHeader back="/vida" title="Metas" meta={goals.length ? `${open} em andamento` : undefined} />
       <GoalsView goals={goals} spaces={spaces} today={today} />
     </main>
   );

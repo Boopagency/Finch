@@ -23,7 +23,8 @@ const PRIORITY = ["", "border-l-sunflower", "border-l-tangerine", "border-l-cora
 export function useTaskState(items: TaskItem[]) {
   const ops = useOutboxOps();
   const over = taskDoneOverrides(ops);
-  return items.map((i) => {
+  const deleted = new Set(ops.flatMap((o) => (o.type === "task.delete" ? [o.task_id] : [])));
+  return items.filter((i) => !deleted.has(i.task_id)).map((i) => {
     const o = over.get(i.key);
     return o === undefined ? i : { ...i, status: o ? ("done" as const) : i.status === "done" ? ("open" as const) : i.status };
   });

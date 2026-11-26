@@ -32,6 +32,7 @@ _Atualizado em 2026-11-26. Status: `implementado` · `testado (unidade/banco/E2E
 | Coisas da casa: itens com garantia e foto da nota, manutenções com próxima data; avisos no Hoje | testado com 2 usuários | unidade + SQL + E2E |
 | Hoje: frase por regras com água/hábitos/tarefas/eventos; listas do dia; avisos (últimas 12 h, sem repetidos); fotos do casal no topo | testado | E2E |
 | Fluidez (relato de 26/11): telas visitadas voltam na hora (cache do roteador 30 s + pré-carga das abas e blocos da Vida), atualiza ao voltar para o app, toque com resposta imediata, barra de baixo não sobe mais no iPhone, campos de data/hora/seleção não vazam, título encolhe em tela estreita | testado | E2E (iPhone 13 e SE: nenhuma tela com rolagem lateral) |
+| Relatório do teste no navegador (26/11, 3º lote): excluir em dois toques em todo o app com Desfazer (tarefa, item do mercado); interruptor único (bolinha saía do trilho em Ajustes); "‹ Voltar" em 20 telas; cartões do Hoje não ficam atrás da barra; criar/apagar tarefa pela fila (< 100 ms); aviso do compromisso com o dia e "Ver"; Agenda e Finanças trocam de mês na hora; casca do app sem esperar o banco; dicas que cabem em 375 px | testado | E2E `fixes.e2e.mjs` (11) + 375 e 393 px em 25 telas; Álbum validado com o usuário B (o A bateu o teto diário de pontos com os testes) |
 | Micro-interações instantâneas (relato de 26/11, 2º lote): abas de Tarefas/Cozinha/Nós, dia/semana/mês e setas da Agenda trocam no aparelho; tarefa e compromisso novos aparecem na hora; botões de salvar mostram progresso; interruptores do design no lugar das caixinhas azuis do iOS; horário centralizado nos campos | testado | E2E (19 suítes) + medição |
 | "+" Registrar: abre sem teclado, continua aberto depois de adicionar (aviso dentro da janela), não bloqueia a tela de trás | testado | E2E |
 | Seletor de opções novo (pílula que desliza) em Finanças, Agenda, Metas, Tarefas e formulários | testado | E2E |
@@ -41,9 +42,9 @@ _Atualizado em 2026-11-26. Status: `implementado` · `testado (unidade/banco/E2E
 | **MCP para o Claude** (conector: ver o dia, tarefas, agenda, finanças e mercado; registrar água, tarefa, compromisso, gasto) com OAuth + PKCE, senha na autorização, desconectar em Ajustes | testado (migration aplicada em 26/11; descoberta e registro conferidos no site publicado) | unidade + SQL + E2E (9: OAuth completo, senha errada, PKCE errado, código de uso único, todas as ferramentas, refresh com rotação, desconectar) |
 
 ## Números (26/11)
-- `npm test`: **75** testes de unidade passando.
+- `npm test`: **78** testes de unidade passando.
 - `npm run test:db`: **16** suítes SQL passando (+ fotos de perfil/casal e MCP/OAuth), cada uma em banco limpo.
-- `npm run test:e2e`: **112** testes em 19 suítes passando (iPhone 13/15 simulado, 2 usuários de teste, Supabase de produção).
+- `npm run test:e2e`: **123** testes em 20 suítes passando (iPhone 13/15 simulado, 2 usuários de teste, Supabase de produção).
 - `lint`, `typecheck`, `build`: passando.
 
 ## Desempenho (25/11, medido no site publicado, iPhone 15 simulado)
@@ -71,6 +72,8 @@ Lote de 26/11 (Playwright local): voltar a uma tela já vista caiu de ~810 ms pa
 - Fila offline: op feita durante um envio esperava o próximo gatilho; e ao reabrir o app a fila voltava fora de ordem (chave = uuid), então "apagar" podia ser aplicado antes de "adicionar" e o item reaparecia. Afetava hábitos também. Corrigido na fila (vale para todos os módulos).
 - Animação de entrada das telas prendia elementos fixos (barra do chat, botões presos embaixo) no meio da tela.
 - Chamadas à API sem sessão recebiam a página de login (HTML) em vez de 401; afetava a fila offline com sessão expirada.
+- Apagar tarefa e tocar em Desfazer reabria a ficha da tarefa (a folha desmontava antes do evento de fechar).
+- Cartão no fim do Hoje ficava atrás da barra quando a tela rolava até ele; o toque caía no ícone Hoje.
 - Assistente: resposta com mais de 4.000 caracteres travava a conversa (o histórico era recusado); agora cada mensagem é cortada no limite ao enviar.
 - Campo do chat perdia o que foi digitado antes da tela terminar de carregar; texto longo sem espaço vazava da bolha.
 - Confirmar ou cancelar a 2ª/3ª parcela de uma compra falhava em silêncio (o validador recusava ids gerados pelo banco).

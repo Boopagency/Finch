@@ -12,5 +12,5 @@ export function useOutboxOps(): Op[] {
 
 export function usePendingCount(): number {
   const entries = useSyncExternalStore(subscribe, getEntries, getServerEntries);
-  return entries.filter((e) => !e.acked).length;
+  return entries.filter((e) => !e.acked && !e.hold_until).length; // segurada (janela do Desfazer) não é "sincronizando"
 }

@@ -1,6 +1,10 @@
 "use client";
 
-import { Trash2, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
+import { X } from "lucide-react";
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -57,7 +61,7 @@ export function EventSheet({ event, date, spaces, onClose }: { event?: EventRow;
           </div>
           <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">
             Dia inteiro
-            <input type="checkbox" name="all_day" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="switch" />
+            <Switch name="all_day" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} />
           </label>
           <div className="grid grid-cols-2 gap-3">
             <Field id="ev-start-date" name="start_date" type="date" label="Começa" defaultValue={event?.start_date ?? date} required />
@@ -106,9 +110,9 @@ export function EventSheet({ event, date, spaces, onClose }: { event?: EventRow;
           <Button type="submit" disabled={saving}>Salvar</Button>
         </form>
         {event && (
-          <Button variant="danger" className="self-start" disabled={pending} onClick={() => start(async () => { await deleteEvent(event.id); toast("Evento apagado"); ref.current?.close(); })}>
-            <Trash2 className="size-4" /> {event.repeat ? "Apagar todas as repetições" : "Apagar evento"}
-          </Button>
+          <ConfirmButton className="self-start" disabled={pending} onConfirm={() => start(async () => { await deleteEvent(event.id); toast("Evento apagado"); ref.current?.close(); })}>
+            {event.repeat ? "Apagar todas as repetições" : "Apagar evento"}
+          </ConfirmButton>
         )}
       </div>
     </dialog>

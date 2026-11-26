@@ -3,7 +3,9 @@
 import { CloudOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
-import { flush, loadOutbox, onAcked } from "@/lib/outbox";
+import { toast } from "@/components/ui/toast";
+import type { Op } from "@/features/sync/ops";
+import { flush, loadOutbox, onAcked, onRejected } from "@/lib/outbox";
 import { usePendingCount } from "./use-outbox";
 
 /** Envia a fila ao abrir, ao voltar a conexão, ao voltar para o app e a cada 20 s se houver pendência. */
@@ -16,6 +18,13 @@ function subscribeOnline(cb: () => void) {
   };
 }
 
+// o que a tela já mostrou foi desfeito (a op saiu da fila): diz o que não deu certo
+const REJECTED: Partial<Record<Op["type"], string>> = {
+  "task.create": "Não consegui criar a tarefa. Tente de novo.",
+  "task.delete": "Não consegui apagar a tarefa. Ela voltou para a lista.",
+  "shop.remove": "Não consegui remover o item. Ele voltou para a lista.",
+};
+
 export function SyncAgent() {
   const router = useRouter();
   const pending = usePendingCount();
@@ -23,6 +32,8 @@ export function SyncAgent() {
 
   // qualquer confirmação do servidor (inclusive do envio imediato após registrar) recarrega os dados
   // a tela já mostra o resultado na hora (otimista); recarrega do servidor uma vez, depois de uma pausa
+  useEffect(() => onRejected((op) => toast(REJECTED[op.type] ?? "Algo não foi salvo. Tente de novo.")), []);
+
   useEffect(() => {
     let t: ReturnType<typeof setTimeout> | undefined;
     const off = onAcked(() => {

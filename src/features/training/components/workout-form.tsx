@@ -98,7 +98,7 @@ export function WorkoutForm({ workout, exercises, onDone }: { workout?: Workout;
                 <span className="truncate">{e.name}</span>
                 <ConfirmButton
                   label={`Excluir exercício ${e.name}`}
-                  confirmText="Apaga também o histórico"
+                  confirmText="Toque de novo para apagar (e o histórico)"
                   className="min-h-9 px-3 text-[13px]"
                   onConfirm={() =>
                     start(async () => {

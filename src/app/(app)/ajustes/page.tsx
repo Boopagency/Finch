@@ -63,7 +63,7 @@ export default async function SettingsPage() {
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Ajustes" meta={viewer.email} />
+      <PageHeader back="/" title="Ajustes" meta={viewer.email} />
       <Section id="perfil" title="Você">
         <AvatarEditor name={viewer.name} url={faces.me.url} spaceId={faces.avatarSpace} />
         <ProfileForm name={viewer.name} tz={viewer.tz} />

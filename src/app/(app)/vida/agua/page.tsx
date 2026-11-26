@@ -19,7 +19,7 @@ export default async function WaterPage() {
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Água" meta={`meta ${formatWater(goal)}`} />
+      <PageHeader back="/vida" title="Água" meta={`meta ${formatWater(goal)}`} />
       <WaterQuick serverLogs={water.logs} goal={goal} presets={water.settings.water_presets} />
 
       <section aria-labelledby="semana" className="rounded-[22px] bg-surface p-4">

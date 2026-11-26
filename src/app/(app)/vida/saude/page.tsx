@@ -23,7 +23,7 @@ export default async function HealthPage() {
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Saúde" meta="só você vê" />
+      <PageHeader back="/vida" title="Saúde" meta="só você vê" />
 
       <div className="grid grid-cols-2 gap-3">
         <section aria-label="Peso" className="rounded-[22px] bg-surface p-4">

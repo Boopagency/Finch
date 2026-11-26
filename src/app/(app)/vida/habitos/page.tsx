@@ -10,7 +10,7 @@ export default async function HabitsPage() {
   const { habits, logs, today } = await getHabits(viewer);
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
-      <PageHeader title="Hábitos" meta={habits.length ? `${habits.length} ativos` : undefined} />
+      <PageHeader back="/vida" title="Hábitos" meta={habits.length ? `${habits.length} ativos` : undefined} />
       <HabitManager habits={habits} logs={logs} today={today} />
     </main>
   );

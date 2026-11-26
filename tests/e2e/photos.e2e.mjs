@@ -1,4 +1,4 @@
-import { assert, B, BASE, close, phone, summary, test } from "./lib.mjs";
+import { assert, B, BASE, close, phone, summary, test, confirmTap } from "./lib.mjs";
 
 console.log("Fotos");
 const run = Date.now() % 100000;
@@ -34,7 +34,7 @@ await test("Foto de evolução: envia, aparece e só a dona vê", async () => {
 await test("Apagar foto de evolução", async () => {
   const items = a.page.getByRole("list", { name: "Todas as fotos" }).locator("li");
   const file = (await items.first().locator("img").getAttribute("src")).split("?")[0].split("/").pop();
-  await items.first().getByRole("button", { name: /Apagar foto/ }).click();
+  await confirmTap(a.page, items.first().getByRole("button", { name: /Apagar foto/ }));
   await a.page.getByRole("status").filter({ hasText: "Foto apagada" }).waitFor();
   await a.page.reload();
   await a.page.getByRole("heading", { name: "Fotos de evolução" }).waitFor();
@@ -57,7 +57,7 @@ await test("Memória com foto aparece para os dois", async () => {
 await test("Apagar memória apaga a foto do armazenamento", async () => {
   await a.page.goto(`${BASE}/vida/nos?v=memorias`);
   const src = await a.page.getByRole("img", { name: `Praia ${run}` }).getAttribute("src");
-  await a.page.getByRole("button", { name: `Apagar Praia ${run}` }).click();
+  await confirmTap(a.page, a.page.getByRole("button", { name: `Apagar Praia ${run}` }));
   await a.page.getByRole("status").filter({ hasText: "Memória apagada" }).waitFor();
   await a.page.waitForTimeout(500);
   // o registro some na hora; o servidor de arquivos pode servir o link por alguns segundos (cache)

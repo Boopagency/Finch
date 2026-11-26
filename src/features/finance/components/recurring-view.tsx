@@ -1,6 +1,8 @@
 "use client";
 
-import { Pause, Play, Trash2 } from "lucide-react";
+import { ConfirmButton } from "@/components/ui/confirm-button";
+
+import { Pause, Play } from "lucide-react";
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -48,7 +50,7 @@ export function RecurringView({ rules, accounts, categories, spaces }: { rules: 
             <button disabled={busy} onClick={() => start(async () => { await toggleRecurring(r.id, !r.active); toast(r.active ? "Pausada" : "Retomada"); })} aria-label={`${r.active ? "Pausar" : "Retomar"} ${r.description}`} className="grid size-10 place-items-center text-ink-3">
               {r.active ? <Pause className="size-4" /> : <Play className="size-4" />}
             </button>
-            <button disabled={busy} onClick={() => start(async () => { await deleteRecurring(r.id); toast("Recorrência apagada (o que já foi lançado fica)"); })} aria-label={`Apagar ${r.description}`} className="grid size-10 place-items-center text-ink-3"><Trash2 className="size-4" /></button>
+            <ConfirmButton compact disabled={busy} label={`Apagar ${r.description}`} onConfirm={() => start(async () => { await deleteRecurring(r.id); toast("Recorrência apagada (o que já foi lançado fica)"); })} />
           </li>
         ))}
       </ul>
