@@ -40,9 +40,10 @@ _Atualizado em 2026-11-26. Status: `implementado` · `testado (unidade/banco/E2E
 | Notificações: escolher em Ajustes o que receber (água, hábitos, tarefas, agenda, contas, casa…); desligar apaga os avisos pendentes daquele tipo | testado (envio pulado conferido em produção) | E2E |
 | Foto de perfil e foto do casal (Ajustes; aparecem no Hoje e em Nós) | testado com 2 usuários | SQL + E2E |
 | **MCP para o Claude** (conector: ver o dia, tarefas, agenda, finanças e mercado; registrar água, tarefa, compromisso, gasto) com OAuth + PKCE, senha na autorização, desconectar em Ajustes | testado (migration aplicada em 26/11; descoberta e registro conferidos no site publicado) | unidade + SQL + E2E (9: OAuth completo, senha errada, PKCE errado, código de uso único, todas as ferramentas, refresh com rotação, desconectar) |
+| **Conector completo** (D-050): 74 ferramentas — tarefas (concluir, editar, adiar, excluir, subtarefas), agenda (editar, excluir), água (desfazer), hábitos (marcar, criar, arquivar), mercado (marcar, tirar, outras listas, finalizar compra), finanças (detalhe do mês, lançamento completo, confirmar previsto, cancelar, acerto do casal, orçamento, contas), saúde, treino (começar, séries, terminar), Nós, metas, cozinha (despensa, receitas, cardápio → lista) e casa; excluir e dinheiro só com `confirm: true` | implementado; **e2e escrito, não rodado** (precisa do `E2E_PASSWORD`) | unidade (schemas fechados, confirmação obrigatória) + SQL (16) |
 
 ## Números (26/11)
-- `npm test`: **78** testes de unidade passando.
+- `npm test`: **82** testes de unidade passando.
 - `npm run test:db`: **16** suítes SQL passando (+ fotos de perfil/casal e MCP/OAuth), cada uma em banco limpo.
 - `npm run test:e2e`: **123** testes em 20 suítes passando (iPhone 13/15 simulado, 2 usuários de teste, Supabase de produção).
 - `lint`, `typecheck`, `build`: passando.

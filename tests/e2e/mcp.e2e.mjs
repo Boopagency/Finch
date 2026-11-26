@@ -136,10 +136,50 @@ await test("MCP: as outras ferramentas leem e gravam de verdade", async () => {
   assert.ok((await call("get_shopping_list")).items.some((i) => i.name.toLowerCase().includes(`claude ${run}`)));
   await call("create_event", { text: `Jantar Claude ${run} amanhã 20h` });
   assert.ok((await call("get_agenda")).some((e) => e.title.includes(`Jantar Claude ${run}`)));
-  await call("log_expense", { text: `12 café claude ${run}` });
+  const pre = await call("log_expense", { text: `12 café claude ${run}` });
+  assert.equal(pre.needs_confirmation, true, "dinheiro só com confirm");
+  await call("log_expense", { text: `12 café claude ${run}`, confirm: true });
   assert.ok((await call("get_finances_month")) !== null);
   const r = await rpc(tokens.access_token, "tools/call", { name: "get_agenda", arguments: { from: "2026-01-01", to: "2026-12-31" } });
   assert.equal(r.body.result.isError, true, "intervalo grande recusado");
+});
+
+await test("MCP: concluir, editar e excluir (com confirmação) mudam o app", async () => {
+  const call = async (name, args = {}) => {
+    const r = await rpc(tokens.access_token, "tools/call", { name, arguments: args });
+    assert.equal(r.body.result.isError, false, `${name}: ${r.body.result.content[0].text}`);
+    return JSON.parse(r.body.result.content[0].text);
+  };
+  const task = (await call("list_tasks")).find((t) => t.title.includes(`Tarefa via Claude ${run}`));
+  await call("update_task", { task_id: task.task_id, title: `Tarefa editada ${run}`, time: "18:30" });
+  await call("complete_task", { task_id: task.task_id });
+  assert.ok((await call("list_tasks", { include_done: true })).some((t) => t.title === `Tarefa editada ${run}` && t.status === "done" && t.time === "18:30"));
+  const pre = await call("delete_task", { task_id: task.task_id });
+  assert.equal(pre.needs_confirmation, true);
+  assert.match(pre.action, new RegExp(`Tarefa editada ${run}`));
+  assert.ok((await call("list_tasks", { include_done: true })).some((t) => t.task_id === task.task_id), "sem confirm não apaga");
+  await call("delete_task", { task_id: task.task_id, confirm: true });
+  assert.ok(!(await call("list_tasks", { include_done: true })).some((t) => t.task_id === task.task_id));
+
+  const shop = await call("get_shopping_list");
+  const item = shop.items.find((i) => i.name.toLowerCase().includes(`claude ${run}`));
+  await call("check_shopping_item", { item_id: item.item_id });
+  assert.ok(!(await call("get_shopping_list")).items.some((i) => i.item_id === item.item_id), "marcado sai dos pendentes");
+
+  const ev = (await call("get_agenda")).find((e) => e.title.includes(`Jantar Claude ${run}`));
+  await call("update_event", { event_id: ev.event_id, start_time: "21:00", end_time: "22:00", location: "Casa" });
+  const ev2 = (await call("get_agenda")).find((e) => e.event_id === ev.event_id);
+  assert.equal(ev2.start, "21:00");
+  assert.equal(ev2.location, "Casa");
+  await call("delete_event", { event_id: ev.event_id, confirm: true });
+
+  const other = await rpc(tokens.access_token, "tools/call", { name: "delete_task", arguments: { task_id: "00000000-0000-4000-8000-000000000000" } });
+  assert.equal(other.body.result.isError, true, "id que não é da pessoa: não encontrado");
+  assert.ok((await call("get_habits")) && (await call("get_water")).goal_ml > 0 && (await call("get_kitchen")) && (await call("get_couple")) && (await call("get_finance_details")).month);
+  const { page } = await phone();
+  await page.goto(`${BASE}/tarefas`);
+  await page.waitForLoadState("networkidle");
+  assert.equal(await page.getByText(`Tarefa editada ${run}`).count(), 0, "apagada some do app");
 });
 
 await test("Renovar token: o novo vale, o antigo não", async () => {
