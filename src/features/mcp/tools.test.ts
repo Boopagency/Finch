@@ -31,6 +31,11 @@ describe("ferramentas do conector", () => {
     await callTool(viewer, "log_expense", { text: "45 uber", confirm: true });
     expect(quickExpense).toHaveBeenCalledWith("45 uber");
   });
+  it("no assistente o modelo não manda confirm: a ação vira proposta para a pessoa tocar", async () => {
+    await expect(callTool(viewer, "log_expense", { text: "45 uber", confirm: true }, "app")).rejects.toThrow();
+    const r = (await callTool(viewer, "log_expense", { text: "45 uber" }, "app")) as { proposal: { tool: string; args: object; summary: string } };
+    expect(r.proposal).toEqual({ tool: "log_expense", args: { text: "45 uber" }, summary: expect.stringContaining("R$ 45,00") });
+  });
   it("recusa campo extra e ferramenta desconhecida", async () => {
     await expect(callTool(viewer, "log_water", { amount_ml: 250, user_id: "x" })).rejects.toThrow();
     await expect(callTool(viewer, "drop_table", {})).rejects.toThrow(/desconhecida/);

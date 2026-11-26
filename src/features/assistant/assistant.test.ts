@@ -1,22 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { historySchema, parseToolCall, TOOLS, toolInput } from "./tools";
+import { chatSchema, historySchema, MAX_ATTACH_CHARS } from "./tools";
 
-describe("assistente: ferramentas e histórico", () => {
-  it("toda ferramenta declarada tem validador, e o esquema é estrito", () => {
-    expect(Object.keys(toolInput).sort()).toEqual(TOOLS.map((t) => t.name).sort());
-    for (const t of TOOLS) {
-      expect(t.name in toolInput).toBe(true);
-      expect((t.input_schema as { additionalProperties?: boolean }).additionalProperties).toBe(false);
-      expect(t.strict).toBe(true);
-    }
-  });
-  it("recusa ferramenta desconhecida, campo extra e valores fora do limite", () => {
-    expect(parseToolCall("delete_everything", {}).ok).toBe(false);
-    expect(parseToolCall("log_water", { amount_ml: 5000 }).ok).toBe(false);
-    expect(parseToolCall("log_water", { amount_ml: 500, user_id: "x" }).ok).toBe(false); // modelo nunca escolhe usuário
-    expect(parseToolCall("log_water", { amount_ml: 500 }).ok).toBe(true);
-    expect(parseToolCall("create_task", { text: "  " }).ok).toBe(false);
-    expect(parseToolCall("get_today", {}).ok).toBe(true);
+describe("assistente: histórico e anexos", () => {
+  const messages = [{ role: "user", content: "lança esse comprovante" }];
+  it("anexos: só tipos conhecidos, no máximo 3 e dentro do limite de tamanho", () => {
+    expect(chatSchema.safeParse({ messages }).success).toBe(true);
+    expect(chatSchema.safeParse({ messages, attachments: [{ name: "nota.jpg", type: "image/jpeg", data: "abc" }] }).success).toBe(true);
+    expect(chatSchema.safeParse({ messages, attachments: [{ name: "x.exe", type: "application/x-msdownload", data: "abc" }] }).success).toBe(false);
+    expect(chatSchema.safeParse({ messages, attachments: Array(4).fill({ name: "a.txt", type: "text/plain", data: "a" }) }).success).toBe(false);
+    expect(chatSchema.safeParse({ messages, attachments: [{ name: "a.pdf", type: "application/pdf", data: "a".repeat(MAX_ATTACH_CHARS + 1) }] }).success).toBe(false);
   });
   it("histórico: começa e termina no usuário, alterna, máx. 20", () => {
     expect(historySchema.safeParse([{ role: "user", content: "oi" }]).success).toBe(true);

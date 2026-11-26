@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import type { Proposal } from "@/features/assistant/tools";
 import type { Viewer } from "@/lib/supabase/server";
 import { TOOLS, ToolError } from "./tools";
 
@@ -27,22 +28,23 @@ export function toolList() {
   });
 }
 
-/** Valida e executa. Com `confirm` exigido e ausente, só descreve o que faria. */
-export async function callTool(viewer: Viewer, name: string, args: unknown): Promise<unknown> {
+/**
+ * Valida e executa. Com `confirm` exigido e ausente, só descreve o que faria.
+ * `app` (assistente do Finch): o modelo nunca manda `confirm`; a proposta vira um cartão e quem confirma é a pessoa.
+ */
+export async function callTool(viewer: Viewer, name: string, args: unknown, via: "mcp" | "app" = "mcp"): Promise<unknown> {
   const tool = TOOLS[name];
   if (!tool) throw new ToolError(`ferramenta desconhecida: ${name}`);
-  const parsed = inputOf(name).safeParse(args ?? {});
+  const parsed = (via === "app" ? tool.input : inputOf(name)).safeParse(args ?? {});
   if (!parsed.success) {
     const i = parsed.error.issues[0];
     throw new ToolError(`${i?.path.join(".") || "entrada"}: ${i?.message ?? "inválida"}`);
   }
   const { confirm, ...a } = parsed.data as Json & { confirm?: boolean };
   if (tool.confirm && confirm !== true) {
-    return {
-      needs_confirmation: true,
-      action: await tool.preview!(viewer, a as never),
-      next: "Mostre isso à pessoa e pergunte. Só chame de novo, com os mesmos dados e confirm: true, se ela disser que sim.",
-    };
+    const summary = await tool.preview!(viewer, a as never);
+    if (via === "app") return { needs_confirmation: true, action: summary, next: "Diga que é só tocar em Confirmar no cartão.", proposal: { tool: name, args: a, summary } satisfies Proposal };
+    return { needs_confirmation: true, action: summary, next: "Mostre isso à pessoa e pergunte. Só chame de novo, com os mesmos dados e confirm: true, se ela disser que sim." };
   }
   return tool.run(viewer, a as never);
 }

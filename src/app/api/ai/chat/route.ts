@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { NotConfigured, runAssistant } from "@/features/assistant/server/run";
-import { historySchema } from "@/features/assistant/tools";
+import { chatSchema } from "@/features/assistant/tools";
 import { createClient, requireViewer } from "@/lib/supabase/server";
 
 export const maxDuration = 60;
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   if (!auth?.claims?.sub) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   if (!process.env.AI_API_KEY) return NextResponse.json({ error: "not_configured" }, { status: 503 });
 
-  const parsed = historySchema.safeParse((await request.json().catch(() => null))?.messages);
+  const parsed = chatSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid" }, { status: 400 });
 
   const { data: allowed } = await supabase.rpc("ai_reserve", { p_daily_limit: DAILY_LIMIT });
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
   const viewer = await requireViewer();
   try {
-    const r = await runAssistant(viewer, parsed.data);
+    const r = await runAssistant(viewer, parsed.data.messages, parsed.data.attachments);
     await supabase.rpc("ai_track", { p_input: r.usage.input, p_output: r.usage.output });
     return NextResponse.json({ text: r.text, proposals: r.proposals, changed: r.changed });
   } catch (e) {

@@ -10,9 +10,9 @@ import { getLists } from "@/features/shopping/server/queries";
 import { createTaskQuick } from "@/features/tasks/server/actions";
 import { getTaskItems } from "@/features/tasks/server/queries";
 import { createClient, type Viewer } from "@/lib/supabase/server";
-import type { Proposal, ToolName } from "../tools";
+import type { ToolName } from "../tools";
 
-type Out = { result: unknown; proposal?: Proposal; changed?: boolean };
+type Out = { result: unknown; changed?: boolean };
 
 /** Executa uma ferramenta já validada, sempre como a pessoa logada. */
 export async function execute(viewer: Viewer, name: ToolName, input: Record<string, unknown>): Promise<Out> {
@@ -69,7 +69,7 @@ export async function execute(viewer: Viewer, name: ToolName, input: Record<stri
       const p = parseExpense(text);
       if (!p.amount) return { result: { ok: false, message: "não achei o valor no texto" } };
       const summary = `${p.income ? "Receita" : "Gasto"} de ${brl(p.amount)}${p.description ? ` · ${p.description}` : ""}${p.category ? ` · ${p.category}` : ""}${p.installments > 1 ? ` · ${p.installments}x` : ""}`;
-      return { result: { ok: true, status: "aguardando confirmação da pessoa na tela", summary }, proposal: { kind: "expense", text, summary } };
+      return { result: { ok: true, status: "aguardando confirmação da pessoa na tela", summary } };
     }
   }
 }
