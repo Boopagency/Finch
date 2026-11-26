@@ -37,12 +37,12 @@ _Atualizado em 2026-11-26. Status: `implementado` · `testado (unidade/banco/E2E
 | Excluir em dois toques: fichas e treinos, exercícios próprios, listas de mercado | testado | E2E |
 | Notificações: escolher em Ajustes o que receber (água, hábitos, tarefas, agenda, contas, casa…); desligar apaga os avisos pendentes daquele tipo | testado (envio pulado conferido em produção) | E2E |
 | Foto de perfil e foto do casal (Ajustes; aparecem no Hoje e em Nós) | testado com 2 usuários | SQL + E2E |
-| **MCP para o Claude** (conector: ver o dia, tarefas, agenda, finanças e mercado; registrar água, tarefa, compromisso, gasto) com OAuth + PKCE, senha na autorização, desconectar em Ajustes | implementado e testado localmente; **aguarda aplicar a migration** `20261126100000_mcp_oauth.sql` no Supabase | unidade + SQL; E2E escrito (`mcp.e2e.mjs`), roda depois da migration |
+| **MCP para o Claude** (conector: ver o dia, tarefas, agenda, finanças e mercado; registrar água, tarefa, compromisso, gasto) com OAuth + PKCE, senha na autorização, desconectar em Ajustes | testado (migration aplicada em 26/11; descoberta e registro conferidos no site publicado) | unidade + SQL + E2E (9: OAuth completo, senha errada, PKCE errado, código de uso único, todas as ferramentas, refresh com rotação, desconectar) |
 
 ## Números (26/11)
 - `npm test`: **75** testes de unidade passando.
 - `npm run test:db`: **16** suítes SQL passando (+ fotos de perfil/casal e MCP/OAuth), cada uma em banco limpo.
-- `npm run test:e2e`: **103** testes em 18 suítes passando (iPhone 13/15 simulado, 2 usuários de teste, Supabase de produção). A suíte do MCP (8 testes) só roda depois da migration.
+- `npm run test:e2e`: **112** testes em 19 suítes passando (iPhone 13/15 simulado, 2 usuários de teste, Supabase de produção).
 - `lint`, `typecheck`, `build`: passando.
 
 ## Desempenho (25/11, medido no site publicado, iPhone 15 simulado)

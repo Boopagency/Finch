@@ -123,6 +123,25 @@ await test("MCP: registrar água e criar tarefa aparecem no app", async () => {
   await page.getByRole("button", { name: "Remover 250 ml" }).first().waitFor();
 });
 
+await test("MCP: as outras ferramentas leem e gravam de verdade", async () => {
+  const call = async (name, args = {}) => {
+    const r = await rpc(tokens.access_token, "tools/call", { name, arguments: args });
+    assert.equal(r.body.result.isError, false, `${name}: ${r.body.result.content[0].text}`);
+    const out = JSON.parse(r.body.result.content[0].text);
+    assert.notEqual(out?.ok, false, `${name}: ${r.body.result.content[0].text}`);
+    return out;
+  };
+  assert.ok((await call("list_tasks")).some((t) => t.title.includes(`Tarefa via Claude ${run}`)));
+  await call("add_shopping_items", { text: `pão claude ${run}` });
+  assert.ok((await call("get_shopping_list")).items.some((i) => i.name.toLowerCase().includes(`claude ${run}`)));
+  await call("create_event", { text: `Jantar Claude ${run} amanhã 20h` });
+  assert.ok((await call("get_agenda")).some((e) => e.title.includes(`Jantar Claude ${run}`)));
+  await call("log_expense", { text: `12 café claude ${run}` });
+  assert.ok((await call("get_finances_month")) !== null);
+  const r = await rpc(tokens.access_token, "tools/call", { name: "get_agenda", arguments: { from: "2026-01-01", to: "2026-12-31" } });
+  assert.equal(r.body.result.isError, true, "intervalo grande recusado");
+});
+
 await test("Renovar token: o novo vale, o antigo não", async () => {
   const r = await fetch(`${BASE}/api/oauth/token`, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: form({ grant_type: "refresh_token", refresh_token: tokens.refresh_token, client_id: clientId }) });
   assert.equal(r.status, 200);
