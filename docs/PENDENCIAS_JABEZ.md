@@ -1,9 +1,15 @@
 # O que depende de você
 
-_Atualizado em 25/11/2026. Em ordem de prioridade. Tudo o que não está aqui eu consigo fazer sozinho._
+_Atualizado em 26/11/2026. Em ordem de prioridade. Tudo o que não está aqui eu consigo fazer sozinho._
 
 ## 1. Testar no iPhone (30 min)
 Siga o [roteiro de testes no iPhone](TESTES_IPHONE.md). Me conte o que falhou ou ficou estranho (print ajuda).
+
+## 1b. Conectar o Claude ao Finch (3 min, depois que eu aplicar a migration do MCP)
+1. No Finch: **Ajustes → Claude** → copie o endereço (`https://finch-ecru.vercel.app/api/mcp`).
+2. No Claude (app ou claude.ai): **Configurações → Conectores → Adicionar conector personalizado** → cole o endereço.
+3. O Finch abre pedindo sua senha → **Permitir**. Pronto: peça "como está meu dia no Finch?".
+4. Para cortar o acesso: **Ajustes → Claude → Desconectar** (dois toques).
 
 ## 2. Convidar a Duda (5 min, quando ela puder)
 1. No seu iPhone: **Ajustes → Nós dois → Criar espaço Nós** (se ainda não existe).

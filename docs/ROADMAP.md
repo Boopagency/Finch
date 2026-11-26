@@ -43,7 +43,7 @@ Despensa, rotinas domésticas (sobre tarefas), ativos, manutenções, documentos
 Metas vinculadas, viagens, memórias, datas, lugares, desejos, conquistas, desafios, recompensas.
 
 ## Etapa 7 — IA ✅ (assistente com ferramentas; falta a chave; fotos de comprovante e relatório automático depois)
-Assistente com ferramentas, imagens/comprovantes, relatórios automáticos, sugestões proativas.
+Assistente com ferramentas, imagens/comprovantes, relatórios automáticos, sugestões proativas. Conector MCP para o Claude (D-043): pronto, aguarda a migration.
 
-## Etapa 8 — Refinamento
+## Etapa 8 — Refinamento (em andamento: lote de fluidez de 26/11 — D-038 a D-042)
 Revisão de UX, animações, performance, acessibilidade, segurança, validação em aparelhos.

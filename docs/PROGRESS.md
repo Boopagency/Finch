@@ -1,6 +1,6 @@
 # Progresso
 
-_Atualizado em 2026-11-25 (fim da sessão longa). Status: `implementado` · `testado (unidade/banco/E2E)` · `validado no iPhone`._
+_Atualizado em 2026-11-26. Status: `implementado` · `testado (unidade/banco/E2E)` · `validado no iPhone`._
 
 **No ar:** https://finch-ecru.vercel.app · branch `claude/lucid-rubin-r0jdza` (produção da Vercel).
 **O que depende do Jabez:** [PENDENCIAS_JABEZ.md](PENDENCIAS_JABEZ.md) · **Roteiro no iPhone:** [TESTES_IPHONE.md](TESTES_IPHONE.md)
@@ -30,12 +30,19 @@ _Atualizado em 2026-11-25 (fim da sessão longa). Status: `implementado` · `tes
 | Fotos: evolução corporal (privadas, antes/agora) e foto nas memórias; reduzidas no aparelho, sem localização; bucket privado com links de 1 h | testado com 2 usuários | SQL + E2E |
 | Importar extrato do banco (OFX/CSV, Windows-1252): prévia, categoria sugerida, aviso de possível duplicado, reimportar não duplica | testado | unidade + E2E |
 | Coisas da casa: itens com garantia e foto da nota, manutenções com próxima data; avisos no Hoje | testado com 2 usuários | unidade + SQL + E2E |
-| Hoje: frase por regras com água/hábitos/tarefas/eventos; listas do dia; avisos | testado | E2E |
+| Hoje: frase por regras com água/hábitos/tarefas/eventos; listas do dia; avisos (últimas 12 h, sem repetidos); fotos do casal no topo | testado | E2E |
+| Fluidez (relato de 26/11): telas visitadas voltam na hora (cache do roteador 30 s + pré-carga das abas e blocos da Vida), atualiza ao voltar para o app, toque com resposta imediata, barra de baixo não sobe mais no iPhone, campos de data/hora/seleção não vazam, título encolhe em tela estreita | testado | E2E (iPhone 13 e SE: nenhuma tela com rolagem lateral) |
+| "+" Registrar: abre sem teclado, continua aberto depois de adicionar (aviso dentro da janela), não bloqueia a tela de trás | testado | E2E |
+| Seletor de opções novo (pílula que desliza) em Finanças, Agenda, Metas, Tarefas e formulários | testado | E2E |
+| Excluir em dois toques: fichas e treinos, exercícios próprios, listas de mercado | testado | E2E |
+| Notificações: escolher em Ajustes o que receber (água, hábitos, tarefas, agenda, contas, casa…); desligar apaga os avisos pendentes daquele tipo | testado (envio pulado conferido em produção) | E2E |
+| Foto de perfil e foto do casal (Ajustes; aparecem no Hoje e em Nós) | testado com 2 usuários | SQL + E2E |
+| **MCP para o Claude** (conector: ver o dia, tarefas, agenda, finanças e mercado; registrar água, tarefa, compromisso, gasto) com OAuth + PKCE, senha na autorização, desconectar em Ajustes | implementado e testado localmente; **aguarda aplicar a migration** `20261126100000_mcp_oauth.sql` no Supabase | unidade + SQL; E2E escrito (`mcp.e2e.mjs`), roda depois da migration |
 
-## Números (25/11)
-- `npm test`: **71** testes de unidade passando.
-- `npm run test:db`: **14** suítes SQL (RLS, saúde, tarefas, agenda, mercado, álbum, financeiro, recorrências, treinos, cozinha, nós e metas, uso da IA, fotos, coisas da casa) passando, cada uma em banco limpo.
-- `npm run test:e2e`: **99** testes de ponta a ponta (15 suítes). Mercado às vezes oscila (offline/edição) quando roda logo após as outras; isolado passa sempre passando (iPhone 15 simulado, 2 usuários de teste, Supabase de produção).
+## Números (26/11)
+- `npm test`: **75** testes de unidade passando.
+- `npm run test:db`: **16** suítes SQL passando (+ fotos de perfil/casal e MCP/OAuth), cada uma em banco limpo.
+- `npm run test:e2e`: **103** testes em 18 suítes passando (iPhone 13/15 simulado, 2 usuários de teste, Supabase de produção). A suíte do MCP (8 testes) só roda depois da migration.
 - `lint`, `typecheck`, `build`: passando.
 
 ## Desempenho (25/11, medido no site publicado, iPhone 15 simulado)
@@ -44,9 +51,15 @@ Relato do Jabez: toques "demoram e às vezes não vão", principalmente na barra
 |---|---|---|
 | Resposta ao toque na barra | 1.000–1.300 ms sem nada na tela | **45–69 ms** (esqueleto pré-carregado) |
 | Servidor Hoje / Tarefas / Finanças | 1.958 / 813 / 778 ms | 709 / 359 / 419 ms |
-Causas e correções: sem estado de carregamento (`loading.tsx`); funções na Vercel longe do banco (agora `pdx1`, ao lado do Supabase `us-west-2`); consultas repetidas e gravação de ocorrências a cada abertura (cache por requisição; cron materializa); recarregamentos a cada sincronização (agrupados); `touch-action: manipulation`.
+Causas e correções (25/11): sem estado de carregamento (`loading.tsx`); funções na Vercel longe do banco (agora `pdx1`, ao lado do Supabase `us-west-2`); consultas repetidas e gravação de ocorrências a cada abertura (cache por requisição; cron materializa); recarregamentos a cada sincronização (agrupados); `touch-action: manipulation`.
+
+Lote de 26/11 (Playwright local): voltar a uma tela já vista caiu de ~810 ms para **17–25 ms**, sem ida ao servidor; resposta visual ao toque < 200 ms.
 
 ## Bugs encontrados e corrigidos pelos testes
+- iPhone instalado: a barra de baixo subia a altura da barra de status em telas curtas (altura mínima do `html` no modo app).
+- Janela do "+" abria com teclado (foco automático no 1º campo) e fechava ao adicionar; o aviso ficava atrás da janela e travava toques.
+- Título grande vazava no iPhone SE (Recorrentes); campos de data/hora e seleção estouravam a largura no Safari.
+- Estilos base fora de `@layer` ganhavam dos utilitários do Tailwind (anel de foco e campos).
 - Service worker recarregava a página na 1ª instalação (apagava o login).
 - Tabelas sem GRANT para a API ("permission denied") — projeto Supabase novo não expõe por padrão (D-020).
 - Tempo real entrava como anônimo antes da sessão carregar (sem eventos) — agora autentica antes de assinar.

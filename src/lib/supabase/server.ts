@@ -1,4 +1,5 @@
 import "server-only";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
@@ -7,8 +8,24 @@ import { cache } from "react";
 import { publicEnv, serverEnv } from "@/lib/env";
 import type { Database } from "@/types/database";
 
+/**
+ * Chamadas sem cookie (MCP do Claude): o JWT da pessoa chega por aqui e vale para toda a requisição.
+ * Assim as mesmas consultas e ações do app rodam como ela, com a mesma RLS.
+ */
+const bearer = new AsyncLocalStorage<{ token: string; viewer: Viewer }>();
+export function runAsBearer<T>(token: string, viewer: Viewer, fn: () => Promise<T>): Promise<T> {
+  return bearer.run({ token, viewer }, fn);
+}
+
 /** Cliente com o token do usuário: toda consulta passa pela RLS. */
 export async function createClient() {
+  const ctx = bearer.getStore();
+  if (ctx) {
+    return createAdminClient<Database>(publicEnv.supabaseUrl(), publicEnv.supabaseKey(), {
+      global: { headers: { Authorization: `Bearer ${ctx.token}` } },
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  }
   const cookieStore = await cookies();
   return createServerClient<Database>(publicEnv.supabaseUrl(), publicEnv.supabaseKey(), {
     cookies: {
@@ -38,6 +55,8 @@ export type Viewer = { id: string; email: string; name: string; tz: string };
 
 /** Usuário atual validado (getClaims verifica a assinatura do JWT). Redireciona se não houver. */
 export const requireViewer = cache(async (): Promise<Viewer> => {
+  const ctx = bearer.getStore();
+  if (ctx) return ctx.viewer;
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;

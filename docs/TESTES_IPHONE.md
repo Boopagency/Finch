@@ -84,3 +84,12 @@ Marque ✅ ou ❌ e me mande os ❌ com print.
 ## Notificações gerais
 - [ ] Durante o horário silencioso (Ajustes), lembretes de água não chegam.
 - [ ] Notificações de conta/saúde não mostram valores na tela bloqueada.
+
+## Fluidez e ajustes (lote de 26/11)
+- [ ] Trocar de aba várias vezes: a 2ª visita abre na hora; nenhum toque "some".
+- [ ] Em telas curtas (Metas, Agenda vazia), a barra de baixo fica no lugar.
+- [ ] "+" → abre **sem teclado**; adicionar 2 coisas seguidas sem a janela fechar.
+- [ ] Ajustes → Notificações: desligar "Água" → não chega lembrete de água; religar volta.
+- [ ] Ajustes → Fotos: trocar sua foto e a foto do casal → aparecem no Hoje e em Nós.
+- [ ] Treino → ficha → Excluir (dois toques); treino em andamento → Descartar.
+- [ ] Ajustes → Claude → conectar no app do Claude (ver PENDÊNCIAS 1b) → "o que tenho hoje no Finch?".

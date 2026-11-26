@@ -75,3 +75,15 @@ Formato: contexto → decisão → alternativas. `PENDENTE` = aguarda o Jabez.
 **D-036 Fotos em bucket privado por espaço.** Bucket `photos` privado (5 MB, JPEG/PNG/WebP); caminho `<espaço>/<uuid>.jpg` e RLS do Storage via `photo_space(nome)` + `is_member`. A foto é reduzida no aparelho (máx. 1600 px) e redesenhada em canvas, o que descarta EXIF (localização). Exibição por link assinado de 1 h; `cacheControl` de 60 s para uma foto apagada sair logo do CDN. Fotos de corpo só no espaço pessoal (checado na tabela).
 
 **D-037 Importação de extrato sem duplicar.** Arquivo lido no aparelho (OFX SGML/XML ou CSV com cabeçalho; Windows-1252 detectado). Cada linha vira lançamento realizado via `fin_record` com id `md5(conta:código do banco)`: reimportar não duplica. Linhas com mesmo valor e data (±2 dias) na conta são marcadas como possível duplicado e vêm desmarcadas. No cartão, pagamentos/estornos positivos não entram (a fatura é paga pela conta).
+
+**D-038 Fluidez antes de tudo.** Cache do roteador do Next (`experimental.staleTimes`: dinâmico 30 s, estático 90 s) + `prefetch` nas abas e blocos da Vida: voltar a uma tela é instantâneo. Para não mostrar dado velho: ações chamam `revalidatePath`/`router.refresh()` e o app atualiza ao voltar depois de 30 s em segundo plano (`SyncAgent`). Links que mudam a cada toque (dia/mês da agenda) não pré-carregam.
+
+**D-039 Janela do "+" é de lançamentos em sequência.** Não fecha ao adicionar, não abre com teclado (foco no botão de fechar) e mostra o aviso dentro dela (fora, o `<dialog>` modal deixa tudo inerte).
+
+**D-040 Seleção = `Segmented`.** Um componente (`src/components/ui/segmented.tsx`, `role=radiogroup`, pílula que desliza, tom por opção) para toda escolha curta; com `href` vira navegação com resposta otimista.
+
+**D-041 Excluir em dois toques, sem janela.** `ConfirmButton`: o 1º toque arma (vermelho, 3 s), o 2º exclui. Vale para o que não tem desfazer (fichas, treinos, exercícios próprios, listas, conexões).
+
+**D-042 Preferências de notificação por tipo.** `notification_preferences` (por pessoa e categoria; água usa `user_settings.water_reminders`). O despachante confere antes de enviar e marca "desligado em Ajustes"; desligar apaga os pendentes daquele tipo.
+
+**D-043 MCP do Finch: OAuth próprio, RLS de sempre.** `/api/mcp` (JSON-RPC, HTTP sem estado) com OAuth 2.1: metadados RFC 8414/9728, registro dinâmico (RFC 7591, retorno só https ou localhost), código + PKCE S256. Na autorização a pessoa digita a senha: isso cria uma **sessão Supabase dedicada** que fica no servidor; o Claude recebe só um token opaco do Finch (guardado como sha-256, 1 h, refresh com rotação). Cada chamada roda com o JWT dessa sessão (`runAsBearer` em `src/lib/supabase/server.ts`), então valem as mesmas consultas, ações e RLS do app; nada de service role. Ferramentas = as do assistente + agenda/tarefas/mercado/lançamento; esquemas estritos (sem `user_id`). Desconectar em Ajustes revoga na hora. Tabelas sem GRANT: só funções `security definer` que conferem cada passo.

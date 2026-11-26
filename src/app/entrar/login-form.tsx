@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { createClient } from "@/lib/supabase/client";
 
-export function LoginForm() {
+/** Só caminhos internos (nada de //outro-site). */
+const safeNext = (n?: string) => (n && /^\/(?![\/\\])[^\s\\]*$/.test(n) ? n : "/");
+
+export function LoginForm({ next }: { next?: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -25,7 +28,7 @@ export function LoginForm() {
       setError("E-mail ou senha não conferem.");
       return;
     }
-    router.replace("/");
+    router.replace(safeNext(next));
     router.refresh();
   }
 

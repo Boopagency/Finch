@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC = ["/entrar", "/convite", "/offline"];
+// MCP/OAuth usam token próprio (não cookie): a rota confere e responde 401 no padrão OAuth
+const PUBLIC = ["/entrar", "/convite", "/offline", "/api/mcp", "/api/oauth", "/.well-known"];
 
 // Renova a sessão do Supabase e faz a checagem otimista de login.
 // A autorização real acontece na RLS e em requireViewer().
@@ -28,7 +29,8 @@ export async function proxy(request: NextRequest) {
     if (path.startsWith("/api/")) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     const url = request.nextUrl.clone();
     url.pathname = "/entrar";
-    url.search = "";
+    // volta para onde estava (ex.: tela de autorização do Claude) depois de entrar
+    url.search = path !== "/" ? `?next=${encodeURIComponent(path + request.nextUrl.search)}` : "";
     return NextResponse.redirect(url);
   }
   return response;

@@ -5,6 +5,8 @@ import { CoupleSection } from "./couple-section";
 import { LogoutButton } from "./logout-button";
 import { ProfileForm, QuietForm } from "./forms";
 import { getFaces } from "@/features/core/server/faces";
+import { headers } from "next/headers";
+import { ClaudeSection } from "./claude-section";
 import { NotifyPrefs } from "./notify-prefs";
 import { AvatarEditor, CoverEditor } from "./photos";
 import { PushManager } from "./push-manager";
@@ -40,7 +42,9 @@ export default async function SettingsPage() {
       .order("created_at", { ascending: false }),
     supabase.from("notification_preferences").select("category, enabled").eq("user_id", viewer.id),
   ]);
-  const faces = await getFaces(viewer);
+  const [faces, { data: grants, error: mcpOff }] = await Promise.all([getFaces(viewer), supabase.rpc("mcp_my_grants")]);
+  const h = await headers();
+  const appUrl = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host")}`;
   const notify: Record<string, boolean> = { water: settings?.water_reminders ?? true };
   for (const p of prefs ?? []) notify[p.category] = p.enabled;
 
@@ -76,6 +80,11 @@ export default async function SettingsPage() {
         {faces.sharedId && <CoverEditor url={faces.cover} spaceId={faces.sharedId} />}
         <CoupleSection space={space ?? null} />
       </Section>
+      {!mcpOff && (
+        <Section id="claude" title="Claude">
+          <ClaudeSection url={`${appUrl}/api/mcp`} grants={grants ?? []} />
+        </Section>
+      )}
       <LogoutButton />
     </main>
   );

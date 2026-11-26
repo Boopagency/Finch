@@ -3,7 +3,8 @@ import { LoginForm } from "./login-form";
 
 export const metadata = { title: "Entrar" };
 
-export default function LoginPage() {
+export default async function LoginPage({ searchParams }: PageProps<"/entrar">) {
+  const next = (await searchParams).next;
   return (
     <main className="flex min-h-dvh flex-col bg-stage pt-safe text-stage-ink">
       <div className="flex flex-1 flex-col justify-end gap-3 px-gutter pb-10">
@@ -14,7 +15,7 @@ export default function LoginPage() {
         </p>
       </div>
       <div className="rounded-t-[28px] bg-bg px-gutter pb-safe pt-6 text-ink">
-        <LoginForm />
+        <LoginForm next={typeof next === "string" ? next : undefined} />
       </div>
     </main>
   );

@@ -344,6 +344,15 @@ export type Database = {
       ai_track: { Args: { p_input: number; p_output: number }; Returns: undefined }
       set_avatar: { Args: { p_path: string }; Returns: undefined }
       set_space_cover: { Args: { p_space: string; p_path: string }; Returns: undefined }
+      mcp_register_client: { Args: { p_name: string; p_redirect_uris: string[] }; Returns: string }
+      mcp_client: { Args: { p_id: string }; Returns: { name: string; redirect_uris: string[] }[] }
+      mcp_create_code: { Args: { p_client: string; p_redirect: string; p_challenge: string; p_code_hash: string; p_sb_access: string; p_sb_refresh: string; p_sb_expires: string }; Returns: undefined }
+      mcp_exchange_code: { Args: { p_code_hash: string; p_client: string; p_redirect: string; p_verifier_challenge: string; p_access_hash: string; p_refresh_hash: string }; Returns: string | null }
+      mcp_refresh_grant: { Args: { p_refresh_hash: string; p_client: string; p_access_hash: string; p_new_refresh_hash: string }; Returns: boolean }
+      mcp_session: { Args: { p_access_hash: string }; Returns: { grant_id: string; user_id: string; sb_access: string; sb_refresh: string; sb_expires: string }[] }
+      mcp_save_session: { Args: { p_grant: string; p_access_hash: string; p_sb_access: string; p_sb_refresh: string; p_sb_expires: string }; Returns: undefined }
+      mcp_my_grants: { Args: never; Returns: { id: string; client_name: string; created_at: string; last_used_at: string | null }[] }
+      mcp_revoke: { Args: { p_id: string }; Returns: undefined }
       fin_confirm: { Args: { p_id: string }; Returns: undefined }
       fin_ensure_categories: { Args: { p_workspace: string }; Returns: undefined }
       fin_record: {
