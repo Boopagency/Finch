@@ -36,10 +36,10 @@ export function QuickItems({ listId, onAdded }: { listId: string; onAdded?: () =
           onAdded?.();
         }
       }}
-      className="flex items-center gap-2 rounded-[22px] bg-surface p-2 pl-4"
+      className="field-shell flex items-center gap-2 rounded-[22px] bg-surface p-2 pl-4 transition-shadow"
     >
       <label htmlFor={id} className="sr-only">Adicionar à lista</label>
-      <input id={id} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ex.: 2 leite, ovos e detergente" maxLength={300} autoComplete="off" enterKeyHint="send" className="min-h-11 min-w-0 flex-1 bg-transparent text-[16px] focus:outline-none" />
+      <input id={id} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ex.: 2 leite, ovos e detergente" maxLength={300} autoComplete="off" enterKeyHint="send" className="min-h-11 min-w-0 flex-1 bg-transparent text-[16px] field-inline" />
       <button type="submit" disabled={!text.trim()} className="min-h-11 rounded-full bg-frog px-4 text-[15px] font-bold text-on-color disabled:opacity-40">
         Adicionar
       </button>

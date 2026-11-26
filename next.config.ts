@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 // cacheComponents desligado de propósito (D-016): app 100% autenticado e dinâmico.
 const nextConfig: NextConfig = {
+  // telas já vistas voltam na hora (30 s); abas pré-carregadas por inteiro valem 90 s.
+  // Qualquer ação que muda dados (server action com revalidatePath, router.refresh) limpa esse cache.
+  experimental: { staleTimes: { dynamic: 30, static: 90 } },
   turbopack: {
     rules: {
       "*.css": {

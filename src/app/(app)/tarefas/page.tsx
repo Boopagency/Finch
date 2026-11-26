@@ -40,7 +40,7 @@ export default async function TasksPage({ searchParams }: PageProps<"/tarefas">)
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
       <PageHeader title="Tarefas" meta={openToday ? `${openToday} para hoje` : "dia livre"} />
       <QuickAdd today={today} spaces={spaces} />
-      <nav aria-label="Visões" className="-mx-4 flex gap-1.5 overflow-x-auto px-4">
+      <nav aria-label="Visões" data-scroll-x className="-mx-5 flex gap-1.5 overflow-x-auto px-5 [scrollbar-width:none]">
         {VIEWS.map(([v, label]) => (
           <Link
             key={v}

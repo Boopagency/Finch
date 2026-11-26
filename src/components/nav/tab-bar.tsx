@@ -64,6 +64,7 @@ export function TabBar({ quick }: { quick: QuickData }) {
               <Link
                 key={s.href}
                 href={s.href}
+                prefetch
                 aria-label={s.label}
                 aria-current={idx === i ? "page" : undefined}
                 onClick={() => setTapped({ idx: i, from: path })}

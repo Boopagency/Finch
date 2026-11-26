@@ -15,10 +15,10 @@ export function TaskSearch({ items, spaces, today }: { items: TaskItem[]; spaces
   return (
     <div className="flex flex-col gap-3">
       <div className="flex gap-2">
-        <label className="flex min-h-11 flex-1 items-center gap-2 rounded-full bg-surface px-4">
+        <label className="field-shell flex min-h-11 flex-1 items-center gap-2 rounded-full bg-surface px-4">
           <Search className="size-4 text-ink-3" />
           <span className="sr-only">Buscar tarefas</span>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar" className="min-w-0 flex-1 bg-transparent text-[16px] focus:outline-none" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar" className="min-w-0 flex-1 bg-transparent text-[16px] field-inline" />
         </label>
         <label className="sr-only" htmlFor="space-filter">Espaço</label>
         <select id="space-filter" value={space} onChange={(e) => setSpace(e.target.value)} className="min-h-11 rounded-full bg-surface px-3 text-[14px] font-semibold">

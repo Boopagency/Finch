@@ -57,7 +57,7 @@ await test("Receita prevista não entra no disponível até confirmar", async ()
   const before = await page.locator("section[aria-label='Saldos'] .font-display").innerText();
   await page.getByRole("button", { name: "Novo lançamento" }).click();
   const d = page.getByRole("dialog", { name: "Novo lançamento" });
-  await d.getByRole("button", { name: "Receita" }).click();
+  await d.getByRole("radio", { name: "Receita" }).click();
   await d.getByLabel("Valor (R$)").fill("500");
   await d.getByLabel("Entrou em").selectOption({ label: `Banco ${run} · Conta corrente` });
   await d.getByLabel("Descrição").fill(`Freela ${run}`);
@@ -79,7 +79,7 @@ await test("Pagar fatura não aumenta as despesas", async () => {
   const before = await desp();
   await page.getByRole("button", { name: "Novo lançamento" }).click();
   const d = page.getByRole("dialog", { name: "Novo lançamento" });
-  await d.getByRole("button", { name: "Pagar fatura" }).click();
+  await d.getByRole("radio", { name: "Pagar fatura" }).click();
   await d.getByLabel("Valor (R$)").fill("50");
   await d.getByLabel("Sai de").selectOption({ label: `Banco ${run} · Conta corrente` });
   await d.getByLabel("Fatura do cartão").selectOption({ label: `Cartão ${run}` });
@@ -93,7 +93,7 @@ await test("Despesa do casal dividida: B vê o acerto, não as contas de A", asy
   await page.getByRole("button", { name: "Novo lançamento" }).click();
   const d = page.getByRole("dialog", { name: "Novo lançamento" });
   await d.getByLabel("Valor (R$)").fill("90");
-  await d.getByRole("button", { name: "Do casal" }).click();
+  await d.getByRole("radio", { name: "Do casal" }).click();
   await d.getByLabel("Pago com").selectOption({ label: `Banco ${run} · Conta corrente` });
   await d.getByLabel("Descrição").fill(`Jantar ${run}`);
   await d.getByLabel("Como dividir").selectOption("equal");

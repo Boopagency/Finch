@@ -2,6 +2,7 @@
 
 import { AlertTriangle, ChevronLeft, ChevronRight, MapPin, Plus, Repeat2 } from "lucide-react";
 import Link from "next/link";
+import { Segmented } from "@/components/ui/segmented";
 import { useState, useTransition } from "react";
 import { toast } from "@/components/ui/toast";
 import { addDays } from "@/features/health/habits";
@@ -73,27 +74,26 @@ export function AgendaView({ view, date, today, events, tasks, spaces }: { view:
             if (r.ok) setText("");
           });
         }}
-        className="flex items-center gap-2 rounded-[22px] bg-surface p-2 pl-4"
+        className="field-shell flex items-center gap-2 rounded-[22px] bg-surface p-2 pl-4 transition-shadow"
       >
         <label htmlFor="quick-event" className="sr-only">Novo compromisso</label>
-        <input id="quick-event" value={text} onChange={(e) => setText(e.target.value)} placeholder="Ex.: jantar sexta 20h @nós" maxLength={300} enterKeyHint="send" className="min-h-11 min-w-0 flex-1 bg-transparent text-[16px] focus:outline-none" />
+        <input id="quick-event" value={text} onChange={(e) => setText(e.target.value)} placeholder="Ex.: jantar sexta 20h @nós" maxLength={300} enterKeyHint="send" className="min-h-11 min-w-0 flex-1 bg-transparent text-[16px] field-inline" />
         <button type="submit" disabled={pending || !text.trim()} aria-label="Adicionar compromisso" className="grid size-11 place-items-center rounded-full bg-ink text-bg disabled:opacity-30">
           <Plus className="size-5" />
         </button>
       </form>
 
-      <div className="flex items-center justify-between gap-2">
-        <nav aria-label="Visão" className="flex rounded-full bg-surface p-1">
-          {(["dia", "semana", "mes"] as const).map((v) => (
-            <Link key={v} href={href(v, date)} aria-current={view === v ? "page" : undefined} className={`rounded-full px-4 py-1.5 text-[14px] font-semibold ${view === v ? "bg-ink text-bg" : "text-ink-2"}`}>
-              {v === "mes" ? "Mês" : v === "dia" ? "Dia" : "Semana"}
-            </Link>
-          ))}
-        </nav>
-        <div className="flex items-center gap-1">
-          <Link href={href(view, prev)} aria-label="Anterior" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></Link>
-          <Link href={href(view, today)} className="rounded-full bg-surface px-3 py-2.5 text-[13px] font-semibold">Hoje</Link>
-          <Link href={href(view, next)} aria-label="Próximo" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronRight className="size-5" /></Link>
+      <div className="flex items-center gap-2">
+        <Segmented
+          label="Visão"
+          className="min-w-0 flex-1"
+          value={view}
+          options={(["dia", "semana", "mes"] as const).map((v) => ({ value: v, label: v === "mes" ? "Mês" : v === "dia" ? "Dia" : "Semana", href: href(v, date) }))}
+        />
+        <div className="flex shrink-0 items-center gap-1">
+          <Link href={href(view, prev)} prefetch={false} aria-label="Anterior" className="press grid size-11 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></Link>
+          <Link href={href(view, today)} prefetch={false} aria-label="Ir para hoje" className="press grid min-h-11 place-items-center rounded-full bg-surface px-3 text-[13px] font-semibold">Hoje</Link>
+          <Link href={href(view, next)} prefetch={false} aria-label="Próximo" className="press grid size-11 place-items-center rounded-full bg-surface"><ChevronRight className="size-5" /></Link>
         </div>
       </div>
 
@@ -101,7 +101,7 @@ export function AgendaView({ view, date, today, events, tasks, spaces }: { view:
         <ol className="grid grid-cols-7 gap-1" aria-label="Semana">
           {week.map((d, i) => (
             <li key={d}>
-              <Link href={href("dia", d)} aria-current={d === date && view === "dia" ? "date" : undefined} className={`flex flex-col items-center gap-0.5 rounded-[14px] py-2 ${d === date && view === "dia" ? "bg-ink text-bg" : d === today ? "bg-coral/15" : "bg-surface"}`}>
+              <Link href={href("dia", d)} prefetch={false} aria-current={d === date && view === "dia" ? "date" : undefined} className={`flex flex-col items-center gap-0.5 rounded-[14px] py-2 ${d === date && view === "dia" ? "bg-ink text-bg" : d === today ? "bg-coral/15" : "bg-surface"}`}>
                 <span className="text-[11px] font-semibold opacity-70">{WD[i]}</span>
                 <span className="tabular text-[17px] font-bold">{Number(d.slice(8))}</span>
                 <span className={`size-1.5 rounded-full ${count(d) ? (d === date && view === "dia" ? "bg-bg" : "bg-coral") : "bg-transparent"}`} />
@@ -136,7 +136,7 @@ export function AgendaView({ view, date, today, events, tasks, spaces }: { view:
                 const evs = events.filter((e) => e.date === d);
                 const n = count(d);
                 return (
-                  <Link key={d} href={href("dia", d)} aria-label={`${fmt(d, { day: "numeric", month: "long" })}: ${n} itens`} className={`flex min-h-14 flex-col items-center gap-1 rounded-[12px] pt-1.5 ${d.slice(0, 7) !== date.slice(0, 7) ? "opacity-30" : ""} ${d === today ? "bg-coral/15" : ""}`}>
+                  <Link key={d} href={href("dia", d)} prefetch={false} aria-label={`${fmt(d, { day: "numeric", month: "long" })}: ${n} itens`} className={`flex min-h-14 flex-col items-center gap-1 rounded-[12px] pt-1.5 ${d.slice(0, 7) !== date.slice(0, 7) ? "opacity-30" : ""} ${d === today ? "bg-coral/15" : ""}`}>
                     <span className={`tabular text-[14px] ${d === today ? "font-bold text-coral" : "font-semibold"}`}>{Number(d.slice(8))}</span>
                     <span className="flex flex-wrap justify-center gap-0.5 px-1">
                       {evs.slice(0, 3).map((e) => <span key={e.key} className={`size-1.5 rounded-full ${TONE[e.event.category] ?? "bg-cobalt"}`} />)}

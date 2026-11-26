@@ -1,5 +1,6 @@
 "use client";
 
+import { Segmented } from "@/components/ui/segmented";
 import { X } from "lucide-react";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -50,20 +51,16 @@ export function EntrySheet({ data, onClose, preset }: { data: FinanceData; onClo
         <form action={action} className="flex flex-col gap-3">
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="kind" value={kind} />
-          <div role="group" aria-label="Tipo" className="grid grid-cols-4 gap-1 rounded-full bg-surface-2 p-1">
-            {KINDS.map(([k, l]) => (
-              <button key={k} type="button" aria-pressed={kind === k} onClick={() => setKind(k)} className={`min-h-10 rounded-full text-[12px] font-bold ${kind === k ? "bg-ink text-bg" : "text-ink-2"}`}>{l}</button>
-            ))}
-          </div>
+          <Segmented label="Tipo" size="sm" value={kind} onChange={(k) => setKind(k)} options={KINDS.map(([k, l]) => ({ value: k, label: l, tone: k === "income" ? "frog" : k === "expense" ? "coral" : "ink" }))} />
           <Field id="en-amount" name="amount" inputMode="decimal" label="Valor (R$)" placeholder="0,00" defaultValue={preset?.amount} required autoFocus className="text-[22px] font-bold" />
           {data.spaces.length > 1 && (kind === "expense" || kind === "income") && (
-            <div role="group" aria-label="De quem" className="grid grid-cols-2 gap-1 rounded-full bg-surface-2 p-1">
-              {data.spaces.map((s) => (
-                <button key={s.id} type="button" aria-pressed={ws === s.id} onClick={() => setWs(s.id)} className={`min-h-10 rounded-full text-[13px] font-bold ${ws === s.id ? "bg-ink text-bg" : "text-ink-2"}`}>
-                  {s.kind === "personal" ? "Só meu" : "Do casal"}
-                </button>
-              ))}
-            </div>
+            <Segmented
+              label="De quem"
+              size="sm"
+              value={ws}
+              onChange={(v) => setWs(v)}
+              options={data.spaces.map((s) => ({ value: s.id, label: s.kind === "personal" ? "Só meu" : "Do casal", tone: s.kind === "personal" ? ("ink" as const) : ("lavender" as const) }))}
+            />
           )}
           <input type="hidden" name="workspace_id" value={ws} />
           <label className="flex flex-col gap-1.5" htmlFor="en-account">

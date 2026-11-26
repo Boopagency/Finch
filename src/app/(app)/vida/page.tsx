@@ -27,7 +27,7 @@ export default function LifePage() {
       <ul className="stagger grid grid-cols-2 gap-3 sm:grid-cols-3">
         {areas.map((a) => (
           <li key={a.label}>
-            <Link href={a.href} className="press flex min-h-32 flex-col justify-between rounded-[20px] bg-surface p-4">
+            <Link href={a.href} prefetch className="press flex min-h-32 flex-col justify-between rounded-[20px] bg-surface p-4">
               <span className={`grid size-10 place-items-center rounded-[12px] ${a.tone}`}>
                 <a.Icon className="size-5" strokeWidth={2.2} />
               </span>

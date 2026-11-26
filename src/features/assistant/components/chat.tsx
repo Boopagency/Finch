@@ -105,7 +105,7 @@ export function Chat() {
               {SUGGESTIONS.map((s) => <button key={s} onClick={() => send(s)} className="press min-h-10 shrink-0 rounded-full bg-surface px-4 text-[14px] font-semibold shadow-sm">{s}</button>)}
             </div>
           )}
-          <form onSubmit={(e) => { e.preventDefault(); void send(input.current?.value ?? ""); }} className="flex items-end gap-2 rounded-[24px] bg-surface p-2 pl-4 shadow-[var(--shadow-float)]">
+          <form onSubmit={(e) => { e.preventDefault(); void send(input.current?.value ?? ""); }} className="field-shell flex items-end gap-2 rounded-[24px] bg-surface p-2 pl-4 shadow-[var(--shadow-float)]">
             <label htmlFor="chat-input" className="sr-only">Mensagem para o Finch</label>
             <textarea
               id="chat-input"
@@ -116,7 +116,7 @@ export function Chat() {
               placeholder="Escreva ou dite…"
               maxLength={2000}
               enterKeyHint="send"
-              className="max-h-32 min-h-11 flex-1 resize-none bg-transparent py-2.5 text-[16px] focus:outline-none"
+              className="max-h-32 min-h-11 flex-1 resize-none bg-transparent py-2.5 text-[16px] field-inline"
             />
             <button type="submit" disabled={busy || !hasText} aria-label="Enviar" className="press grid size-11 shrink-0 place-items-center rounded-full bg-coral text-on-color disabled:opacity-40">
               <ArrowUp className="size-5" strokeWidth={2.6} />

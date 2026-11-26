@@ -19,10 +19,10 @@ export function NewList({ spaces }: { spaces: { id: string; kind: string; name: 
           if (r.ok) setName("");
         });
       }}
-      className="flex flex-wrap items-center gap-2 rounded-[22px] bg-surface p-2 pl-4"
+      className="field-shell flex flex-wrap items-center gap-2 rounded-[22px] bg-surface p-2 pl-4"
     >
       <label htmlFor="new-list" className="sr-only">Nova lista</label>
-      <input id="new-list" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nova lista (farmácia, casa…)" maxLength={60} className="min-h-11 min-w-0 flex-1 bg-transparent text-[16px] focus:outline-none" />
+      <input id="new-list" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nova lista (farmácia, casa…)" maxLength={60} className="min-h-11 min-w-0 flex-1 bg-transparent text-[16px] field-inline" />
       {spaces.length > 1 && (
         <select aria-label="Espaço da lista" value={space} onChange={(e) => setSpace(e.target.value)} className="min-h-11 rounded-full bg-surface-2 px-3 text-[13px] font-semibold">
           {spaces.map((s) => <option key={s.id} value={s.id}>{s.kind === "personal" ? "Só eu" : "Nós"}</option>)}

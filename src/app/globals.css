@@ -100,9 +100,37 @@ body {
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
 }
-:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
+/* base em camada: classes utilitárias (Tailwind) vencem quando precisam */
+@layer base {
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  /* campos: anel arredondado no foco (segue o raio), sem moldura quadrada */
+  input:focus-visible, textarea:focus-visible, select:focus-visible {
+    outline: none;
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 28%, transparent);
+  }
+  /* campo "embutido" num cartão: quem mostra o foco é o cartão */
+  .field-inline:focus-visible { box-shadow: none; }
+  .field-shell:focus-within { box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 28%, transparent); }
+
+  /* iOS: data/hora nativos têm largura mínima própria e estouram a grade; selects ganham seta própria */
+  input[type="date"], input[type="time"], input[type="datetime-local"], input[type="month"] {
+    -webkit-appearance: none; appearance: none; min-width: 0; max-width: 100%; display: block; color: var(--ink);
+  }
+  input::-webkit-date-and-time-value { text-align: left; min-height: 1.5em; }
+  select {
+    -webkit-appearance: none; appearance: none; min-width: 0; max-width: 100%; color: var(--ink);
+    padding-right: 2.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238c8b85' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.85rem center; background-size: 16px;
+  }
+  input, select, textarea, button { font: inherit; }
+}
+
+/* iOS, app instalado com barra de status translúcida: "100%" desconta a barra de status (47 pt no 13/14)
+   e, em telas curtas, a barra de baixo subia essa medida. A página passa a cobrir a tela inteira. */
+@media all and (display-mode: standalone) {
+  html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
 }
 h1, h2, h3 { text-wrap: balance; }
 .tabular { font-variant-numeric: tabular-nums; }
@@ -129,6 +157,7 @@ h1, h2, h3 { text-wrap: balance; }
 
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes enter { from { opacity: 0.4; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes pop { 0% { transform: scale(0.6); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
 @keyframes check { 0% { transform: scale(0.7); } 55% { transform: scale(1.18); } 100% { transform: scale(1); } }
 @keyframes word { from { opacity: 0; transform: translateY(6px); filter: blur(2px); } to { opacity: 1; transform: none; filter: none; } }
@@ -138,14 +167,14 @@ h1, h2, h3 { text-wrap: balance; }
 .press:active { transform: scale(0.94); }
 
 /* barra: destaque desliza; ícones não se movem */
-.tab-indicator { transition: transform var(--dur-slow) var(--ease-soft), opacity var(--dur-fast); will-change: transform; }
+.tab-indicator, .segment-indicator { transition: transform var(--dur-slow) var(--ease-soft), opacity var(--dur-fast), background-color var(--dur-base); will-change: transform; }
 
 /* tela nova entra subindo de leve (template.tsx remonta a cada navegação) */
 /* backwards (não "both"): depois de entrar, a animação solta o elemento — senão ele vira referência de position: fixed */
-.page-enter { animation: rise var(--dur-base) var(--ease-out) backwards; }
+.page-enter { animation: enter var(--dur-fast) var(--ease-out) backwards; }
 
 /* listas: itens chegam em cascata curta */
-.stagger > * { animation: rise var(--dur-base) var(--ease-out) both; }
+.stagger > * { animation: rise var(--dur-base) var(--ease-out) backwards; }
 .stagger > *:nth-child(2) { animation-delay: 30ms; }
 .stagger > *:nth-child(3) { animation-delay: 60ms; }
 .stagger > *:nth-child(4) { animation-delay: 90ms; }

@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, User, Users } from "lucide-react";
+import { Segmented } from "@/components/ui/segmented";
 import { useId, useState, useTransition } from "react";
 import { toast } from "@/components/ui/toast";
 import { describeRepeat } from "../recurrence";
@@ -36,8 +37,7 @@ export function QuickAdd({ today, spaces, autoFocus, onCreated }: {
         p.due_time,
         p.category && `#${CAT[p.category]}`,
         p.priority && "!".repeat(p.priority),
-        targetShared && shared && "Nós",
-      ].filter(Boolean)
+              ].filter(Boolean)
     : [];
 
   function submit(e: React.FormEvent) {
@@ -54,7 +54,7 @@ export function QuickAdd({ today, spaces, autoFocus, onCreated }: {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-2 rounded-[22px] bg-surface p-3">
+    <form onSubmit={submit} className="field-shell flex flex-col gap-2 rounded-[22px] bg-surface p-3 transition-shadow">
       <div className="flex items-center gap-2">
         <label htmlFor={inputId} className="sr-only">Nova tarefa</label>
         <input
@@ -66,7 +66,7 @@ export function QuickAdd({ today, spaces, autoFocus, onCreated }: {
           autoComplete="off"
           enterKeyHint="send"
           maxLength={300}
-          className="min-h-11 min-w-0 flex-1 bg-transparent px-2 text-[16px] placeholder:text-ink-3 focus:outline-none"
+          className="min-h-11 min-w-0 flex-1 bg-transparent px-2 text-[16px] placeholder:text-ink-3 field-inline"
         />
         <button type="submit" disabled={pending || !text.trim()} aria-label="Criar tarefa" className="grid size-11 shrink-0 place-items-center rounded-full bg-ink text-bg disabled:opacity-30">
           <ArrowUp className="size-5" strokeWidth={2.6} />
@@ -74,22 +74,18 @@ export function QuickAdd({ today, spaces, autoFocus, onCreated }: {
       </div>
       {(chips.length > 0 || shared) && (
         <div className="flex flex-wrap items-center gap-1.5 px-1">
-          {shared && (
-            <div role="group" aria-label="Onde criar" className="mr-1 flex rounded-full bg-surface-2 p-0.5">
-              {[personal, shared].map((s) =>
-                s ? (
-                  <button
-                    key={s.id}
-                    type="button"
-                    aria-pressed={space === s.id}
-                    onClick={() => setSpace(s.id)}
-                    className={`rounded-full px-3 py-1 text-[12px] font-semibold ${space === s.id ? "bg-ink text-bg" : "text-ink-2"}`}
-                  >
-                    {s.kind === "personal" ? "Só eu" : "Nós"}
-                  </button>
-                ) : null,
-              )}
-            </div>
+          {shared && personal && (
+            <Segmented
+              label="Onde criar"
+              size="sm"
+              className="mr-1 w-44"
+              value={targetShared ? shared.id : personal.id}
+              onChange={(v) => setSpace(v)}
+              options={[
+                { value: personal.id, label: "Só eu", icon: <User className="size-3.5" strokeWidth={2.4} /> },
+                { value: shared.id, label: "Nós", icon: <Users className="size-3.5" strokeWidth={2.4} />, tone: "lavender" },
+              ]}
+            />
           )}
           {chips.map((c) => (
             <span key={String(c)} className="rounded-full bg-sunflower px-2.5 py-1 text-[12px] font-semibold text-on-color">

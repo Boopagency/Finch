@@ -30,10 +30,10 @@ export function QuickExpense({ workspaceId, onDone }: { workspaceId?: string; on
           }
         });
       }}
-      className="flex items-center gap-2 rounded-[22px] bg-surface p-2 pl-4"
+      className="field-shell flex items-center gap-2 rounded-[22px] bg-surface p-2 pl-4 transition-shadow"
     >
       <label htmlFor={id} className="sr-only">Lançamento rápido</label>
-      <input id={id} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ex.: 180 mercado crédito" maxLength={200} autoComplete="off" enterKeyHint="send" className="min-h-11 min-w-0 flex-1 bg-transparent text-[16px] focus:outline-none" />
+      <input id={id} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ex.: 180 mercado crédito" maxLength={200} autoComplete="off" enterKeyHint="send" className="min-h-11 min-w-0 flex-1 bg-transparent text-[16px] field-inline" />
       <button type="submit" disabled={pending || !text.trim()} className="min-h-11 rounded-full bg-coral px-4 text-[15px] font-bold text-on-color disabled:opacity-40">Lançar</button>
     </form>
   );
@@ -53,7 +53,7 @@ export function FinanceView({ data }: { data: FinanceData }) {
   return (
     <div className="flex flex-col gap-4">
       <QuickExpense />
-      <nav aria-label="Mais do financeiro" className="flex gap-2 overflow-x-auto">
+      <nav aria-label="Mais do financeiro" data-scroll-x className="-mx-5 flex gap-2 overflow-x-auto px-5 [scrollbar-width:none]">
         <Link href="/financas/recorrentes" className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-surface px-4 text-[14px] font-semibold"><Repeat2 className="size-4" /> Recorrentes</Link>
         <Link href={`/financas/relatorio?m=${data.month.slice(0, 7)}`} className="flex min-h-10 shrink-0 items-center rounded-full bg-surface px-4 text-[14px] font-semibold">Relatório</Link>
         <Link href="/financas/importar" className="flex min-h-10 shrink-0 items-center rounded-full bg-surface px-4 text-[14px] font-semibold">Importar extrato</Link>

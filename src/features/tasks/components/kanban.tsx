@@ -24,7 +24,7 @@ export function Kanban({ items, spaces, today }: { items: TaskItem[]; spaces: Sp
 
   return (
     <>
-      <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
+      <div data-scroll-x className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2">
         {COLS.map(([status, label], c) => {
           const list = state.filter((i) => i.status === status);
           return (

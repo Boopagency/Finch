@@ -38,7 +38,16 @@ export function SyncAgent() {
   useEffect(() => {
     const run = () => void flush();
     const onOnline = () => void run();
-    const onVisible = () => document.visibilityState === "visible" && void run();
+    let hiddenAt = 0;
+    const onVisible = () => {
+      if (document.visibilityState === "hidden") {
+        hiddenAt = Date.now();
+        return;
+      }
+      void run();
+      // voltou ao app depois de 30 s fora: atualiza a tela (o cache de navegação pode estar velho)
+      if (hiddenAt && Date.now() - hiddenAt > 30_000) router.refresh();
+    };
     void loadOutbox().then(run);
     window.addEventListener("online", onOnline);
     document.addEventListener("visibilitychange", onVisible);
