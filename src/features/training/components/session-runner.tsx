@@ -4,11 +4,13 @@ import { Check, Timer, Trophy, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 import { useOutboxOps } from "@/components/sync/use-outbox";
 import { toast } from "@/components/ui/toast";
 import { mergeSets, type WorkoutSet } from "@/features/sync/ops";
 import { cancelPending, enqueue, forgetAcked } from "@/lib/outbox";
 import type { Exercise, PlanItem } from "../server/queries";
+import { deleteSession } from "../server/actions";
 import { bestByExercise, formatClock, formatKg, isPR, MUSCLES, parseKg, secondsLeft, type Best } from "../training";
 
 type Session = { id: string; name: string; logged_at: string; finished_at: string | null };
@@ -238,6 +240,18 @@ export function SessionRunner({
           </Button>
         </>
       )}
+      <ConfirmButton
+        label={done ? "Excluir este treino" : "Descartar treino"}
+        className="self-center"
+        onConfirm={async () => {
+          writeRest(session.id, null);
+          await deleteSession(session.id);
+          toast(done ? "Treino excluído" : "Treino descartado");
+          router.push("/vida/treino");
+        }}
+      >
+        {done ? "Excluir este treino" : "Descartar treino"}
+      </ConfirmButton>
     </div>
   );
 }

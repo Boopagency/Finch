@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
 import type { Exercise, Workout } from "../server/queries";
-import { addExercise, archiveWorkout, saveWorkout } from "../server/actions";
+import { ConfirmButton } from "@/components/ui/confirm-button";
+import { addExercise, archiveWorkout, deleteExercise, saveWorkout } from "../server/actions";
 import { MUSCLES } from "../training";
 
 type Item = { exercise_id: string; sets: number; reps: number; rest_s: number };
@@ -88,6 +89,36 @@ export function WorkoutForm({ workout, exercises, onDone }: { workout?: Workout;
         </Button>
       </div>
 
+      {lib.some((e) => e.user_id) && (
+        <details className="rounded-[16px] bg-bg p-3">
+          <summary className="min-h-9 cursor-pointer text-[13px] font-semibold text-ink-2">Exercícios que você criou</summary>
+          <ul className="mt-2 flex flex-col gap-1">
+            {lib.filter((e) => e.user_id).map((e) => (
+              <li key={e.id} className="flex items-center justify-between gap-2 text-[15px]">
+                <span className="truncate">{e.name}</span>
+                <ConfirmButton
+                  label={`Excluir exercício ${e.name}`}
+                  confirmText="Apaga também o histórico"
+                  className="min-h-9 px-3 text-[13px]"
+                  onConfirm={() =>
+                    start(async () => {
+                      const r = await deleteExercise(e.id);
+                      toast(r.message);
+                      if (r.ok) {
+                        setLib(lib.filter((x) => x.id !== e.id));
+                        setItems(items.filter((it) => it.exercise_id !== e.id));
+                      }
+                    })
+                  }
+                >
+                  Excluir
+                </ConfirmButton>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+
       <div className="flex flex-wrap gap-2">
         <Button
           disabled={pending}
@@ -103,19 +134,19 @@ export function WorkoutForm({ workout, exercises, onDone }: { workout?: Workout;
         </Button>
         <Button variant="ghost" onClick={onDone}>Cancelar</Button>
         {workout && (
-          <Button
-            variant="danger"
+          <ConfirmButton
             disabled={pending}
-            onClick={() =>
+            label={`Excluir ficha ${workout.name}`}
+            onConfirm={() =>
               start(async () => {
                 await archiveWorkout(workout.id);
-                toast("Ficha arquivada");
+                toast("Ficha excluída (o histórico dos treinos fica)");
                 onDone();
               })
             }
           >
-            Arquivar
-          </Button>
+            Excluir ficha
+          </ConfirmButton>
         )}
       </div>
     </div>

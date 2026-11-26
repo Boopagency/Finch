@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { todayFor } from "@/features/health/server/queries";
 import { ListRealtime } from "@/features/shopping/components/realtime";
 import { ShoppingList } from "@/features/shopping/components/shopping-list";
+import { DeleteListButton } from "@/features/shopping/components/delete-list";
 import { getList } from "@/features/shopping/server/queries";
 import { requireViewer } from "@/lib/supabase/server";
 
@@ -29,6 +30,7 @@ export default async function ListPage({ params, searchParams }: PageProps<"/mer
         today={todayFor(viewer)}
         budget={data.list.budget_cents}
       />
+      {!superMode && <DeleteListButton id={id} name={data.list.name} />}
     </main>
   );
 }

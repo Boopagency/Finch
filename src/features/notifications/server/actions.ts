@@ -55,3 +55,19 @@ export async function sendTest(minutes: number): Promise<{ ok: boolean; message:
   }
   return { ok: true, message: `Agendado para daqui a ${delay} min. Pode fechar o app.` };
 }
+
+const NOTIFY = ["water", "habit", "task", "event"] as const;
+
+/** Liga/desliga um tipo de aviso. Água usa o ajuste de lembretes de água (mesmo da tela Água). Desligar apaga os pendentes. */
+export async function setNotify(category: string, enabled: boolean): Promise<{ ok: boolean }> {
+  const viewer = await requireViewer();
+  const cat = z.enum(NOTIFY).parse(category);
+  const supabase = await createClient();
+  const { error } = cat === "water"
+    ? await supabase.from("user_settings").update({ water_reminders: enabled }).eq("user_id", viewer.id)
+    : await supabase.from("notification_preferences").upsert({ user_id: viewer.id, category: cat, enabled }, { onConflict: "user_id,category" });
+  if (error) return { ok: false };
+  if (!enabled) await supabase.from("notification_jobs").delete().eq("user_id", viewer.id).eq("category", cat).eq("status", "pending");
+  revalidatePath("/ajustes");
+  return { ok: true };
+}

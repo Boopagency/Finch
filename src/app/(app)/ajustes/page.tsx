@@ -4,6 +4,7 @@ import { isFuture } from "@/lib/time";
 import { CoupleSection } from "./couple-section";
 import { LogoutButton } from "./logout-button";
 import { ProfileForm, QuietForm } from "./forms";
+import { NotifyPrefs } from "./notify-prefs";
 import { PushManager } from "./push-manager";
 
 export const metadata = { title: "Ajustes" };
@@ -22,8 +23,8 @@ function Section({ id, title, children }: { id: string; title: string; children:
 export default async function SettingsPage() {
   const viewer = await requireViewer();
   const supabase = await createClient();
-  const [{ data: settings }, { data: shared }, { data: devices }] = await Promise.all([
-    supabase.from("user_settings").select("quiet_start, quiet_end").eq("user_id", viewer.id).single(),
+  const [{ data: settings }, { data: shared }, { data: devices }, { data: prefs }] = await Promise.all([
+    supabase.from("user_settings").select("quiet_start, quiet_end, water_reminders").eq("user_id", viewer.id).single(),
     supabase
       .from("workspaces")
       .select("id, name, workspace_members(user_id, role, profiles(display_name)), invitations(id, invited_email, expires_at, accepted_at, revoked_at)")
@@ -35,7 +36,10 @@ export default async function SettingsPage() {
       .select("id, device_label, created_at, last_success_at")
       .is("revoked_at", null)
       .order("created_at", { ascending: false }),
+    supabase.from("notification_preferences").select("category, enabled").eq("user_id", viewer.id),
   ]);
+  const notify: Record<string, boolean> = { water: settings?.water_reminders ?? true };
+  for (const p of prefs ?? []) notify[p.category] = p.enabled;
 
   const space = shared && {
     id: shared.id,
@@ -58,6 +62,10 @@ export default async function SettingsPage() {
       </Section>
       <Section id="lembretes" title="Lembretes">
         <PushManager devices={devices ?? []} />
+        <div className="flex flex-col gap-1">
+          <h3 className="text-[13px] font-semibold text-ink-2">O que receber</h3>
+          <NotifyPrefs initial={notify} />
+        </div>
         <QuietForm start={settings?.quiet_start.slice(0, 5) ?? "22:00"} end={settings?.quiet_end.slice(0, 5) ?? "07:30"} />
       </Section>
       <Section id="casal" title="Nós dois">

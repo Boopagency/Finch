@@ -40,6 +40,21 @@ export async function runDispatcher(limit = 50): Promise<DispatchResult> {
       continue;
     }
 
+    // 1b. a pessoa desligou esse tipo de aviso em Ajustes (o teste sempre passa)
+    if (job.category !== "test") {
+      const { data: pref } = await db
+        .from("notification_preferences")
+        .select("enabled")
+        .eq("user_id", job.user_id)
+        .eq("category", job.category)
+        .maybeSingle();
+      if (pref && !pref.enabled) {
+        await update({ status: "skipped", last_error: "desligado em Ajustes" });
+        result.skipped++;
+        continue;
+      }
+    }
+
     // 2. horário silencioso (não essenciais esperam)
     if (!job.essential) {
       const [{ data: settings }, { data: profile }] = await Promise.all([

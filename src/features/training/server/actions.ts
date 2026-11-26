@@ -65,6 +65,15 @@ export async function addExercise(name: string, muscle: string): Promise<{ ok: b
   return { ok: true, message: "Exercício criado.", id: data.id };
 }
 
+/** Exclui exercício criado pela pessoa (o da biblioteca não pode: a RLS só deixa apagar os próprios). */
+export async function deleteExercise(id: string): Promise<Result> {
+  await requireViewer();
+  const { data, error } = await (await createClient()).from("exercises").delete().eq("id", z.uuid().parse(id)).select("id");
+  if (error || !data?.length) return { ok: false, message: "Esse exercício não pode ser excluído." };
+  revalidatePath("/vida/treino", "layout");
+  return { ok: true, message: "Exercício excluído." };
+}
+
 /** Começa uma sessão (precisa de rede; as séries depois vão pela fila offline). Reaproveita a aberta. */
 export async function startSession(workoutId: string | null): Promise<{ ok: boolean; id?: string; message?: string }> {
   await requireViewer();
@@ -86,7 +95,7 @@ export async function startSession(workoutId: string | null): Promise<{ ok: bool
 export async function deleteSession(id: string) {
   await requireViewer();
   await (await createClient()).from("workout_sessions").delete().eq("id", z.uuid().parse(id));
-  revalidatePath("/vida/treino");
+  revalidatePath("/vida/treino", "layout");
 }
 
 const bodySchema = z.object({

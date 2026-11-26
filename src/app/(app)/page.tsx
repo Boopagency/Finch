@@ -49,8 +49,9 @@ export default async function TodayPage() {
       .select("id, title, body, sent_at, url")
       .eq("status", "sent")
       .neq("category", "test")
+      .gte("sent_at", new Date(Date.now() - 12 * 3600e3).toISOString())
       .order("sent_at", { ascending: false })
-      .limit(3),
+      .limit(10),
     getWaterToday(viewer),
     getHabits(viewer, 7),
     getTaskItems(viewer, 45),
@@ -131,7 +132,9 @@ export default async function TodayPage() {
   for (const l of shopping.lists.filter((x) => x.pending > 0)) {
     bubbles.push({ key: `list-${l.id}`, title: l.name, text: `${l.pending} ${l.pending === 1 ? "item" : "itens"} para comprar.`, tone: "frog", href: `/mercado/${l.id}` });
   }
-  for (const n of recent ?? []) {
+  // avisos recentes sem repetição (o mesmo lembrete de água três vezes não ajuda)
+  const seenTitles = new Set<string>();
+  for (const n of (recent ?? []).filter((x) => !seenTitles.has(x.title) && seenTitles.add(x.title)).slice(0, 2)) {
     bubbles.push({ key: n.id, title: n.title, text: n.body, tone: "frog", href: n.url });
   }
 
