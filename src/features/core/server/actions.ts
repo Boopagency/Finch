@@ -75,3 +75,31 @@ export async function revokeInvite(id: string) {
   await supabase.from("invitations").update({ revoked_at: new Date().toISOString() }).eq("id", z.uuid().parse(id));
   revalidatePath("/ajustes");
 }
+
+// ---------- fotos de perfil e do casal ----------
+const photoPath = z.string().regex(/^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|png|webp)$/);
+
+export async function setAvatar(path: string | null): Promise<{ ok: boolean; message: string }> {
+  const viewer = await requireViewer();
+  const supabase = await createClient();
+  const p = path === null ? null : photoPath.parse(path);
+  const { data: before } = await supabase.from("profiles").select("avatar_path").eq("id", viewer.id).single();
+  const { error } = await supabase.rpc("set_avatar", { p_path: p as string });
+  if (error) return { ok: false, message: "Não consegui salvar a foto." };
+  if (before?.avatar_path && before.avatar_path !== p) await supabase.storage.from("photos").remove([before.avatar_path]);
+  revalidatePath("/", "layout");
+  return { ok: true, message: p ? "Foto de perfil atualizada." : "Foto removida." };
+}
+
+export async function setCover(spaceId: string, path: string | null): Promise<{ ok: boolean; message: string }> {
+  await requireViewer();
+  const supabase = await createClient();
+  const id = z.uuid().parse(spaceId);
+  const p = path === null ? null : photoPath.parse(path);
+  const { data: before } = await supabase.from("workspaces").select("cover_path").eq("id", id).single();
+  const { error } = await supabase.rpc("set_space_cover", { p_space: id, p_path: p as string });
+  if (error) return { ok: false, message: "Não consegui salvar a foto." };
+  if (before?.cover_path && before.cover_path !== p) await supabase.storage.from("photos").remove([before.cover_path]);
+  revalidatePath("/", "layout");
+  return { ok: true, message: p ? "Foto do casal atualizada." : "Foto removida." };
+}

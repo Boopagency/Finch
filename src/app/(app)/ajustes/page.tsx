@@ -4,7 +4,9 @@ import { isFuture } from "@/lib/time";
 import { CoupleSection } from "./couple-section";
 import { LogoutButton } from "./logout-button";
 import { ProfileForm, QuietForm } from "./forms";
+import { getFaces } from "@/features/core/server/faces";
 import { NotifyPrefs } from "./notify-prefs";
+import { AvatarEditor, CoverEditor } from "./photos";
 import { PushManager } from "./push-manager";
 
 export const metadata = { title: "Ajustes" };
@@ -38,6 +40,7 @@ export default async function SettingsPage() {
       .order("created_at", { ascending: false }),
     supabase.from("notification_preferences").select("category, enabled").eq("user_id", viewer.id),
   ]);
+  const faces = await getFaces(viewer);
   const notify: Record<string, boolean> = { water: settings?.water_reminders ?? true };
   for (const p of prefs ?? []) notify[p.category] = p.enabled;
 
@@ -58,6 +61,7 @@ export default async function SettingsPage() {
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
       <PageHeader title="Ajustes" meta={viewer.email} />
       <Section id="perfil" title="Você">
+        <AvatarEditor name={viewer.name} url={faces.me.url} spaceId={faces.avatarSpace} />
         <ProfileForm name={viewer.name} tz={viewer.tz} />
       </Section>
       <Section id="lembretes" title="Lembretes">
@@ -69,6 +73,7 @@ export default async function SettingsPage() {
         <QuietForm start={settings?.quiet_start.slice(0, 5) ?? "22:00"} end={settings?.quiet_end.slice(0, 5) ?? "07:30"} />
       </Section>
       <Section id="casal" title="Nós dois">
+        {faces.sharedId && <CoverEditor url={faces.cover} spaceId={faces.sharedId} />}
         <CoupleSection space={space ?? null} />
       </Section>
       <LogoutButton />

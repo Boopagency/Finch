@@ -8,6 +8,8 @@ import { isLow } from "@/features/kitchen/kitchen";
 import { getKitchen } from "@/features/kitchen/server/queries";
 import { alertText } from "@/features/home/home";
 import { getHome } from "@/features/home/server/queries";
+import { Avatar } from "@/components/ui/avatar";
+import { getFaces } from "@/features/core/server/faces";
 import { InstallHint } from "@/components/pwa/install-hint";
 import { HabitList } from "@/features/health/components/habit-list";
 import { WaterQuick } from "@/features/health/components/water-quick";
@@ -41,7 +43,7 @@ export default async function TodayPage() {
   const supabase = await createClient();
   const now = nowIn(viewer.tz);
 
-  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData, agenda, shopping, album, soonDates, kitchen, home] = await Promise.all([
+  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData, agenda, shopping, album, soonDates, kitchen, home, faces] = await Promise.all([
     supabase.from("workspaces").select("id, name, workspace_members(user_id, profiles(display_name))").eq("kind", "shared"),
     supabase.from("push_subscriptions").select("id", { count: "exact", head: true }).is("revoked_at", null),
     supabase
@@ -49,7 +51,7 @@ export default async function TodayPage() {
       .select("id, title, body, sent_at, url")
       .eq("status", "sent")
       .neq("category", "test")
-      .gte("sent_at", new Date(Date.now() - 12 * 3600e3).toISOString())
+      .gte("sent_at", new Date(now.getTime() - 12 * 3600e3).toISOString())
       .order("sent_at", { ascending: false })
       .limit(10),
     getWaterToday(viewer),
@@ -61,6 +63,7 @@ export default async function TodayPage() {
     getUpcomingDates(viewer, 7),
     getKitchen(viewer),
     getHome(viewer),
+    getFaces(viewer),
   ]);
   const nowHm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   const upcoming = agenda.events.filter((e) => !e.end || e.end > nowHm);
@@ -150,7 +153,13 @@ export default async function TodayPage() {
             <br />
             {format(now, "EEEE", { locale: ptBR })}
           </p>
-          <Link href="/ajustes" aria-label="Ajustes" className="grid size-10 place-items-center rounded-full bg-white/10">
+          {faces.partner && (
+            <Link href="/vida/nos" aria-label="Nós" className="press flex -space-x-2.5">
+              <Avatar name={faces.me.name} url={faces.me.url} size={40} className="ring-2 ring-[var(--stage)]" />
+              <Avatar name={faces.partner.name} url={faces.partner.url} size={40} className="ring-2 ring-[var(--stage)]" />
+            </Link>
+          )}
+          <Link href="/ajustes" aria-label="Ajustes" className="press grid size-10 place-items-center rounded-full bg-white/10">
             <Settings className="size-5" />
           </Link>
         </div>

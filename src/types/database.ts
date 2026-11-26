@@ -315,9 +315,9 @@ export type Database = {
         ]
       }
       workspaces: {
-        Row: { created_at: string; created_by: string; id: string; kind: string; name: string }
-        Insert: { created_at?: string; created_by: string; id?: string; kind: string; name: string }
-        Update: { created_at?: string; created_by?: string; id?: string; kind?: string; name?: string }
+        Row: { cover_path: string | null; created_at: string; created_by: string; id: string; kind: string; name: string }
+        Insert: { cover_path?: string | null; created_at?: string; created_by: string; id?: string; kind: string; name: string }
+        Update: { cover_path?: string | null; created_at?: string; created_by?: string; id?: string; kind?: string; name?: string }
         Relationships: [{ foreignKeyName: "workspaces_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
       }
     }
@@ -342,6 +342,8 @@ export type Database = {
       fin_materialize: { Args: { p_month: string }; Returns: number }
       ai_reserve: { Args: { p_daily_limit: number }; Returns: boolean }
       ai_track: { Args: { p_input: number; p_output: number }; Returns: undefined }
+      set_avatar: { Args: { p_path: string }; Returns: undefined }
+      set_space_cover: { Args: { p_space: string; p_path: string }; Returns: undefined }
       fin_confirm: { Args: { p_id: string }; Returns: undefined }
       fin_ensure_categories: { Args: { p_workspace: string }; Returns: undefined }
       fin_record: {

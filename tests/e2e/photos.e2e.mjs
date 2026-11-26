@@ -69,5 +69,22 @@ await test("Apagar memória apaga a foto do armazenamento", async () => {
   assert.notEqual(status, 200, "arquivo removido");
 });
 
+await test("Foto de perfil e foto do casal: os dois veem", async () => {
+  await a.page.goto(`${BASE}/ajustes`);
+  await a.page.getByLabel("Trocar foto de perfil").setInputFiles(file("eu.png"));
+  await a.page.getByRole("status").filter({ hasText: "Foto de perfil atualizada." }).waitFor();
+  await a.page.getByLabel("Foto do casal").first().setInputFiles(file("casal.png"));
+  await a.page.getByRole("status").filter({ hasText: "Foto do casal atualizada." }).waitFor();
+  await b.page.goto(`${BASE}/vida/nos`);
+  const cover = b.page.getByRole("img", { name: "Foto do casal" });
+  await cover.waitFor();
+  await b.page.waitForFunction((el) => el.complete && el.naturalWidth > 0, await cover.elementHandle());
+  // no Hoje de B, a foto de A aparece no topo
+  await b.page.goto(`${BASE}/`);
+  const stack = b.page.getByRole("link", { name: "Nós", exact: true });
+  await stack.waitFor();
+  assert.ok((await stack.locator("img").count()) >= 1, "foto de perfil de A aparece para B");
+});
+
 await close();
 summary();
