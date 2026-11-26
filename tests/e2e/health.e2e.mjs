@@ -110,7 +110,7 @@ await test("Privacidade: B não vê hábitos de A", async () => {
 await test("Sem login: rotas protegidas redirecionam", async () => {
   const anon = await (await page.context().browser().newContext()).newPage();
   await anon.goto(`${BASE}/vida/agua`);
-  assert.match(anon.url(), /\/entrar$/);
+  assert.match(anon.url(), /\/entrar\?next=%2Fvida%2Fagua$/);
   const res = await anon.request.post(`${BASE}/api/sync`, { data: { ops: [] } });
   assert.ok([307, 401].includes(res.status()) || res.url().endsWith("/entrar"));
 });

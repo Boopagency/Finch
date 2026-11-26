@@ -1,5 +1,5 @@
-import { Segmented } from "@/components/ui/segmented";
 import { PageHeader } from "@/components/ui/page-header";
+import { Tabs } from "@/components/ui/tabs";
 import { DatesView, MemoriesView, PlacesView } from "@/features/couple/components/couple-views";
 import { getCouple, withPhotoUrls } from "@/features/couple/server/queries";
 import { Avatar } from "@/components/ui/avatar";
@@ -10,12 +10,14 @@ import { requireViewer } from "@/lib/supabase/server";
 export const metadata = { title: "Nós" };
 
 const TABS = [["datas", "Datas"], ["lugares", "Lugares"], ["memorias", "Memórias"]] as const;
+type Tab = (typeof TABS)[number][0];
 
 export default async function CouplePage({ searchParams }: PageProps<"/vida/nos">) {
   const viewer = await requireViewer();
   const v = (await searchParams).v;
-  const tab = TABS.some(([k]) => k === v) ? (v as string) : "datas";
+  const tab: Tab = TABS.some(([k]) => k === v) ? (v as Tab) : "datas";
   const [c, faces] = await Promise.all([getCouple(viewer), getFaces(viewer)]);
+  const memories = await withPhotoUrls(c.memories);
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
       <PageHeader title="Nós" meta={c.space.kind === "shared" ? "de vocês dois" : "convide alguém em Ajustes"} />
@@ -36,14 +38,17 @@ export default async function CouplePage({ searchParams }: PageProps<"/vida/nos"
           </div>
         </div>
       )}
-      <Segmented
+      <Tabs
         label="Seções"
-        value={tab}
-        options={TABS.map(([key, label]) => ({ value: key as string, label, href: `/vida/nos?v=${key}` }))}
+        path="/vida/nos"
+        initial={tab}
+        options={TABS.map(([key, label]) => ({ value: key, label }))}
+        panels={{
+          datas: <DatesView dates={c.dates} today={c.today} />,
+          lugares: <PlacesView places={c.places} />,
+          memorias: <MemoriesView memories={memories} today={c.today} spaceId={c.space.id} />,
+        }}
       />
-      {tab === "datas" && <DatesView dates={c.dates} today={c.today} />}
-      {tab === "lugares" && <PlacesView places={c.places} />}
-      {tab === "memorias" && <MemoriesView memories={await withPhotoUrls(c.memories)} today={c.today} spaceId={c.space.id} />}
     </main>
   );
 }

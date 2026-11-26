@@ -54,16 +54,16 @@ export function FinanceView({ data }: { data: FinanceData }) {
     <div className="flex flex-col gap-4">
       <QuickExpense />
       <nav aria-label="Mais do financeiro" data-scroll-x className="-mx-5 flex gap-2 overflow-x-auto px-5 [scrollbar-width:none]">
-        <Link href="/financas/recorrentes" className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-surface px-4 text-[14px] font-semibold"><Repeat2 className="size-4" /> Recorrentes</Link>
-        <Link href={`/financas/relatorio?m=${data.month.slice(0, 7)}`} className="flex min-h-10 shrink-0 items-center rounded-full bg-surface px-4 text-[14px] font-semibold">Relatório</Link>
-        <Link href="/financas/importar" className="flex min-h-10 shrink-0 items-center rounded-full bg-surface px-4 text-[14px] font-semibold">Importar extrato</Link>
+        <Link prefetch href="/financas/recorrentes" className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-surface px-4 text-[14px] font-semibold"><Repeat2 className="size-4" /> Recorrentes</Link>
+        <Link prefetch href={`/financas/relatorio?m=${data.month.slice(0, 7)}`} className="flex min-h-10 shrink-0 items-center rounded-full bg-surface px-4 text-[14px] font-semibold">Relatório</Link>
+        <Link prefetch href="/financas/importar" className="flex min-h-10 shrink-0 items-center rounded-full bg-surface px-4 text-[14px] font-semibold">Importar extrato</Link>
         <a href={`/api/financas/csv?m=${data.month.slice(0, 7)}`} download className="flex min-h-10 shrink-0 items-center rounded-full bg-surface px-4 text-[14px] font-semibold">Exportar CSV</a>
       </nav>
 
       <div className="flex items-center justify-between">
-        <Link href={`/financas?m=${addMonths(data.month, -1).slice(0, 7)}`} aria-label="Mês anterior" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></Link>
+        <Link prefetch href={`/financas?m=${addMonths(data.month, -1).slice(0, 7)}`} aria-label="Mês anterior" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></Link>
         <span className="text-[15px] font-bold first-letter:uppercase">{monthLabel(data.month)}</span>
-        <Link href={`/financas?m=${addMonths(data.month, 1).slice(0, 7)}`} aria-label="Próximo mês" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronRight className="size-5" /></Link>
+        <Link prefetch href={`/financas?m=${addMonths(data.month, 1).slice(0, 7)}`} aria-label="Próximo mês" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronRight className="size-5" /></Link>
       </div>
 
       <section aria-label="Saldos" className="grid grid-cols-2 gap-2">
@@ -148,7 +148,7 @@ export function FinanceView({ data }: { data: FinanceData }) {
       <section aria-label="Lançamentos" className="flex flex-col gap-2">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-[13px] font-semibold text-ink-2">Lançamentos</h2>
-          <Link href="/financas/contas" className="text-[13px] font-semibold text-ink-3">Contas e cartões →</Link>
+          <Link prefetch href="/financas/contas" className="text-[13px] font-semibold text-ink-3">Contas e cartões →</Link>
         </div>
         {data.entries.length === 0 && <p className="px-2 py-6 text-center text-[15px] text-ink-3">Nada lançado neste mês.</p>}
         <ul className="flex flex-col divide-y divide-line rounded-[22px] bg-surface">

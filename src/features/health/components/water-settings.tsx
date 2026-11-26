@@ -16,7 +16,7 @@ export function WaterSettingsForm({ settings }: { settings: WaterSettings }) {
       </div>
       <label className="flex min-h-11 items-center justify-between gap-3 text-[15px] font-semibold">
         Lembretes de água
-        <input type="checkbox" name="water_reminders" defaultChecked={settings.water_reminders} className="size-6 accent-[var(--cobalt)]" />
+        <input type="checkbox" name="water_reminders" defaultChecked={settings.water_reminders} className="switch" />
       </label>
       <div className="grid grid-cols-3 gap-3">
         <Field id="water_from" name="water_from" type="time" label="Das" defaultValue={settings.water_from} required />

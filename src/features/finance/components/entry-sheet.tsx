@@ -112,7 +112,7 @@ export function EntrySheet({ data, onClose, preset }: { data: FinanceData; onClo
           {(kind === "expense" || kind === "income") && !isCard && (
             <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">
               Ainda não aconteceu (previsto)
-              <input type="checkbox" name="planned" className="size-6 accent-[var(--cobalt)]" />
+              <input type="checkbox" name="planned" className="switch" />
             </label>
           )}
           {state && !state.ok && <p role="alert" className="text-sm font-medium text-danger">{state.message}</p>}

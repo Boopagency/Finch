@@ -47,8 +47,9 @@ export function TaskRow({ item, onOpen, showDate }: { item: TaskItem; onOpen: ()
     item.status === "doing" ? "fazendo" : null,
     item.subtasks.length ? `${item.subtasks.filter((s) => s.done).length}/${item.subtasks.length}` : null,
   ].filter(Boolean);
+  const saving = item.key.startsWith("pending:");
   return (
-    <li className={`flex items-center gap-2 rounded-[18px] border-l-4 bg-surface py-1.5 pl-2 pr-3 ${PRIORITY[item.priority] || "border-l-transparent"}`}>
+    <li aria-busy={saving || undefined} className={`flex items-center gap-2 rounded-[18px] border-l-4 bg-surface py-1.5 pl-2 pr-3 transition-opacity ${saving ? "pointer-events-none opacity-60" : ""} ${PRIORITY[item.priority] || "border-l-transparent"}`}>
       <button
         onClick={() => toggleTask(item)}
         aria-label={done ? `Reabrir ${item.title}` : `Concluir ${item.title}`}

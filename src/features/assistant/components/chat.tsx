@@ -44,7 +44,8 @@ export function Chat() {
     setHasText(false);
     setBusy(true);
     try {
-      const history = next.slice(-19).map(({ role, content }) => ({ role, content }));
+      // o servidor aceita até 4000 caracteres por mensagem: resposta longa não pode travar a conversa
+      const history = next.slice(-19).map(({ role, content }) => ({ role, content: content.slice(0, 4000) }));
       while (history.length && history[0]!.role !== "user") history.shift();
       const res = await fetch("/api/ai/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: history }) });
       const data = await res.json().catch(() => ({}));

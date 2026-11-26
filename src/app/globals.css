@@ -117,7 +117,37 @@ body {
   input[type="date"], input[type="time"], input[type="datetime-local"], input[type="month"] {
     -webkit-appearance: none; appearance: none; min-width: 0; max-width: 100%; display: block; color: var(--ink);
   }
-  input::-webkit-date-and-time-value { text-align: left; min-height: 1.5em; }
+  /* iOS: sem a aparência nativa o valor gruda no topo; o padding centraliza na altura de 48 px dos campos */
+  input[type="date"], input[type="time"], input[type="datetime-local"], input[type="month"] { line-height: 1.5rem; padding-block: 11px; }
+  input::-webkit-date-and-time-value { text-align: left; min-height: 1.5rem; margin: 0; }
+  /* Chrome em celular desenha um ícone que espreme o horário; no toque o seletor abre pelo campo todo */
+  @media (pointer: coarse) { input::-webkit-calendar-picker-indicator { display: none; } }
+
+  /* caixinha própria (o azul nativo do iOS destoava); .switch = interruptor das linhas de ajuste */
+  input[type="checkbox"] {
+    -webkit-appearance: none; appearance: none; flex-shrink: 0; margin: 0; cursor: pointer;
+    width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--ink-3);
+    display: inline-grid; place-content: center; background: transparent;
+    transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  input[type="checkbox"]::before {
+    content: ""; width: 12px; height: 12px; background: var(--on-color); transform: scale(0);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transition: transform var(--dur-fast) var(--ease-soft);
+  }
+  input[type="checkbox"]:checked { background: var(--frog); border-color: var(--frog); }
+  input[type="checkbox"]:checked::before { transform: scale(1); }
+  input[type="checkbox"]:disabled { opacity: 0.4; cursor: default; }
+  input[type="checkbox"].switch {
+    width: 52px; height: 32px; border: 0; border-radius: 999px; background: var(--surface-2); place-content: center start;
+    transition: background-color 200ms var(--ease-out);
+  }
+  input[type="checkbox"].switch::before {
+    width: 24px; height: 24px; border-radius: 999px; background: #fff; clip-path: none; transform: translateX(4px);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.25); transition: transform 300ms var(--ease-soft);
+  }
+  input[type="checkbox"].switch:checked { background: var(--frog); }
+  input[type="checkbox"].switch:checked::before { transform: translateX(24px); }
   select {
     -webkit-appearance: none; appearance: none; min-width: 0; max-width: 100%; color: var(--ink);
     padding-right: 2.25rem;
@@ -155,7 +185,6 @@ h1, h2, h3 { text-wrap: balance; }
   --ease-soft: cubic-bezier(0.34, 1.26, 0.64, 1);
 }
 
-@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes enter { from { opacity: 0.4; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes pop { 0% { transform: scale(0.6); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
@@ -174,13 +203,14 @@ h1, h2, h3 { text-wrap: balance; }
 .page-enter { animation: enter var(--dur-fast) var(--ease-out) backwards; }
 
 /* listas: itens chegam em cascata curta */
-.stagger > * { animation: rise var(--dur-base) var(--ease-out) backwards; }
-.stagger > *:nth-child(2) { animation-delay: 30ms; }
-.stagger > *:nth-child(3) { animation-delay: 60ms; }
-.stagger > *:nth-child(4) { animation-delay: 90ms; }
-.stagger > *:nth-child(5) { animation-delay: 120ms; }
-.stagger > *:nth-child(6) { animation-delay: 150ms; }
-.stagger > *:nth-child(n + 7) { animation-delay: 180ms; }
+/* listas: entrada sutil — legível desde o 1º quadro, tudo no lugar em ~280 ms (trocar de aba não pode "construir" a lista) */
+@keyframes settle { from { opacity: 0.35; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.stagger > * { animation: settle var(--dur-fast) var(--ease-out) backwards; }
+.stagger > *:nth-child(2) { animation-delay: 20ms; }
+.stagger > *:nth-child(3) { animation-delay: 40ms; }
+.stagger > *:nth-child(4) { animation-delay: 60ms; }
+.stagger > *:nth-child(5) { animation-delay: 80ms; }
+.stagger > *:nth-child(n + 6) { animation-delay: 100ms; }
 
 /* marcar/concluir: o círculo dá um pulinho */
 .check-on { animation: check var(--dur-base) var(--ease-soft); }

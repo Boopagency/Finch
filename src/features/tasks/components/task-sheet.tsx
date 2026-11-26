@@ -144,7 +144,7 @@ export function TaskSheet({ item, spaces, today, onClose }: { item: TaskItem; sp
           {freq !== "none" && shared && members.length > 1 && (
             <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">
               Rodízio entre vocês
-              <input type="checkbox" name="rotation" defaultChecked={!!item.rotation?.length} className="size-6 accent-[var(--lavender)]" />
+              <input type="checkbox" name="rotation" defaultChecked={!!item.rotation?.length} className="switch" />
             </label>
           )}
 
@@ -154,7 +154,7 @@ export function TaskSheet({ item, spaces, today, onClose }: { item: TaskItem; sp
           </div>
           <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">
             Lembrar no horário
-            <input type="checkbox" name="remind" defaultChecked={item.remind} className="size-6 accent-[var(--coral)]" />
+            <input type="checkbox" name="remind" defaultChecked={item.remind} className="switch" />
           </label>
 
           {state && !state.ok && <p role="alert" className="text-sm font-medium text-danger">{state.message}</p>}
@@ -170,7 +170,7 @@ export function TaskSheet({ item, spaces, today, onClose }: { item: TaskItem; sp
                 defaultChecked={s.done}
                 aria-label={s.title}
                 onChange={(e) => start(() => toggleSubtask(s.id, e.target.checked))}
-                className="size-5 accent-[var(--frog)]"
+                className="size-6"
               />
               <span className={`flex-1 text-[15px] ${s.done ? "text-ink-3 line-through" : ""}`}>{s.title}</span>
               <button onClick={() => start(() => deleteSubtask(s.id))} aria-label={`Remover ${s.title}`} className="grid size-10 place-items-center text-ink-3">

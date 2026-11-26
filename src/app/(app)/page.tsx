@@ -154,12 +154,12 @@ export default async function TodayPage() {
             {format(now, "EEEE", { locale: ptBR })}
           </p>
           {faces.partner && (
-            <Link href="/vida/nos" aria-label="Nós" className="press flex -space-x-2.5">
+            <Link prefetch href="/vida/nos" aria-label="Nós" className="press flex -space-x-2.5">
               <Avatar name={faces.me.name} url={faces.me.url} size={40} className="ring-2 ring-[var(--stage)]" />
               <Avatar name={faces.partner.name} url={faces.partner.url} size={40} className="ring-2 ring-[var(--stage)]" />
             </Link>
           )}
-          <Link href="/ajustes" aria-label="Ajustes" className="press grid size-10 place-items-center rounded-full bg-white/10">
+          <Link prefetch href="/ajustes" aria-label="Ajustes" className="press grid size-10 place-items-center rounded-full bg-white/10">
             <Settings className="size-5" />
           </Link>
         </div>
@@ -193,7 +193,7 @@ export default async function TodayPage() {
             <ul aria-label="Agenda de hoje" className="flex flex-col gap-1.5">
               {upcoming.map((e) => (
                 <li key={e.key}>
-                  <Link href="/agenda" className="flex items-center gap-3 rounded-[18px] bg-surface px-4 py-3">
+                  <Link prefetch href="/agenda" className="flex items-center gap-3 rounded-[18px] bg-surface px-4 py-3">
                     <span className="tabular w-11 text-[13px] font-bold text-ink-2">{e.start && e.start !== "00:00" ? e.start : "dia"}</span>
                     <span className="flex-1 truncate text-[15px] font-semibold">{e.event.title}</span>
                     <CalendarDays className="size-4 text-ink-3" />
@@ -211,7 +211,7 @@ export default async function TodayPage() {
                 group={overdue > 0}
               />
               {todayTasks.length > 6 && (
-                <Link href="/tarefas" className="px-2 text-[13px] font-semibold text-ink-3">
+                <Link prefetch href="/tarefas" className="px-2 text-[13px] font-semibold text-ink-3">
                   Ver todas as {todayTasks.length} tarefas de hoje →
                 </Link>
               )}
@@ -237,7 +237,7 @@ export default async function TodayPage() {
               </div>
             );
             return b.href ? (
-              <Link key={b.key} href={b.href} className="press block">
+              <Link key={b.key} prefetch href={b.href} className="press block">
                 {body}
               </Link>
             ) : (

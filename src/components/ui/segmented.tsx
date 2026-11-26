@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 type Tone = "ink" | "lavender" | "coral" | "cobalt" | "frog" | "sunflower";
 const INDICATOR: Record<Tone, string> = {
@@ -11,12 +10,9 @@ const ON: Record<Tone, string> = {
   ink: "text-bg", lavender: "text-on-color", coral: "text-on-color", cobalt: "text-on-cobalt", frog: "text-on-color", sunflower: "text-on-color",
 };
 
-export type SegmentOption<T extends string> = { value: T; label: string; icon?: ReactNode; tone?: Tone; href?: string };
+export type SegmentOption<T extends string> = { value: T; label: string; icon?: ReactNode; tone?: Tone };
 
-/**
- * Seletor segmentado: um destaque desliza (mola) por trás de opções de largura igual — nada muda de tamanho.
- * Com `href`, cada opção é um link e o destaque já se move no toque, sem esperar a tela nova.
- */
+/** Seletor segmentado: um destaque desliza (mola) por trás de opções de largura igual — nada muda de tamanho. */
 export function Segmented<T extends string>({ options, value, onChange, label, size = "md", className = "" }: {
   options: SegmentOption<T>[];
   value: T;
@@ -25,9 +21,7 @@ export function Segmented<T extends string>({ options, value, onChange, label, s
   size?: "sm" | "md";
   className?: string;
 }) {
-  const [tap, setTap] = useState<{ to: T; from: T } | null>(null);
-  const shown = tap && tap.from === value ? tap.to : value;
-  const idx = Math.max(0, options.findIndex((o) => o.value === shown));
+  const idx = Math.max(0, options.findIndex((o) => o.value === value));
   const tone = options[idx]?.tone ?? "ink";
   const n = options.length;
   const h = size === "sm" ? "min-h-9 text-[13px]" : "min-h-11 text-[14px]";
@@ -42,19 +36,10 @@ export function Segmented<T extends string>({ options, value, onChange, label, s
       {options.map((o, i) => {
         const active = i === idx;
         const cls = `press relative z-10 flex ${h} items-center justify-center gap-1.5 rounded-full px-2 font-semibold transition-colors duration-200 ${active ? ON[o.tone ?? "ink"] : "text-ink-2"}`;
-        const body = (
-          <>
+        return (
+          <button key={o.value} type="button" role="radio" aria-checked={active} onClick={() => onChange?.(o.value)} className={cls}>
             {o.icon}
             <span className="truncate">{o.label}</span>
-          </>
-        );
-        return o.href ? (
-          <Link key={o.value} href={o.href} replace role="radio" aria-checked={active} onClick={() => setTap({ to: o.value, from: value })} className={cls}>
-            {body}
-          </Link>
-        ) : (
-          <button key={o.value} type="button" role="radio" aria-checked={active} onClick={() => { setTap(null); onChange?.(o.value); }} className={cls}>
-            {body}
           </button>
         );
       })}

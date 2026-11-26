@@ -18,7 +18,7 @@ export default async function ShoppingPage() {
       <ul className="flex flex-col gap-2">
         {lists.map((l) => (
           <li key={l.id}>
-            <Link href={`/mercado/${l.id}`} className="flex items-center gap-3 rounded-[22px] bg-surface p-4">
+            <Link prefetch href={`/mercado/${l.id}`} className="flex items-center gap-3 rounded-[22px] bg-surface p-4">
               <span className="flex flex-1 flex-col">
                 <span className="flex items-center gap-2 text-[17px] font-bold">
                   {l.name}

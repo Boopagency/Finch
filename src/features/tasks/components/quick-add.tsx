@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/toast";
 import { describeRepeat } from "../recurrence";
 import { parseQuickTask } from "../quick-parse";
 import { createTaskQuick } from "../server/actions";
+import type { TaskItem } from "../server/queries";
 
 const CAT: Record<string, string> = { casa: "Casa", contas: "Contas", trabalho: "Trabalho", saude: "Saúde", compras: "Compras", nos: "Nós" };
 
@@ -15,18 +16,20 @@ function fmtDate(d: string) {
 }
 
 /** Campo único que entende "Lavar roupa toda quarta #casa @nós". */
-export function QuickAdd({ today, spaces, autoFocus, onCreated }: {
+export function QuickAdd({ today, spaces, autoFocus, onCreated, onOptimistic }: {
   today: string;
   spaces: { id: string; kind: string; name: string }[];
   autoFocus?: boolean;
   onCreated?: () => void;
+  /** chamado dentro da transição: a tarefa aparece na hora e some quando a lista real chega */
+  onOptimistic?: (t: TaskItem) => void;
 }) {
   const inputId = useId();
   const [text, setText] = useState("");
   const shared = spaces.find((s) => s.kind === "shared");
   const personal = spaces.find((s) => s.kind === "personal");
   const [space, setSpace] = useState(personal?.id);
-  const [pending, start] = useTransition();
+  const [, start] = useTransition();
   const p = text.trim() ? parseQuickTask(text, today) : null;
   const targetShared = p?.shared || space === shared?.id;
 
@@ -42,14 +45,24 @@ export function QuickAdd({ today, spaces, autoFocus, onCreated }: {
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim() || !p) return;
+    // aparece na lista e o campo limpa na hora; se o servidor recusar, o texto volta
+    const typed = text;
+    const target = spaces.find((s) => s.id === (targetShared ? shared?.id : space)) ?? spaces[0]!;
+    const key = `pending:${crypto.randomUUID()}`;
+    setText("");
     start(async () => {
-      const r = await createTaskQuick(text, space);
+      onOptimistic?.({
+        key, task_id: key, occurrence_id: null, title: p.title || typed, notes: null,
+        date: p.due_date ?? (p.repeat ? today : null), time: p.due_time ?? null, status: "open",
+        category: p.category ?? "geral", priority: p.priority ?? 0,
+        space: { id: target.id, kind: target.kind === "shared" ? "shared" : "personal", name: target.name },
+        assignee: null, repeat: null, repeatLabel: p.repeat ? describeRepeat(p.repeat) : null, rotation: null, remind: false, subtasks: [],
+      });
+      const r = await createTaskQuick(typed, space);
       toast(r.message);
-      if (r.ok) {
-        setText("");
-        onCreated?.();
-      }
+      if (r.ok) onCreated?.();
+      else setText(typed);
     });
   }
 
@@ -68,7 +81,7 @@ export function QuickAdd({ today, spaces, autoFocus, onCreated }: {
           maxLength={300}
           className="min-h-11 min-w-0 flex-1 bg-transparent px-2 text-[16px] placeholder:text-ink-3 field-inline"
         />
-        <button type="submit" disabled={pending || !text.trim()} aria-label="Criar tarefa" className="grid size-11 shrink-0 place-items-center rounded-full bg-ink text-bg disabled:opacity-30">
+        <button type="submit" disabled={!text.trim()} aria-label="Criar tarefa" className="grid size-11 shrink-0 place-items-center rounded-full bg-ink text-bg disabled:opacity-30">
           <ArrowUp className="size-5" strokeWidth={2.6} />
         </button>
       </div>

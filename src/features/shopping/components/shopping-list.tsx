@@ -150,7 +150,7 @@ export function ShoppingList({ listId, serverItems, products, members, superMode
       ))}
 
       <div className="flex flex-wrap gap-2">
-        <Link href={superMode ? `/mercado/${listId}` : `/mercado/${listId}?modo=super`} className="flex min-h-12 flex-1 items-center justify-center rounded-full bg-surface px-4 text-[15px] font-semibold">
+        <Link prefetch href={superMode ? `/mercado/${listId}` : `/mercado/${listId}?modo=super`} className="flex min-h-12 flex-1 items-center justify-center rounded-full bg-surface px-4 text-[15px] font-semibold">
           {superMode ? "Sair do modo supermercado" : "Modo supermercado"}
         </Link>
         {done > 0 && (
@@ -254,7 +254,7 @@ function FinishSheet({ listId, members, viewerId, today, estimate, pendingCount,
         {pendingCount > 0 && (
           <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">
             Levar {pendingCount} {pendingCount === 1 ? "item que faltou" : "itens que faltaram"} para a próxima lista
-            <input type="checkbox" name="carry_over" defaultChecked className="size-6 accent-[var(--frog)]" />
+            <input type="checkbox" name="carry_over" defaultChecked className="switch" />
           </label>
         )}
         <p className="text-[13px] text-ink-3">A compra entra nas finanças como despesa (sem duplicar) e repõe o que a despensa acompanha.</p>

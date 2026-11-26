@@ -36,7 +36,7 @@ export function TrainingHome({ workouts, exercises, open: serverOpen, history, p
   return (
     <div className="flex flex-col gap-4">
       {open && (
-        <Link href={`/vida/treino/${open.id}`} className="press flex items-center gap-3 rounded-[22px] bg-ink p-4 text-bg">
+        <Link prefetch href={`/vida/treino/${open.id}`} className="press flex items-center gap-3 rounded-[22px] bg-ink p-4 text-bg">
           <span className="grid size-11 place-items-center rounded-full bg-coral text-on-color"><Play className="size-5" /></span>
           <span className="flex-1">
             <b className="block text-[16px]">Continuar {open.name}</b>
@@ -102,7 +102,7 @@ export function TrainingHome({ workouts, exercises, open: serverOpen, history, p
           <ul className="flex flex-col divide-y divide-line rounded-[20px] bg-surface">
             {history.filter((s) => s.finished_at).map((s) => (
               <li key={s.id}>
-                <Link href={`/vida/treino/${s.id}`} className="flex items-center justify-between gap-3 px-4 py-3">
+                <Link prefetch href={`/vida/treino/${s.id}`} className="flex items-center justify-between gap-3 px-4 py-3">
                   <span>
                     <b className="block text-[15px]">{s.name}</b>
                     <span className="text-[12px] text-ink-3">{when(s.logged_at)} · {Math.round((+new Date(s.finished_at!) - +new Date(s.logged_at)) / 60000)} min</span>

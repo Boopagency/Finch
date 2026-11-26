@@ -23,9 +23,9 @@ export default async function ReportPage({ searchParams }: PageProps<"/financas/
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-gutter pt-safe">
       <PageHeader title="Relatório" meta="só realizado" />
       <div className="flex items-center justify-between">
-        <Link href={`/financas/relatorio?m=${addMonths(month, -1).slice(0, 7)}`} aria-label="Mês anterior" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></Link>
+        <Link prefetch href={`/financas/relatorio?m=${addMonths(month, -1).slice(0, 7)}`} aria-label="Mês anterior" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronLeft className="size-5" /></Link>
         <span className="text-[15px] font-bold first-letter:uppercase">{label(month, { month: "long", year: "numeric" })}</span>
-        <Link href={`/financas/relatorio?m=${addMonths(month, 1).slice(0, 7)}`} aria-label="Próximo mês" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronRight className="size-5" /></Link>
+        <Link prefetch href={`/financas/relatorio?m=${addMonths(month, 1).slice(0, 7)}`} aria-label="Próximo mês" className="grid size-11 place-items-center rounded-full bg-surface"><ChevronRight className="size-5" /></Link>
       </div>
 
       <section aria-label="Resultado do mês" className="grid grid-cols-3 gap-2">

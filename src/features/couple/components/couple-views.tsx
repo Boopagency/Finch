@@ -64,7 +64,7 @@ export function DatesView({ dates, today }: { dates: SpecialDate[]; today: strin
         <form action={action} className="flex flex-col gap-3">
           <Field id="d-title" name="title" label="O quê" required maxLength={60} placeholder="Começo do namoro" />
           <Field id="d-date" name="on_date" type="date" label="Quando" required />
-          <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">Repete todo ano<input type="checkbox" name="yearly" defaultChecked className="size-6 accent-[var(--lavender)]" /></label>
+          <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">Repete todo ano<input type="checkbox" name="yearly" defaultChecked className="switch" /></label>
           <Err s={state} />
           <div className="flex gap-2"><Button type="submit" disabled={pending}>Guardar</Button><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button></div>
         </form>

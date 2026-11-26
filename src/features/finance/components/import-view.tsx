@@ -64,7 +64,7 @@ export function ImportView({ accounts }: { accounts: Account[] }) {
           <ul className="flex flex-col divide-y divide-line rounded-[20px] bg-surface" aria-label="Linhas do extrato">
             {rows.map((r, i) => (
               <li key={`${r.ref}-${i}`} className={`flex items-center gap-3 px-3 py-2.5 ${r.status === "new" || r.pick ? "" : "opacity-60"}`}>
-                <input type="checkbox" checked={r.pick} disabled={r.status === "imported" || r.status === "skip"} onChange={(e) => set(i, { pick: e.target.checked })} aria-label={`Importar ${r.description}`} className="size-5 shrink-0 accent-[var(--coral)]" />
+                <input type="checkbox" checked={r.pick} disabled={r.status === "imported" || r.status === "skip"} onChange={(e) => set(i, { pick: e.target.checked })} aria-label={`Importar ${r.description}`} className="shrink-0" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[15px] font-semibold">{r.description}</span>
                   <span className="flex flex-wrap items-center gap-x-2 text-[12px] text-ink-3">

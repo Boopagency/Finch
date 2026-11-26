@@ -57,7 +57,7 @@ export function EventSheet({ event, date, spaces, onClose }: { event?: EventRow;
           </div>
           <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">
             Dia inteiro
-            <input type="checkbox" name="all_day" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="size-6 accent-[var(--cobalt)]" />
+            <input type="checkbox" name="all_day" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} className="switch" />
           </label>
           <div className="grid grid-cols-2 gap-3">
             <Field id="ev-start-date" name="start_date" type="date" label="Começa" defaultValue={event?.start_date ?? date} required />

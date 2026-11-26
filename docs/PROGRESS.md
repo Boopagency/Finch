@@ -32,6 +32,7 @@ _Atualizado em 2026-11-26. Status: `implementado` · `testado (unidade/banco/E2E
 | Coisas da casa: itens com garantia e foto da nota, manutenções com próxima data; avisos no Hoje | testado com 2 usuários | unidade + SQL + E2E |
 | Hoje: frase por regras com água/hábitos/tarefas/eventos; listas do dia; avisos (últimas 12 h, sem repetidos); fotos do casal no topo | testado | E2E |
 | Fluidez (relato de 26/11): telas visitadas voltam na hora (cache do roteador 30 s + pré-carga das abas e blocos da Vida), atualiza ao voltar para o app, toque com resposta imediata, barra de baixo não sobe mais no iPhone, campos de data/hora/seleção não vazam, título encolhe em tela estreita | testado | E2E (iPhone 13 e SE: nenhuma tela com rolagem lateral) |
+| Micro-interações instantâneas (relato de 26/11, 2º lote): abas de Tarefas/Cozinha/Nós, dia/semana/mês e setas da Agenda trocam no aparelho; tarefa e compromisso novos aparecem na hora; botões de salvar mostram progresso; interruptores do design no lugar das caixinhas azuis do iOS; horário centralizado nos campos | testado | E2E (19 suítes) + medição |
 | "+" Registrar: abre sem teclado, continua aberto depois de adicionar (aviso dentro da janela), não bloqueia a tela de trás | testado | E2E |
 | Seletor de opções novo (pílula que desliza) em Finanças, Agenda, Metas, Tarefas e formulários | testado | E2E |
 | Excluir em dois toques: fichas e treinos, exercícios próprios, listas de mercado | testado | E2E |
@@ -55,6 +56,8 @@ Causas e correções (25/11): sem estado de carregamento (`loading.tsx`); funç�
 
 Lote de 26/11 (Playwright local): voltar a uma tela já vista caiu de ~810 ms para **17–25 ms**, sem ida ao servidor; resposta visual ao toque < 200 ms.
 
+2º lote de 26/11, toque → tela mudou: abas de Tarefas 823–839 → **39–64 ms**; dia/semana/mês da Agenda 821–834 → **54–84 ms**; seta de mês da Agenda 550 → **41 ms** (dentro de ±1 mês; além disso ~400 ms); mês em Finanças 692 → **93 ms**; abas da Cozinha 411 → **57 ms** e de Nós 1.267 → **61 ms**; criar tarefa/compromisso: aparece em **65–71 ms**.
+
 ## Bugs encontrados e corrigidos pelos testes
 - iPhone instalado: a barra de baixo subia a altura da barra de status em telas curtas (altura mínima do `html` no modo app).
 - Janela do "+" abria com teclado (foco automático no 1º campo) e fechava ao adicionar; o aviso ficava atrás da janela e travava toques.
@@ -68,6 +71,7 @@ Lote de 26/11 (Playwright local): voltar a uma tela já vista caiu de ~810 ms pa
 - Fila offline: op feita durante um envio esperava o próximo gatilho; e ao reabrir o app a fila voltava fora de ordem (chave = uuid), então "apagar" podia ser aplicado antes de "adicionar" e o item reaparecia. Afetava hábitos também. Corrigido na fila (vale para todos os módulos).
 - Animação de entrada das telas prendia elementos fixos (barra do chat, botões presos embaixo) no meio da tela.
 - Chamadas à API sem sessão recebiam a página de login (HTML) em vez de 401; afetava a fila offline com sessão expirada.
+- Assistente: resposta com mais de 4.000 caracteres travava a conversa (o histórico era recusado); agora cada mensagem é cortada no limite ao enviar.
 - Campo do chat perdia o que foi digitado antes da tela terminar de carregar; texto longo sem espaço vazava da bolha.
 - Confirmar ou cancelar a 2ª/3ª parcela de uma compra falhava em silêncio (o validador recusava ids gerados pelo banco).
 - Sugestões do mercado escondiam o que acabou de ser comprado quando havia empate de contagem.

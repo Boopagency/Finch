@@ -93,3 +93,7 @@ Marque ✅ ou ❌ e me mande os ❌ com print.
 - [ ] Ajustes → Fotos: trocar sua foto e a foto do casal → aparecem no Hoje e em Nós.
 - [ ] Treino → ficha → Excluir (dois toques); treino em andamento → Descartar.
 - [ ] Ajustes → Claude → conectar no app do Claude (ver PENDÊNCIAS 1b) → "o que tenho hoje no Finch?".
+- [ ] Tarefas: trocar Hoje/Próximas/Sem data/Casa na hora; criar tarefa e ela aparecer no mesmo instante.
+- [ ] Agenda: Dia/Semana/Mês, setas e dias da semana trocam na hora; "Semana" aparece inteiro.
+- [ ] Cozinha e Nós: abas trocam na hora. Água → Lembretes: interruptor verde e horários centralizados.
+- [ ] Teste no computador com a extensão do Claude: [PROMPT_TESTE_NAVEGADOR.md](PROMPT_TESTE_NAVEGADOR.md).

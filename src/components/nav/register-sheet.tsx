@@ -71,25 +71,25 @@ export function RegisterSheet({ open, onClose, data }: { open: boolean; onClose:
           <section aria-label="Hábitos de hoje" className="flex flex-col gap-2">
             <h3 className="px-1 text-[13px] font-semibold text-ink-2">Hábitos de hoje</h3>
             <HabitList habits={data.habits} serverLogs={data.habitLogs} today={data.today} onlyPendingToday />
-            <Link href="/vida/habitos" onClick={onClose} className="px-1 text-[13px] font-semibold text-ink-3">
+            <Link prefetch href="/vida/habitos" onClick={onClose} className="px-1 text-[13px] font-semibold text-ink-3">
               Ver todos os hábitos
             </Link>
           </section>
         ) : (
-          <Link href="/vida/habitos" onClick={onClose} className="rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
+          <Link prefetch href="/vida/habitos" onClick={onClose} className="rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
             Criar o primeiro hábito →
           </Link>
         )}
 
-        <Link href="/agenda" onClick={onClose} className="flex items-center gap-2 rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
+        <Link prefetch href="/agenda" onClick={onClose} className="flex items-center gap-2 rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
           <CalendarPlus className="size-5 text-lavender" /> Novo compromisso na agenda
         </Link>
 
         <div className="grid grid-cols-2 gap-2">
-          <Link href="/vida/treino" onClick={onClose} className="press flex items-center gap-2 rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
+          <Link prefetch href="/vida/treino" onClick={onClose} className="press flex items-center gap-2 rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
             <Dumbbell className="size-5" /> Treino
           </Link>
-          <Link href="/vida/saude" onClick={onClose} className="press flex items-center gap-2 rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
+          <Link prefetch href="/vida/saude" onClick={onClose} className="press flex items-center gap-2 rounded-[20px] bg-surface p-4 text-[15px] font-semibold">
             <Scale className="size-5 text-cobalt" /> Peso e sono
           </Link>
         </div>

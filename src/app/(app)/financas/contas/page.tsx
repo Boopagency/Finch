@@ -12,7 +12,7 @@ export default async function AccountsPage() {
   const data = await getFinance(viewer, `${todayFor(viewer).slice(0, 7)}-01`);
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-2 px-gutter pt-safe">
-      <PageHeader title="Contas" meta={<Link href="/financas" className="font-semibold">← Finanças</Link>} />
+      <PageHeader title="Contas" meta={<Link prefetch href="/financas" className="font-semibold">← Finanças</Link>} />
       <AccountsView data={data} viewerId={viewer.id} />
     </main>
   );
