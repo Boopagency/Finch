@@ -39,7 +39,7 @@ if (!AI_BASE) {
       // JSON em UTF-8; o multipart do áudio é binário (latin1 preserva os bytes)
       body = Buffer.concat(parts).toString(req.url.includes("/audio/") ? "latin1" : "utf8");
       if (req.url.includes("/audio/transcriptions")) {
-        seen.push({ audio: body.length, model: /name="model"\r\n\r\n([^\r]+)/.exec(body)?.[1] });
+        seen.push({ audio: body.length, model: /name="model"\r\n\r\n([^\r]+)/.exec(body)?.[1], wav: body.includes("RIFF") && body.includes("WAVE") && body.includes('filename="voz.wav"') });
         res.writeHead(200, { "Content-Type": "application/json" });
         return res.end(JSON.stringify({ text: "bebi um copo de água" }));
       }
@@ -186,6 +186,7 @@ if (!AI_BASE) {
     const t = seen.find((x) => x.audio);
     assert.ok(t.audio > 1000, "áudio chegou à transcrição");
     assert.equal(t.model, "gpt-4o-mini-transcribe");
+    assert.ok(t.wav, "convertido para WAV no aparelho");
     await browser.close();
   });
 

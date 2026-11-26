@@ -30,7 +30,12 @@ export async function POST(request: Request) {
       body,
       signal: AbortSignal.timeout(50_000),
     });
-    if (!res.ok) return NextResponse.json({ error: "upstream", message: "A transcrição não respondeu agora. Tenta de novo." }, { status: 502 });
+    if (!res.ok) {
+      // motivo do serviço (sem segredos) no log e na mensagem, para dar para entender o que houve
+      const why = ((await res.json().catch(() => null)) as { error?: { message?: string } } | null)?.error?.message?.slice(0, 160) ?? "";
+      console.error("transcribe upstream", res.status, audio.type, audio.size, why);
+      return NextResponse.json({ error: "upstream", message: `A transcrição recusou o áudio (${res.status}${why ? `: ${why}` : ""}).` }, { status: 502 });
+    }
     const { text } = (await res.json()) as { text?: string };
     return NextResponse.json({ text: String(text ?? "").trim() });
   } catch {

@@ -9,6 +9,35 @@ const BARS = 36;
 type Live = { rec: MediaRecorder; stream: MediaStream; ctx: AudioContext; raf: number; timer: ReturnType<typeof setInterval>; chunks: Blob[]; keep: boolean };
 
 /**
+ * Converte a gravação para WAV 16 kHz mono (PCM 16 bits). O mp4 que o iPhone grava é recusado por serviços de
+ * transcrição; WAV todo serviço aceita. 2 min ≈ 3,8 MB. Se o aparelho não decodificar, manda o original.
+ */
+async function toWav(blob: Blob): Promise<Blob> {
+  const rate = 16000;
+  const ctx = new AudioContext();
+  try {
+    const decoded = await ctx.decodeAudioData(await blob.arrayBuffer());
+    const off = new OfflineAudioContext(1, Math.max(1, Math.ceil(decoded.duration * rate)), rate);
+    const src = off.createBufferSource();
+    src.buffer = decoded;
+    src.connect(off.destination);
+    src.start();
+    const pcm = (await off.startRendering()).getChannelData(0);
+    const out = new DataView(new ArrayBuffer(44 + pcm.length * 2));
+    const str = (o: number, t: string) => [...t].forEach((c, i) => out.setUint8(o + i, c.charCodeAt(0)));
+    str(0, "RIFF"); out.setUint32(4, 36 + pcm.length * 2, true); str(8, "WAVE"); str(12, "fmt ");
+    out.setUint32(16, 16, true); out.setUint16(20, 1, true); out.setUint16(22, 1, true); out.setUint32(24, rate, true);
+    out.setUint32(28, rate * 2, true); out.setUint16(32, 2, true); out.setUint16(34, 16, true); str(36, "data"); out.setUint32(40, pcm.length * 2, true);
+    pcm.forEach((v, i) => out.setInt16(44 + i * 2, Math.max(-1, Math.min(1, v)) * 0x7fff, true));
+    return new Blob([out], { type: "audio/wav" });
+  } catch {
+    return blob;
+  } finally {
+    void ctx.close().catch(() => {});
+  }
+}
+
+/**
  * Grava a voz (MediaRecorder, funciona no app da tela de início do iPhone), desenha a onda pelo volume real do
  * microfone e manda o áudio para /api/ai/transcribe. O texto volta por `onText`.
  */
@@ -86,7 +115,7 @@ export function useVoice(onText: (text: string) => void) {
       if (s + 1 >= MAX_SECONDS) stop(true);
       return s + 1;
     }), 1000);
-    rec.start(250);
+    rec.start(); // um bloco só: fatiar (timeslice) gera arquivo quebrado em alguns Safari
     setState("recording");
   }
 
@@ -94,15 +123,16 @@ export function useVoice(onText: (text: string) => void) {
     cleanup();
     live.current = null;
     if (!l.keep) return setState("idle");
-    const blob = new Blob(l.chunks, { type: l.rec.mimeType || "audio/mp4" });
-    if (blob.size < 1000) {
+    const raw = new Blob(l.chunks, { type: l.rec.mimeType || "audio/mp4" });
+    if (raw.size < 1000) {
       setState("idle");
       return toast("Não deu para ouvir. Segure um pouco mais e fale perto do aparelho.");
     }
     setState("sending");
     try {
+      const blob = await toWav(raw);
       const form = new FormData();
-      form.append("audio", blob, "voz");
+      form.append("audio", blob, blob.type === "audio/wav" ? "voz.wav" : "voz");
       const res = await fetch("/api/ai/transcribe", { method: "POST", body: form });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) return toast(data.message ?? "Não consegui transcrever agora.");
