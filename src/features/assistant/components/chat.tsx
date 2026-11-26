@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowUp, Check, FileText, Mic, Paperclip, Square, X } from "lucide-react";
+import { ArrowUp, Check, FileText, Mic, Paperclip, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { BrandMark } from "@/components/brand/mark";
 import { toast } from "@/components/ui/toast";
 import { shrinkImage } from "@/lib/photos";
 import { confirmProposal } from "../server/actions";
+import { useVoice } from "./voice";
 import { MAX_ATTACH_CHARS, type Attachment, type Proposal } from "../tools";
 
 type Msg = { role: "user" | "assistant"; content: string; files?: string[]; proposals?: (Proposal & { state?: "done" | "dropped" })[] };
@@ -32,8 +33,6 @@ async function readAttachment(f: File): Promise<Attachment> {
   return { name: f.name, type: "text/plain", data: await f.text() };
 }
 
-type Recognition = { lang: string; interimResults: boolean; continuous: boolean; start(): void; stop(): void; onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null; onend: (() => void) | null; onerror: (() => void) | null };
-const speechApi = () => (typeof window === "undefined" ? undefined : ((window as unknown as Record<string, unknown>).SpeechRecognition ?? (window as unknown as Record<string, unknown>).webkitSpeechRecognition) as (new () => Recognition) | undefined);
 
 export function Chat() {
   const router = useRouter();
@@ -46,12 +45,7 @@ export function Chat() {
   const end = useRef<HTMLDivElement>(null);
   const [files, setFiles] = useState<Attachment[]>([]);
   const picker = useRef<HTMLInputElement>(null);
-  const [canListen, setCanListen] = useState(false);
-  const [listening, setListening] = useState(false);
-  const rec = useRef<Recognition | null>(null);
-  useEffect(() => {
-    setTimeout(() => setCanListen(!!speechApi()), 0);
-  }, []);
+  const voice = useVoice((text) => void send(text));
 
   async function pick(list: FileList | null) {
     for (const f of Array.from(list ?? []).slice(0, 3 - files.length)) {
@@ -63,30 +57,6 @@ export function Chat() {
       }
     }
     if (picker.current) picker.current.value = "";
-  }
-
-  /** Fala → texto no campo; ao parar, envia. */
-  function listen() {
-    if (listening) return rec.current?.stop();
-    const Api = speechApi();
-    if (!Api) return;
-    const r = new Api();
-    r.lang = "pt-BR";
-    r.interimResults = true;
-    r.continuous = false;
-    r.onresult = (e) => {
-      const t = Array.from(e.results).map((x) => x[0]?.transcript ?? "").join(" ");
-      if (input.current) input.current.value = t;
-      setHasText(!!t.trim());
-    };
-    r.onerror = () => toast("Não ouvi direito. Tenta de novo ou digite.");
-    r.onend = () => {
-      setListening(false);
-      if (input.current?.value.trim()) void send(input.current.value);
-    };
-    rec.current = r;
-    setListening(true);
-    r.start();
   }
 
   // conversa fica só nesta aba (conveniência); nada disso vai para o servidor além do que é enviado
@@ -189,7 +159,7 @@ export function Chat() {
           )}
           <form onSubmit={(e) => { e.preventDefault(); void send(input.current?.value ?? ""); }} className="field-shell flex items-end gap-1 rounded-[24px] bg-surface p-2 pl-1 shadow-[var(--shadow-float)]">
             <input ref={picker} type="file" multiple accept="image/*,application/pdf,.csv,.txt,.ofx" className="hidden" onChange={(e) => void pick(e.currentTarget.files)} aria-label="Escolher arquivo" />
-            <button type="button" onClick={() => picker.current?.click()} disabled={files.length >= 3} aria-label="Anexar foto ou arquivo" className="press grid size-11 shrink-0 place-items-center rounded-full text-ink-3 disabled:opacity-40">
+            <button type="button" onClick={() => picker.current?.click()} disabled={files.length >= 3 || voice.state !== "idle"} aria-label="Anexar foto ou arquivo" className="press grid size-11 shrink-0 place-items-center rounded-full text-ink-3 disabled:opacity-40">
               <Paperclip className="size-5" />
             </button>
             <label htmlFor="chat-input" className="sr-only">Mensagem para o Finch</label>
@@ -197,21 +167,36 @@ export function Chat() {
               id="chat-input"
               rows={1}
               ref={input}
+              hidden={voice.state !== "idle"}
               onInput={(e) => setHasText(!!e.currentTarget.value.trim())}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void send(e.currentTarget.value); } }}
-              placeholder={listening ? "Ouvindo…" : "Escreva, fale ou anexe…"}
+              placeholder="Escreva, fale ou anexe…"
               maxLength={2000}
               enterKeyHint="send"
               className="max-h-32 min-h-11 flex-1 resize-none bg-transparent py-2.5 text-[16px] field-inline"
             />
-            {canListen && (
-              <button type="button" onClick={listen} disabled={busy} aria-label={listening ? "Parar e enviar" : "Falar"} aria-pressed={listening} className={`press grid size-11 shrink-0 place-items-center rounded-full disabled:opacity-40 ${listening ? "animate-pulse bg-coral text-on-color" : "text-ink-3"}`}>
-                {listening ? <Square className="size-4" fill="currentColor" /> : <Mic className="size-5" />}
+            {voice.state === "recording" && (
+              <div className="flex min-h-11 flex-1 items-center gap-2" role="status" aria-label="Gravando">
+                <button type="button" onClick={voice.cancel} aria-label="Cancelar gravação" className="press grid size-11 shrink-0 place-items-center rounded-full text-ink-3"><X className="size-5" /></button>
+                <span className="size-2 shrink-0 animate-pulse rounded-full bg-danger" aria-hidden />
+                <canvas ref={voice.canvas} className="h-8 min-w-0 flex-1 text-coral" aria-hidden />
+                <span className="shrink-0 text-[14px] font-semibold tabular-nums text-ink-2">{Math.floor(voice.seconds / 60)}:{String(voice.seconds % 60).padStart(2, "0")}</span>
+              </div>
+            )}
+            {voice.state === "sending" && <span className="flex min-h-11 flex-1 items-center text-[15px] text-ink-3" role="status">Transcrevendo…</span>}
+            {voice.state === "recording" ? (
+              <button type="button" onClick={voice.send} aria-label="Parar e enviar áudio" className="press grid size-11 shrink-0 place-items-center rounded-full bg-coral text-on-color">
+                <ArrowUp className="size-5" strokeWidth={2.6} />
+              </button>
+            ) : !hasText && !files.length ? (
+              <button type="button" onClick={() => void voice.start()} disabled={busy || voice.state !== "idle"} aria-label="Gravar áudio" className="press grid size-11 shrink-0 place-items-center rounded-full bg-coral text-on-color disabled:opacity-40">
+                <Mic className="size-5" />
+              </button>
+            ) : (
+              <button type="submit" disabled={busy} aria-label="Enviar" className="press grid size-11 shrink-0 place-items-center rounded-full bg-coral text-on-color disabled:opacity-40">
+                <ArrowUp className="size-5" strokeWidth={2.6} />
               </button>
             )}
-            <button type="submit" disabled={busy || (!hasText && !files.length)} aria-label="Enviar" className="press grid size-11 shrink-0 place-items-center rounded-full bg-coral text-on-color disabled:opacity-40">
-              <ArrowUp className="size-5" strokeWidth={2.6} />
-            </button>
           </form>
         </div>
       </div>
