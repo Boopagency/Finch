@@ -134,9 +134,15 @@ if (!AI_BASE) {
     await bubbles().filter({ hasText: /^ERRO:/ }).waitFor();
   });
 
+  const pronto = async () => {
+    await page.getByLabel("Mensagem para o Finch").fill("oi");
+    await page.getByRole("button", { name: "Enviar" }).waitFor();
+    await page.getByLabel("Mensagem para o Finch").fill("");
+  };
+
   await test("Foto anexada vai para a IA e vira lançamento para confirmar", async () => {
     await page.goto(`${AI_BASE}/finch`);
-    await page.getByLabel("Mensagem para o Finch").waitFor();
+    await pronto();
     // PNG 1x1
     const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
     await page.locator('input[type="file"]').setInputFiles({ name: "comprovante.png", mimeType: "image/png", buffer: png });
@@ -199,6 +205,7 @@ if (!AI_BASE) {
 
   await test("Foto anexada vira a foto da memória (o assistente guarda de verdade)", async () => {
     await page.goto(`${AI_BASE}/finch`);
+    await pronto();
     const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
     await page.locator('input[type="file"]').setInputFiles({ name: "parque.png", mimeType: "image/png", buffer: png });
     await page.getByRole("list", { name: "Anexos" }).getByText("parque.png").waitFor();
