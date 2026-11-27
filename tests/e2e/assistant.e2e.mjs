@@ -56,7 +56,8 @@ if (!AI_BASE) {
       } else {
         const blocks = Array.isArray(last.content) ? last.content : [];
         const t = Array.isArray(last.content) ? blocks.filter((x) => x.type === "text").map((x) => x.text).join(" ") : String(last.content);
-        if (blocks.some((x) => x.type === "image")) out = tool("log_expense", { text: `32 farmácia ${run}` });
+        if (blocks.some((x) => x.type === "image") && t.includes("memória")) out = tool("add_memory", { title: `Piquenique IA ${run}`, happened_on: new Date().toISOString().slice(0, 10), photo: 1 });
+        else if (blocks.some((x) => x.type === "image")) out = tool("log_expense", { text: `32 farmácia ${run}` });
         else if (t.includes("apaga")) out = tool("list_tasks", {});
         else if (t.includes("água")) out = tool("log_water", { amount_ml: 300 });
         else if (t.includes("uber")) out = tool("log_expense", { text: `45 uber ${run}` });
@@ -135,6 +136,7 @@ if (!AI_BASE) {
 
   await test("Foto anexada vai para a IA e vira lançamento para confirmar", async () => {
     await page.goto(`${AI_BASE}/finch`);
+    await page.getByLabel("Mensagem para o Finch").waitFor();
     // PNG 1x1
     const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
     await page.locator('input[type="file"]').setInputFiles({ name: "comprovante.png", mimeType: "image/png", buffer: png });
@@ -193,6 +195,21 @@ if (!AI_BASE) {
   await test("Transcrição sem login: 401", async () => {
     const r = await fetch(`${AI_BASE}/api/ai/transcribe`, { method: "POST", body: new FormData() });
     assert.equal(r.status, 401);
+  });
+
+  await test("Foto anexada vira a foto da memória (o assistente guarda de verdade)", async () => {
+    await page.goto(`${AI_BASE}/finch`);
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+    await page.locator('input[type="file"]').setInputFiles({ name: "parque.png", mimeType: "image/png", buffer: png });
+    await page.getByRole("list", { name: "Anexos" }).getByText("parque.png").waitFor();
+    await page.getByLabel("Mensagem para o Finch").fill("guarda essa memória do piquenique");
+    await page.getByRole("button", { name: "Enviar" }).click();
+    await bubbles().filter({ hasText: /Memória guardada/ }).waitFor();
+    // a foto tem de estar na memória, no app
+    await page.goto(`${AI_BASE}/vida/nos?v=memorias`);
+    const card = page.locator("li").filter({ hasText: `Piquenique IA ${run}` }).first();
+    await card.waitFor();
+    await card.locator("img").waitFor();
   });
 
   await test("Histórico malformado é recusado", async () => {

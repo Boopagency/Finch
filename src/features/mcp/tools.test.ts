@@ -23,6 +23,10 @@ describe("ferramentas do conector", () => {
     expect(risky.length).toBeGreaterThan(20);
     for (const t of risky) expect((t.inputSchema.properties as Record<string, unknown>).confirm, t.name).toBeDefined();
   });
+  it("mandar recado para a outra pessoa também pede confirmação", () => {
+    const t = tools.find((x) => x.name === "send_message")!;
+    expect((t.inputSchema.properties as Record<string, unknown>).confirm).toBeDefined();
+  });
   it("sem confirm só descreve; com confirm executa", async () => {
     const preview = (await callTool(viewer, "log_expense", { text: "45 uber" })) as { needs_confirmation: boolean; action: string };
     expect(preview.needs_confirmation).toBe(true);

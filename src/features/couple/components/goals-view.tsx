@@ -2,7 +2,7 @@
 
 import { ConfirmButton } from "@/components/ui/confirm-button";
 
-import { Plus, Target } from "lucide-react";
+import { Pencil, Plus, Target } from "lucide-react";
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,7 +14,7 @@ import { addToGoal, deleteGoal, saveGoal } from "../server/actions";
 
 type Space = { id: string; kind: string; name: string };
 
-function GoalCard({ g, today, spaceName }: { g: Goal; today: string; spaceName: string }) {
+function GoalCard({ g, today, spaceName, onEdit }: { g: Goal; today: string; spaceName: string; onEdit: () => void }) {
   const [busy, start] = useTransition();
   const pct = goalPct(g.current, g.target);
   const week = perWeekNeeded(g.current, g.target, g.due_on, today);
@@ -30,6 +30,7 @@ function GoalCard({ g, today, spaceName }: { g: Goal; today: string; spaceName: 
             {late && <b className="text-danger"> · prazo passou</b>}
           </span>
         </span>
+        <button type="button" onClick={onEdit} aria-label={`Editar ${g.title}`} className="grid size-11 shrink-0 place-items-center rounded-full opacity-60"><Pencil className="size-4" /></button>
         <ConfirmButton compact disabled={busy} label={`Apagar ${g.title}`} idle="size-11 justify-center opacity-60" onConfirm={() => start(async () => { await deleteGoal(g.id); toast("Meta apagada"); })} />
       </div>
       <div>
@@ -68,11 +69,13 @@ function GoalCard({ g, today, spaceName }: { g: Goal; today: string; spaceName: 
 
 export function GoalsView({ goals, spaces, today }: { goals: Goal[]; spaces: Space[]; today: string }) {
   const [open, setOpen] = useState(goals.length === 0);
+  const [edit, setEdit] = useState<Goal | null>(null);
+  const close = () => { setOpen(false); setEdit(null); };
   const [state, action, pending] = useActionState(async (prev: { ok: boolean; message: string } | null, f: FormData) => {
     const r = await saveGoal(prev, f);
     if (r.ok) {
       toast(r.message);
-      setOpen(false);
+      close();
     }
     return r;
   }, null);
@@ -83,27 +86,30 @@ export function GoalsView({ goals, spaces, today }: { goals: Goal[]; spaces: Spa
     <div className="flex flex-col gap-3">
       {goals.length === 0 && !open && <EmptyState title="Nenhuma meta ainda">Juntar uma reserva, correr 100 km, ler 12 livros. Metas do casal aparecem para os dois.</EmptyState>}
       <ul className="stagger flex flex-col gap-3">
-        {goals.map((g) => <GoalCard key={g.id} g={g} today={today} spaceName={nameOf.get(g.workspace_id) ?? ""} />)}
+        {goals.map((g) => <GoalCard key={g.id} g={g} today={today} spaceName={nameOf.get(g.workspace_id) ?? ""} onEdit={() => { setEdit(g); setOpen(true); }} />)}
       </ul>
       {open ? (
-        <section aria-label="Nova meta" className="rounded-[22px] bg-surface p-4">
-          <h2 className="mb-4 flex items-center gap-2 font-display text-[20px] font-bold"><Target className="size-5" /> Nova meta</h2>
-          <form action={action} className="flex flex-col gap-3">
-            <Field id="g-title" name="title" label="Meta" required maxLength={80} placeholder="Reserva de emergência" />
+        <section aria-label={edit ? "Editar meta" : "Nova meta"} className="rounded-[22px] bg-surface p-4">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-[20px] font-bold"><Target className="size-5" /> {edit ? "Editar meta" : "Nova meta"}</h2>
+          <form action={action} key={edit?.id ?? "nova"} className="flex flex-col gap-3">
+            <input type="hidden" name="id" value={edit?.id ?? ""} />
+            <Field id="g-title" name="title" label="Meta" required maxLength={80} placeholder="Reserva de emergência" defaultValue={edit?.title ?? ""} />
             <div className="grid grid-cols-2 gap-2">
-              <Field id="g-target" name="target" label="Alvo" inputMode="decimal" required placeholder="10000" />
-              <Field id="g-unit" name="unit" label="Unidade" maxLength={12} placeholder="R$, km, livros" />
+              <Field id="g-target" name="target" label="Alvo" inputMode="decimal" required placeholder="10000" defaultValue={edit ? String(edit.target).replace(".", ",") : ""} />
+              <Field id="g-unit" name="unit" label="Unidade" maxLength={12} placeholder="R$, km, livros" defaultValue={edit?.unit ?? ""} />
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Field id="g-due" name="due_on" type="date" label="Prazo (opcional)" min={today} />
+              <Field id="g-due" name="due_on" type="date" label="Prazo (opcional)" min={edit ? undefined : today} defaultValue={edit?.due_on ?? ""} />
               <label className="flex flex-col gap-1.5" htmlFor="g-space"><span className="text-[13px] font-semibold text-ink-2">De quem</span>
-                <select id="g-space" name="workspace_id" defaultValue={def} className="min-h-12 rounded-[14px] border border-line bg-surface px-3 text-[16px]">
+                <select id="g-space" name="workspace_id" defaultValue={edit?.workspace_id ?? def} disabled={!!edit} className="min-h-12 rounded-[14px] border border-line bg-surface px-3 text-[16px] disabled:opacity-60">
                   {spaces.map((s) => <option key={s.id} value={s.id}>{nameOf.get(s.id)}</option>)}
                 </select>
               </label>
             </div>
+            {edit && <input type="hidden" name="workspace_id" value={edit.workspace_id} />}
+            {edit && <p className="text-[12px] text-ink-3">O progresso já somado continua igual.</p>}
             {state && !state.ok && <p role="alert" className="text-sm font-medium text-danger">{state.message}</p>}
-            <div className="flex gap-2"><Button type="submit" disabled={pending}>Criar meta</Button><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button></div>
+            <div className="flex gap-2"><Button type="submit" disabled={pending}>{edit ? "Salvar" : "Criar meta"}</Button><Button type="button" variant="ghost" onClick={close}>Cancelar</Button></div>
           </form>
         </section>
       ) : (

@@ -269,6 +269,24 @@ export type Database = {
         Update: { id?: string; workspace_id?: string; title?: string; body?: string; happened_on?: string; photo_path?: string | null; created_by?: string; created_at?: string }
         Relationships: [{ foreignKeyName: "memories_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
       }
+      couple_messages: {
+        Row: { id: string; workspace_id: string; author_id: string; body: string | null; photo_path: string | null; created_at: string; edited_at: string | null; read_at: string | null }
+        Insert: { id?: string; workspace_id: string; author_id?: string; body?: string | null; photo_path?: string | null; created_at?: string; edited_at?: string | null; read_at?: string | null }
+        Update: { id?: string; workspace_id?: string; author_id?: string; body?: string | null; photo_path?: string | null; created_at?: string; edited_at?: string | null; read_at?: string | null }
+        Relationships: [{ foreignKeyName: "couple_messages_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: false; referencedRelation: "workspaces"; referencedColumns: ["id"] }, { foreignKeyName: "couple_messages_author_id_fkey"; columns: ["author_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      pets: {
+        Row: { id: string; workspace_id: string; species: string; name: string; love: number; cared_at: string; created_by: string; created_at: string }
+        Insert: { id?: string; workspace_id: string; species: string; name: string; love?: number; cared_at?: string; created_by?: string; created_at?: string }
+        Update: { id?: string; workspace_id?: string; species?: string; name?: string; love?: number; cared_at?: string; created_by?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "pets_workspace_id_fkey"; columns: ["workspace_id"]; isOneToOne: true; referencedRelation: "workspaces"; referencedColumns: ["id"] }]
+      }
+      pet_feeds: {
+        Row: { id: string; pet_id: string; workspace_id: string; user_id: string; kind: string; note: string | null; love: number; local_date: string; created_at: string }
+        Insert: { id?: string; pet_id: string; workspace_id: string; user_id?: string; kind: string; note?: string | null; love: number; local_date: string; created_at?: string }
+        Update: { id?: string; pet_id?: string; workspace_id?: string; user_id?: string; kind?: string; note?: string | null; love?: number; local_date?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "pet_feeds_pet_id_fkey"; columns: ["pet_id"]; isOneToOne: false; referencedRelation: "pets"; referencedColumns: ["id"] }, { foreignKeyName: "pet_feeds_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
       goals: {
         Row: { id: string; workspace_id: string; title: string; target: number; current: number; unit: string | null; due_on: string | null; done_at: string | null; created_by: string; created_at: string }
         Insert: { id?: string; workspace_id: string; title: string; target: number; current?: number; unit?: string | null; due_on?: string | null; done_at?: string | null; created_by?: string; created_at?: string }
@@ -339,6 +357,9 @@ export type Database = {
       }
       create_shared_workspace: { Args: { p_name: string }; Returns: string }
       goal_add: { Args: { p_goal: string; p_delta: number }; Returns: Database["public"]["Tables"]["goals"]["Row"] }
+      mark_messages_read: { Args: { p_workspace: string }; Returns: number }
+      notify_partner_message: { Args: { p_message: string }; Returns: number }
+      pet_care: { Args: { p_pet: string; p_kind: string; p_note?: string | null }; Returns: { love: number; gained: number; already: boolean }[] }
       fin_materialize: { Args: { p_month: string }; Returns: number }
       ai_reserve: { Args: { p_daily_limit: number }; Returns: boolean }
       ai_track: { Args: { p_input: number; p_output: number }; Returns: undefined }

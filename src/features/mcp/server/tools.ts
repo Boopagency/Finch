@@ -4,8 +4,12 @@ import { z } from "zod";
 import { createEventQuick, deleteEvent } from "@/features/agenda/server/actions";
 import { getAgenda } from "@/features/agenda/server/queries";
 import { execute } from "@/features/assistant/server/execute";
-import { addToGoal, deleteDate, deleteGoal, deleteMemory, deletePlace, markVisited, saveDate, saveGoal, saveMemory, savePlace } from "@/features/couple/server/actions";
-import { getCouple, getGoals } from "@/features/couple/server/queries";
+import {
+  addToGoal, carePet, deleteDate, deleteGoal, deleteMemory, deleteMessage, deletePlace, editMessage, markRead, markVisited,
+  saveDate, saveGoal, saveMemory, savePet, savePlace, sendMessage,
+} from "@/features/couple/server/actions";
+import { getCouple, getGoals, getMessages, getPet } from "@/features/couple/server/queries";
+import { CARES, SPECIES, level, mood, moodLine, type Care } from "@/features/couple/pet";
 import { brl } from "@/features/finance/money";
 import { archiveAccount, confirmEntry, createAccount, quickExpense, recordEntry, setBudget, settle, voidEntry } from "@/features/finance/server/actions";
 import { getFinance } from "@/features/finance/server/queries";
@@ -27,6 +31,7 @@ import { addSubtask, deleteSubtask, snoozeTask, toggleSubtask } from "@/features
 import { getSpaces, getTaskItems } from "@/features/tasks/server/queries";
 import { deleteBodyLog, saveBodyLog, startSession } from "@/features/training/server/actions";
 import { getBodyLogs, getSession, getTraining } from "@/features/training/server/queries";
+import { attachmentList, saveAttachmentPhoto } from "./attachments";
 import { createClient, type Viewer } from "@/lib/supabase/server";
 import type { Database } from "@/types/database";
 
@@ -42,7 +47,7 @@ export type Tool = {
   description: string;
   input: z.ZodObject;
   readOnly?: boolean;
-  confirm?: "destructive" | "financial";
+  confirm?: "destructive" | "financial" | "outward"; // outward: sai do app e chega em outra pessoa
   /** Texto do que vai acontecer (só nas que pedem confirmação); lança ToolError se o item não existe. */
   preview?: (v: Viewer, a: never) => Promise<string>;
   run: (v: Viewer, a: never) => Promise<unknown>;
@@ -116,6 +121,8 @@ async function partner(v: Viewer) {
   if (!shared || others.length !== 1) throw new ToolError("acerto só no espaço Nós com duas pessoas");
   return { space: shared, to: others[0]! };
 }
+/** Número do anexo da mensagem (1 = o primeiro). Só vale no assistente do app, onde a pessoa anexa a foto. */
+const photoRef = z.number().int().min(1).max(3).optional().describe("Número do anexo desta mensagem para usar como foto (1 = o primeiro)");
 const workspace = id.optional().describe("Espaço (get_spaces). Padrão: Nós, ou o pessoal se não houver.");
 
 const daysBetween = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
@@ -636,6 +643,15 @@ export const TOOLS: Record<string, Tool> = {
     input: z.strictObject({ title: text(60), on_date: date, yearly: z.boolean().default(true) }),
     run: (_v, a: Args) => saveDate(null, fd(a)),
   },
+  update_special_date: {
+    title: "Editar data especial",
+    description: "Muda o nome, a data ou o “repete todo ano” de uma data (date_id em get_couple).",
+    input: z.strictObject({ date_id: id, title: text(60).optional(), on_date: date.optional(), yearly: z.boolean().optional() }),
+    run: async (_v, a: { date_id: string; title?: string; on_date?: string; yearly?: boolean }) => {
+      const d = await row("special_dates", "title, on_date, yearly", a.date_id);
+      return saveDate(null, fd({ id: a.date_id, title: a.title ?? d.title, on_date: a.on_date ?? d.on_date, yearly: a.yearly ?? d.yearly }));
+    },
+  },
   delete_special_date: {
     title: "Excluir data especial", description: "Apaga uma data especial.", input: z.strictObject({ date_id: id }), confirm: "destructive",
     preview: label("special_dates", "title", "Apagar a data"),
@@ -646,6 +662,15 @@ export const TOOLS: Record<string, Tool> = {
     description: "Põe um lugar na lista 'queremos ir'.",
     input: z.strictObject({ name: text(80), kind: z.enum(["restaurante", "viagem", "passeio", "outro"]).default("outro"), note: z.string().max(500).optional() }),
     run: (_v, a: Args) => savePlace(null, fd(a)),
+  },
+  update_place: {
+    title: "Editar lugar",
+    description: "Muda o nome, o tipo ou a nota de um lugar (place_id em get_couple).",
+    input: z.strictObject({ place_id: id, name: text(80).optional(), kind: z.enum(["restaurante", "viagem", "passeio", "outro"]).optional(), note: z.string().max(500).optional() }),
+    run: async (_v, a: { place_id: string; name?: string; kind?: string; note?: string }) => {
+      const p = await row("places", "name, kind, note", a.place_id);
+      return savePlace(null, fd({ id: a.place_id, name: a.name ?? p.name, kind: a.kind ?? p.kind, note: a.note ?? p.note ?? "" }));
+    },
   },
   mark_place_visited: {
     title: "Marcar lugar visitado",
@@ -664,9 +689,26 @@ export const TOOLS: Record<string, Tool> = {
   },
   add_memory: {
     title: "Guardar memória",
-    description: "Guarda uma memória na linha do tempo do casal (foto só pelo app).",
-    input: z.strictObject({ title: text(80), body: z.string().max(4000).optional(), happened_on: date }),
-    run: (_v, a: Args) => saveMemory(null, fd(a)),
+    description: "Guarda uma memória na linha do tempo do casal. Se a pessoa anexou uma foto nesta mensagem, passe `photo` com o número do anexo (veja get_attachments) e a foto entra na memória.",
+    input: z.strictObject({ title: text(80), body: z.string().max(4000).optional(), happened_on: date, photo: photoRef }),
+    run: async (v, a: { title: string; body?: string; happened_on: string; photo?: number }) => {
+      const ws = await space(v);
+      const photo_path = await saveAttachmentPhoto(a.photo, ws.id, v);
+      return saveMemory(null, fd({ title: a.title, body: a.body, happened_on: a.happened_on, photo_path }));
+    },
+  },
+  update_memory: {
+    title: "Editar memória",
+    description: "Muda título, texto ou data de uma memória (memory_id em get_couple). Só o que você informar muda. `photo` troca a foto pelo anexo; `remove_photo: true` tira a foto.",
+    input: z.strictObject({ memory_id: id, title: text(80).optional(), body: z.string().max(4000).optional(), happened_on: date.optional(), photo: photoRef, remove_photo: z.boolean().optional() }),
+    run: async (v, a: { memory_id: string; title?: string; body?: string; happened_on?: string; photo?: number; remove_photo?: boolean }) => {
+      const m = await row("memories", "title, body, happened_on, workspace_id", a.memory_id);
+      const photo_path = await saveAttachmentPhoto(a.photo, String(m.workspace_id), v);
+      return saveMemory(null, fd({
+        id: a.memory_id, title: a.title ?? m.title, body: a.body ?? m.body ?? "", happened_on: a.happened_on ?? m.happened_on,
+        photo_path, remove_photo: a.remove_photo && !photo_path ? true : undefined,
+      }));
+    },
   },
   delete_memory: {
     title: "Excluir memória", description: "Apaga uma memória (e a foto dela).", input: z.strictObject({ memory_id: id }), confirm: "destructive",
@@ -686,6 +728,18 @@ export const TOOLS: Record<string, Tool> = {
     input: z.strictObject({ title: text(80), target: z.number().positive().max(1e12), unit: z.string().max(12).optional(), due_on: date.optional(), workspace_id: workspace }),
     run: async (v, a: { title: string; target: number; unit?: string; due_on?: string; workspace_id?: string }) =>
       saveGoal(null, fd({ workspace_id: (await space(v, a.workspace_id)).id, title: a.title, target: String(a.target).replace(".", ","), unit: a.unit ?? "", due_on: a.due_on ?? "" })),
+  },
+  update_goal: {
+    title: "Editar meta",
+    description: "Muda nome, alvo, unidade ou prazo de uma meta (goal_id em get_goals). O progresso já somado continua.",
+    input: z.strictObject({ goal_id: id, title: text(80).optional(), target: z.number().positive().max(1e12).optional(), unit: z.string().max(12).optional(), due_on: date.or(z.literal("")).optional() }),
+    run: async (_v, a: { goal_id: string; title?: string; target?: number; unit?: string; due_on?: string }) => {
+      const g = await row("goals", "title, target, unit, due_on, workspace_id", a.goal_id);
+      return saveGoal(null, fd({
+        id: a.goal_id, workspace_id: g.workspace_id, title: a.title ?? g.title,
+        target: String(a.target ?? g.target).replace(".", ","), unit: a.unit ?? g.unit ?? "", due_on: a.due_on ?? g.due_on ?? "",
+      }));
+    },
   },
   add_to_goal: {
     title: "Somar na meta",
@@ -790,10 +844,13 @@ export const TOOLS: Record<string, Tool> = {
   },
   add_home_item: {
     title: "Cadastrar item da casa",
-    description: "Cadastra um item (eletro, movel, veiculo, eletronico, imovel, outro) com data de compra, preço e fim da garantia (foto da nota só pelo app).",
-    input: z.strictObject({ name: text(80), kind: z.enum(["eletro", "movel", "veiculo", "eletronico", "imovel", "outro"]).default("outro"), bought_on: date.optional(), price: money.optional(), warranty_until: date.optional(), notes: z.string().max(1000).optional() }),
-    run: (_v, a: { name: string; kind: string; bought_on?: string; price?: number | string; warranty_until?: string; notes?: string }) =>
-      saveHomeItem(null, fd({ ...a, price: a.price === undefined ? "" : reais(a.price) })),
+    description: "Cadastra um item (eletro, movel, veiculo, eletronico, imovel, outro) com data de compra, preço e fim da garantia. `photo`: número do anexo com a foto da nota fiscal.",
+    input: z.strictObject({ name: text(80), kind: z.enum(["eletro", "movel", "veiculo", "eletronico", "imovel", "outro"]).default("outro"), bought_on: date.optional(), price: money.optional(), warranty_until: date.optional(), notes: z.string().max(1000).optional(), photo: photoRef }),
+    run: async (v, a: { name: string; kind: string; bought_on?: string; price?: number | string; warranty_until?: string; notes?: string; photo?: number }) => {
+      const { photo, ...rest } = a;
+      const photo_path = await saveAttachmentPhoto(photo, (await space(v)).id, v);
+      return saveHomeItem(null, fd({ ...rest, price: a.price === undefined ? "" : reais(a.price), photo_path }));
+    },
   },
   delete_home_item: {
     title: "Excluir item da casa", description: "Apaga um item da casa (e as manutenções dele).", input: z.strictObject({ item_id: id }), confirm: "destructive",
@@ -807,6 +864,95 @@ export const TOOLS: Record<string, Tool> = {
     run: (v, a: { item_id: string; description: string; done_on?: string; cost?: number | string; next_on?: string }) =>
       addMaintenance(null, fd({ ...a, done_on: a.done_on ?? todayFor(v), cost: a.cost === undefined ? "" : reais(a.cost) })),
   },
+  get_attachments: {
+    title: "Ver anexos",
+    description: "O que a pessoa anexou nesta mensagem (número, nome e tipo). Use o número em `photo` para guardar a foto numa memória ou num item da casa.",
+    input: z.strictObject({}),
+    readOnly: true,
+    run: async () => attachmentList(),
+  },
+
+  // ---------- recados
+  get_messages: {
+    title: "Ver recados",
+    description: "Recados trocados no Nós (mais novos por último), com id, quem escreveu e se já foram lidos.",
+    input: z.strictObject({ limit: z.number().int().min(1).max(100).default(30) }),
+    readOnly: true,
+    run: async (v, a: { limit: number }) => {
+      const { messages, unread } = await getMessages(v, a.limit);
+      return {
+        unread,
+        messages: messages.map((m) => ({ message_id: m.id, mine: m.author_id === v.id, text: m.body, has_photo: !!m.photo_path, at: m.created_at, read: !!m.read_at, edited: !!m.edited_at })),
+      };
+    },
+  },
+  send_message: {
+    title: "Mandar recado",
+    description: "Manda um recado para a outra pessoa no Nós (ela recebe um aviso no celular). `photo`: número do anexo para mandar junto.",
+    input: z.strictObject({ text: text(2000).optional(), photo: photoRef }),
+    confirm: "outward",
+    preview: async (_v, a: { text?: string; photo?: number }) => `Mandar para a outra pessoa: “${a.text ?? ""}”${a.photo ? " (com a foto anexada)" : ""}`,
+    run: async (v, a: { text?: string; photo?: number }) => {
+      const ws = await space(v);
+      const photo_path = await saveAttachmentPhoto(a.photo, ws.id, v);
+      return sendMessage(null, fd({ body: a.text ?? "", photo_path }));
+    },
+  },
+  edit_message: {
+    title: "Editar recado",
+    description: "Muda o texto de um recado seu (message_id em get_messages).",
+    input: z.strictObject({ message_id: id, text: text(2000) }),
+    run: (_v, a: { message_id: string; text: string }) => editMessage(a.message_id, a.text),
+  },
+  delete_message: {
+    title: "Apagar recado",
+    description: "Apaga um recado seu.",
+    input: z.strictObject({ message_id: id }),
+    confirm: "destructive",
+    preview: async (_v, a: { message_id: string }) => `Apagar o recado “${String((await row("couple_messages", "body", a.message_id)).body ?? "(foto)").slice(0, 60)}”`,
+    run: async (_v, a: { message_id: string }) => (await deleteMessage(a.message_id), { ok: true }),
+  },
+  mark_messages_read: {
+    title: "Marcar recados lidos",
+    description: "Marca como lidos os recados que a outra pessoa mandou.",
+    input: z.strictObject({}),
+    run: async () => ({ ok: true, marked: await markRead() }),
+  },
+
+  // ---------- bichinho
+  get_pet: {
+    title: "Ver bichinho",
+    description: "O bichinho do casal: espécie, nome, amor, nível, humor de hoje e os últimos cuidados.",
+    input: z.strictObject({}),
+    readOnly: true,
+    run: async (v) => {
+      const { pet } = await getPet(v);
+      if (!pet) return { pet: null, message: "Ainda não adotaram um bichinho (dá para adotar em Nós → Bichinho, ou com adopt_pet)." };
+      const m = mood(pet.cared_at, pet.today_cares);
+      return {
+        pet_id: pet.id, species: pet.species, name: pet.name, love: pet.love, level: level(pet.love), mood: m, line: moodLine(pet.name, m),
+        cared_at: pet.cared_at, cares_today: pet.today_cares,
+        recent: pet.feeds.map((f) => ({ kind: f.kind, note: f.note, at: f.created_at })),
+      };
+    },
+  },
+  adopt_pet: {
+    title: "Adotar bichinho",
+    description: `Adota o bichinho do casal, ou muda o nome/espécie do que já existe. Espécies: ${Object.keys(SPECIES).join(", ")}.`,
+    input: z.strictObject({ species: z.enum(Object.keys(SPECIES) as [string, ...string[]]), name: text(30) }),
+    run: (_v, a: Args) => savePet(null, fd(a)),
+  },
+  care_pet: {
+    title: "Cuidar do bichinho",
+    description: `Dá um cuidado ao bichinho: ${Object.entries(CARES).map(([k, c]) => `${k} (+${c.love})`).join(", ")}. Cada tipo conta uma vez por dia para cada pessoa; repetir não tira nada.`,
+    input: z.strictObject({ kind: z.enum(Object.keys(CARES) as [string, ...string[]]), note: z.string().max(140).optional() }),
+    run: async (v, a: { kind: string; note?: string }) => {
+      const { pet } = await getPet(v);
+      if (!pet) throw new ToolError("ainda não há bichinho; use adopt_pet");
+      return carePet(pet.id, a.kind as Care, a.note);
+    },
+  },
+
   delete_maintenance: {
     title: "Excluir manutenção", description: "Apaga um registro de manutenção.", input: z.strictObject({ maintenance_id: id }), confirm: "destructive",
     preview: label("home_maintenance", "description", "Apagar a manutenção"),

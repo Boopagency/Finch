@@ -56,7 +56,7 @@ export async function sendTest(minutes: number): Promise<{ ok: boolean; message:
   return { ok: true, message: `Agendado para daqui a ${delay} min. Pode fechar o app.` };
 }
 
-const NOTIFY = ["water", "habit", "task", "event"] as const;
+const NOTIFY = ["water", "habit", "task", "event", "recado"] as const;
 
 /** Liga/desliga um tipo de aviso. Água usa o ajuste de lembretes de água (mesmo da tela Água). Desligar apaga os pendentes. */
 export async function setNotify(category: string, enabled: boolean): Promise<{ ok: boolean }> {

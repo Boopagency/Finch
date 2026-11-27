@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 
 import { ConfirmButton } from "@/components/ui/confirm-button";
 
-import { Heart, MapPin, Plus, Star, X } from "lucide-react";
+import { Heart, MapPin, Pencil, Plus, Star, X } from "lucide-react";
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -40,10 +40,19 @@ function AddToggle({ label, open, setOpen, children }: { label: string; open: bo
   );
 }
 
+/** Lápis que abre o mesmo formulário já preenchido. */
+const EditButton = ({ what, onClick, dark = false }: { what: string; onClick: () => void; dark?: boolean }) => (
+  <button type="button" onClick={onClick} aria-label={`Editar ${what}`} className={`grid size-11 shrink-0 place-items-center rounded-full ${dark ? "opacity-70" : "text-ink-3"}`}>
+    <Pencil className="size-4" />
+  </button>
+);
+
 // ---------- datas ----------
 export function DatesView({ dates, today }: { dates: SpecialDate[]; today: string }) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useSave(saveDate, () => setOpen(false));
+  const [edit, setEdit] = useState<SpecialDate | null>(null);
+  const close = () => { setOpen(false); setEdit(null); };
+  const [state, action, pending] = useSave(saveDate, close);
   const [busy, start] = useTransition();
   return (
     <div className="flex flex-col gap-3">
@@ -60,17 +69,19 @@ export function DatesView({ dates, today }: { dates: SpecialDate[]; today: strin
               {d.yearly && d.on_date < today && <span className={`block text-[12px] ${i === 0 ? "" : "text-ink-3"}`}>há {sinceLabel(d.on_date, today)}</span>}
             </span>
             <b className="tabular font-display text-[28px] leading-none">{d.next.days}<span className="ml-0.5 text-[12px] font-semibold">d</span></b>
+            <EditButton what={d.title} dark={i === 0} onClick={() => { setEdit(d); setOpen(true); }} />
             <ConfirmButton compact disabled={busy} label={`Apagar ${d.title}`} idle="size-11 justify-center opacity-60" onConfirm={() => start(async () => { await deleteDate(d.id); toast("Data apagada"); })} />
           </li>
         ))}
       </ul>
       <AddToggle label="Nova data" open={open} setOpen={setOpen}>
-        <form action={action} className="flex flex-col gap-3">
-          <Field id="d-title" name="title" label="O quê" required maxLength={60} placeholder="Começo do namoro" />
-          <Field id="d-date" name="on_date" type="date" label="Quando" required />
-          <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">Repete todo ano<Switch name="yearly" defaultChecked /></label>
+        <form action={action} key={edit?.id ?? "nova"} className="flex flex-col gap-3">
+          <input type="hidden" name="id" value={edit?.id ?? ""} />
+          <Field id="d-title" name="title" label="O quê" required maxLength={60} placeholder="Começo do namoro" defaultValue={edit?.title ?? ""} />
+          <Field id="d-date" name="on_date" type="date" label="Quando" required defaultValue={edit?.on_date ?? ""} />
+          <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">Repete todo ano<Switch name="yearly" defaultChecked={edit ? edit.yearly : true} /></label>
           <Err s={state} />
-          <div className="flex gap-2"><Button type="submit" disabled={pending}>Guardar</Button><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button></div>
+          <div className="flex gap-2"><Button type="submit" disabled={pending}>{edit ? "Salvar" : "Guardar"}</Button><Button type="button" variant="ghost" onClick={close}>Cancelar</Button></div>
         </form>
       </AddToggle>
     </div>
@@ -93,7 +104,9 @@ function Stars({ place }: { place: Place }) {
 
 export function PlacesView({ places }: { places: Place[] }) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useSave(savePlace, () => setOpen(false));
+  const [edit, setEdit] = useState<Place | null>(null);
+  const close = () => { setOpen(false); setEdit(null); };
+  const [state, action, pending] = useSave(savePlace, close);
   const [busy, start] = useTransition();
   const want = places.filter((p) => p.status === "quero");
   const been = places.filter((p) => p.status === "fomos");
@@ -110,6 +123,7 @@ export function PlacesView({ places }: { places: Place[] }) {
         ) : (
           <button disabled={busy} onClick={() => start(() => markVisited(p.id, null))} aria-label={`Voltar ${p.name} para queremos ir`} className="grid size-10 place-items-center text-ink-3"><X className="size-4" /></button>
         )}
+        <EditButton what={p.name} onClick={() => { setEdit(p); setOpen(true); }} />
         <ConfirmButton compact disabled={busy} label={`Apagar ${p.name}`} onConfirm={() => start(async () => { await deletePlace(p.id); toast("Lugar apagado"); })} />
       </div>
       {p.note && <p className="pl-8 text-[14px] text-ink-2">{p.note}</p>}
@@ -122,14 +136,15 @@ export function PlacesView({ places }: { places: Place[] }) {
       {want.length > 0 && <section aria-label="Queremos ir" className="flex flex-col gap-2"><h2 className="px-1 text-[13px] font-semibold text-ink-3">Queremos ir</h2><ul className="stagger flex flex-col gap-2">{want.map(row)}</ul></section>}
       {been.length > 0 && <section aria-label="Já fomos" className="flex flex-col gap-2"><h2 className="px-1 text-[13px] font-semibold text-ink-3">Já fomos</h2><ul className="flex flex-col gap-2">{been.map(row)}</ul></section>}
       <AddToggle label="Novo lugar" open={open} setOpen={setOpen}>
-        <form action={action} className="flex flex-col gap-3">
-          <Field id="pl-name" name="name" label="Lugar" required maxLength={80} placeholder="Restaurante japonês da esquina" />
+        <form action={action} key={edit?.id ?? "novo"} className="flex flex-col gap-3">
+          <input type="hidden" name="id" value={edit?.id ?? ""} />
+          <Field id="pl-name" name="name" label="Lugar" required maxLength={80} placeholder="Restaurante japonês da esquina" defaultValue={edit?.name ?? ""} />
           <label className="flex flex-col gap-1.5" htmlFor="pl-kind"><span className="text-[13px] font-semibold text-ink-2">Tipo</span>
-            <select id="pl-kind" name="kind" defaultValue="restaurante" className={select}>{Object.entries(PLACE_KINDS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
+            <select id="pl-kind" name="kind" defaultValue={edit?.kind ?? "restaurante"} className={select}>{Object.entries(PLACE_KINDS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
           </label>
-          <Field id="pl-note" name="note" label="Nota (opcional)" maxLength={500} />
+          <Field id="pl-note" name="note" label="Nota (opcional)" maxLength={500} defaultValue={edit?.note ?? ""} />
           <Err s={state} />
-          <div className="flex gap-2"><Button type="submit" disabled={pending}>Guardar</Button><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button></div>
+          <div className="flex gap-2"><Button type="submit" disabled={pending}>{edit ? "Salvar" : "Guardar"}</Button><Button type="button" variant="ghost" onClick={close}>Cancelar</Button></div>
         </form>
       </AddToggle>
     </div>
@@ -139,6 +154,8 @@ export function PlacesView({ places }: { places: Place[] }) {
 // ---------- memórias ----------
 export function MemoriesView({ memories, today, spaceId }: { memories: Memory[]; today: string; spaceId: string }) {
   const [open, setOpen] = useState(false);
+  const [edit, setEdit] = useState<Memory | null>(null);
+  const close = () => { setOpen(false); setEdit(null); };
   // foto vai direto do aparelho para o bucket privado; a memória guarda só o caminho
   const [state, action, pending] = useSave(async (prev, f) => {
     const file = f.get("photo");
@@ -151,22 +168,26 @@ export function MemoriesView({ memories, today, spaceId }: { memories: Memory[];
       }
     }
     return saveMemory(prev, f);
-  }, () => setOpen(false));
+  }, close);
   const [busy, start] = useTransition();
   return (
     <div className="flex flex-col gap-3">
       <AddToggle label="Nova memória" open={open} setOpen={setOpen}>
-        <form action={action} className="flex flex-col gap-3">
-          <Field id="m-title" name="title" label="Título" required maxLength={80} placeholder="Piquenique no parque" />
-          <Field id="m-date" name="happened_on" type="date" label="Quando" defaultValue={today} max={today} required />
+        <form action={action} key={edit?.id ?? "nova"} className="flex flex-col gap-3">
+          <input type="hidden" name="id" value={edit?.id ?? ""} />
+          <Field id="m-title" name="title" label="Título" required maxLength={80} placeholder="Piquenique no parque" defaultValue={edit?.title ?? ""} />
+          <Field id="m-date" name="happened_on" type="date" label="Quando" defaultValue={edit?.happened_on ?? today} max={today} required />
           <label className="flex flex-col gap-1.5" htmlFor="m-body"><span className="text-[13px] font-semibold text-ink-2">Como foi</span>
-            <textarea id="m-body" name="body" rows={4} maxLength={4000} className="rounded-[14px] border border-line bg-surface px-4 py-3 text-[16px]" />
+            <textarea id="m-body" name="body" rows={4} maxLength={4000} defaultValue={edit?.body ?? ""} className="rounded-[14px] border border-line bg-surface px-4 py-3 text-[16px]" />
           </label>
-          <label className="flex flex-col gap-1.5" htmlFor="m-photo"><span className="text-[13px] font-semibold text-ink-2">Foto (opcional)</span>
+          <label className="flex flex-col gap-1.5" htmlFor="m-photo"><span className="text-[13px] font-semibold text-ink-2">{edit?.photo_url ? "Trocar a foto" : "Foto (opcional)"}</span>
             <input id="m-photo" name="photo" type="file" accept="image/*" className="text-[15px] file:mr-3 file:min-h-11 file:rounded-full file:border-0 file:bg-surface-2 file:px-4 file:font-semibold" />
           </label>
+          {edit?.photo_url && (
+            <label className="flex min-h-11 items-center justify-between text-[15px] font-semibold">Tirar a foto<Switch name="remove_photo" /></label>
+          )}
           <Err s={state} />
-          <div className="flex gap-2"><Button type="submit" disabled={pending}>Guardar</Button><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button></div>
+          <div className="flex gap-2"><Button type="submit" disabled={pending}>{edit ? "Salvar" : "Guardar"}</Button><Button type="button" variant="ghost" onClick={close}>Cancelar</Button></div>
         </form>
       </AddToggle>
       {memories.length === 0 && !open && <EmptyState title="Nenhuma memória ainda">Guardem os momentos de vocês: o dia, um título e como foi.</EmptyState>}
@@ -179,6 +200,7 @@ export function MemoriesView({ memories, today, spaceId }: { memories: Memory[];
                 <span className="block text-[12px] font-semibold text-ink-3">{fmtDay(m.happened_on, true)}</span>
                 <b className="block text-[16px]">{m.title}</b>
               </span>
+              <EditButton what={m.title} onClick={() => { setEdit(m); setOpen(true); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
               <ConfirmButton compact disabled={busy} label={`Apagar ${m.title}`} onConfirm={() => start(async () => { await deleteMemory(m.id); toast("Memória apagada"); })} />
             </div>
             {m.photo_url && (

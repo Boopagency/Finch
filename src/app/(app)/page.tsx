@@ -3,7 +3,8 @@ import { ptBR } from "date-fns/locale";
 import { Bell, CalendarDays, Check, Droplet, Settings } from "lucide-react";
 import Link from "next/link";
 import { countdownLabel } from "@/features/couple/couple";
-import { getUpcomingDates } from "@/features/couple/server/queries";
+import { getPet, getUpcomingDates, unreadCount } from "@/features/couple/server/queries";
+import { mood, moodLine } from "@/features/couple/pet";
 import { isLow } from "@/features/kitchen/kitchen";
 import { getKitchen } from "@/features/kitchen/server/queries";
 import { alertText } from "@/features/home/home";
@@ -43,7 +44,7 @@ export default async function TodayPage() {
   const supabase = await createClient();
   const now = nowIn(viewer.tz);
 
-  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData, agenda, shopping, album, soonDates, kitchen, home, faces] = await Promise.all([
+  const [{ data: shared }, { count: devices }, { data: recent }, water, habitsData, tasksData, agenda, shopping, album, soonDates, unread, { pet }, kitchen, home, faces] = await Promise.all([
     supabase.from("workspaces").select("id, name, workspace_members(user_id, profiles(display_name))").eq("kind", "shared"),
     supabase.from("push_subscriptions").select("id", { count: "exact", head: true }).is("revoked_at", null),
     supabase
@@ -61,6 +62,8 @@ export default async function TodayPage() {
     getLists(viewer),
     getAlbumSummary(),
     getUpcomingDates(viewer, 7),
+    unreadCount(viewer),
+    getPet(viewer),
     getKitchen(viewer),
     getHome(viewer),
     getFaces(viewer),
@@ -120,6 +123,16 @@ export default async function TodayPage() {
   }
   if (!devices) {
     bubbles.push({ key: "push", title: "Lembretes", text: "Ative os lembretes neste iPhone para o Finch te chamar.", tone: "cobalt", href: "/ajustes#lembretes" });
+  }
+  // recado por ler e bichinho com saudade entram no topo: são coisas de vocês dois
+  if (unread > 0) {
+    bubbles.unshift({ key: "recados", title: "Recados", text: unread === 1 ? "Tem um recado esperando você." : `Tem ${unread} recados esperando você.`, tone: "coral", href: "/vida/nos?v=recados" });
+  }
+  if (pet) {
+    const m = mood(pet.cared_at, pet.today_cares, now);
+    if (m === "com saudade" || m === "com muita saudade") {
+      bubbles.push({ key: "pet", title: pet.name, text: moodLine(pet.name, m), tone: "tangerine", href: "/vida/nos?v=bichinho" });
+    }
   }
   if (album.packs > 0) {
     bubbles.unshift({ key: "packs", title: "Álbum", text: album.packs === 1 ? "Tem um pacotinho de figurinhas esperando você." : `Tem ${album.packs} pacotinhos de figurinhas esperando você.`, tone: "coral", href: "/vida/album" });

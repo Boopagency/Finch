@@ -248,6 +248,10 @@ dialog.pop[open] { opacity: 1; scale: 1; }
 /* barras de progresso crescem suave */
 [role="progressbar"] > div { transition: width var(--dur-slow) var(--ease-out); }
 
+/* o bichinho respira: sobe e desce de leve, sem pedir atenção */
+@keyframes pet-breath { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.015); } }
+.pet-idle { animation: pet-breath 3.4s var(--ease-out) infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

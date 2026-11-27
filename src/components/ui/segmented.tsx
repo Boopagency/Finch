@@ -26,6 +26,30 @@ export function Segmented<T extends string>({ options, value, onChange, label, s
   const n = options.length;
   const h = size === "sm" ? "min-h-9 text-[13px]" : "min-h-11 text-[14px]";
 
+  // com cinco ou mais, nada cabe num iPhone: a faixa rola e o ativo vira pílula (sem o destaque que desliza)
+  if (n > 4) {
+    return (
+      <div role="radiogroup" aria-label={label} className={`flex gap-1 overflow-x-auto rounded-full bg-surface-2 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}>
+        {options.map((o, i) => {
+          const active = i === idx;
+          return (
+            <button
+              key={o.value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => onChange?.(o.value)}
+              className={`press flex ${h} shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 font-semibold transition-colors duration-200 ${active ? `${INDICATOR[o.tone ?? "ink"]} ${ON[o.tone ?? "ink"]}` : "text-ink-2"}`}
+            >
+              {o.icon}
+              {o.label}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div role="radiogroup" aria-label={label} className={`relative grid rounded-full bg-surface-2 p-1 ${className}`} style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
       <span

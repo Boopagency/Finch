@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CheckSquare, Droplet, Sparkles } from "lucide-react";
+import { CalendarDays, CheckSquare, Droplet, MessageCircleHeart, Sparkles } from "lucide-react";
 import { useState, useTransition } from "react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/toast";
@@ -11,6 +11,7 @@ const ITEMS = [
   { key: "habit", label: "Hábitos", hint: "No horário de cada hábito", Icon: Sparkles, tone: "bg-sunflower text-on-color" },
   { key: "task", label: "Tarefas", hint: "Tarefas com horário marcado", Icon: CheckSquare, tone: "bg-coral text-on-color" },
   { key: "event", label: "Agenda", hint: "Antes dos compromissos", Icon: CalendarDays, tone: "bg-lavender text-on-color" },
+  { key: "recado", label: "Recados", hint: "Quando a outra pessoa escreve em Nós (o texto não aparece no aviso)", Icon: MessageCircleHeart, tone: "bg-frog text-on-color" },
 ] as const;
 
 export function NotifyPrefs({ initial }: { initial: Record<string, boolean> }) {

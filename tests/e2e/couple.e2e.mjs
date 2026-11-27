@@ -9,7 +9,7 @@ const iso = (d) => d.toISOString().slice(0, 10);
 const inDays = (n) => iso(new Date(Date.now() - 3 * 3600e3 + n * 864e5)); // dia em São Paulo
 
 await test("Data especial: contagem e aviso no Hoje dos dois", async () => {
-  await a.page.goto(`${BASE}/vida/nos`);
+  await a.page.goto(`${BASE}/vida/nos?v=datas`);
   await a.page.getByRole("button", { name: "Nova data" }).click();
   await a.page.getByLabel("O quê").fill(`Namoro ${run}`);
   const past = new Date(Date.now() - 3 * 3600e3 + 3 * 864e5);
@@ -68,7 +68,7 @@ await test("Meta do casal: os dois somam, bate e dá pontos", async () => {
   assert.match(await a.page.locator("li").filter({ hasText: `Reserva ${run}` }).innerText(), /por semana para chegar no prazo/);
   await b.page.goto(`${BASE}/vida/metas`);
   await b.page.getByLabel(`Somar em Reserva ${run}`).fill("600,00");
-  await b.page.getByRole("button", { name: "Somar" }).first().click();
+  await b.page.locator("li").filter({ hasText: `Reserva ${run}` }).getByRole("button", { name: "Somar" }).click();
   await toast(b.page, `Meta batida: Reserva ${run}!`);
   await b.page.getByText("Batida! +50 pontos no álbum.").first().waitFor();
   assert.ok(bar);
@@ -88,7 +88,7 @@ await test("Meta pessoal não aparece para a parceira", async () => {
 });
 
 await test("Limpeza: apaga o que o teste criou", async () => {
-  for (const [url, label] of [[`/vida/nos`, `Apagar Namoro ${run}`], [`/vida/nos?v=lugares`, `Apagar Sushi ${run}`], [`/vida/nos?v=memorias`, `Apagar Piquenique ${run}`], [`/vida/metas`, `Apagar Reserva ${run}`], [`/vida/metas`, `Apagar Ler ${run}`]]) {
+  for (const [url, label] of [[`/vida/nos?v=datas`, `Apagar Namoro ${run}`], [`/vida/nos?v=lugares`, `Apagar Sushi ${run}`], [`/vida/nos?v=memorias`, `Apagar Piquenique ${run}`], [`/vida/metas`, `Apagar Reserva ${run}`], [`/vida/metas`, `Apagar Ler ${run}`]]) {
     await a.page.goto(`${BASE}${url}`);
     await confirmTap(a.page, a.page.getByRole("button", { name: label }));
     await a.page.getByRole("status").first().waitFor();

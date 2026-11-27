@@ -24,6 +24,10 @@ _Atualizado em 2026-11-26. Status: `implementado` · `testado (unidade/banco/E2E
 | Saúde: peso, cintura, sono, humor; tendência de peso e sono médio; privado | testado | unidade + SQL + E2E |
 | Cozinha: despensa com mínimo e validade, Repor → lista, receitas (porções escaláveis) → lista pulando o que tem em casa, cardápio da semana → lista; compra finalizada repõe a despensa | testado com 2 usuários | unidade + SQL + E2E |
 | Nós: datas especiais com contagem (29/02 tratado) e aviso no Hoje, lugares (queremos ir/fomos com nota), memórias em linha do tempo | testado com 2 usuários | unidade + SQL + E2E |
+| **Recados do casal** (D-052): conversa em Nós com foto, em tempo real, "lido", editar e apagar o próprio; aviso no celular da outra pessoa sem o texto; balão no Hoje | testado com 2 usuários | SQL + E2E `nos.e2e.mjs` |
+| **Bichinho do casal** (D-053): seis bichinhos em SVG, humor pelo tempo sem carinho, amor que só sobe e vira nível, quatro cuidados com teto diário por pessoa; aviso no Hoje quando está com saudade | testado com 2 usuários | unidade + SQL + E2E |
+| **Edição** (D-054): datas, lugares, memórias (com trocar/tirar a foto), metas, itens da casa e manutenções | testado | E2E |
+| **Foto no assistente** (D-055): anexo vira foto da memória, do item da casa ou do recado | testado com API falsa | E2E `assistant.e2e.mjs` |
 | Metas pessoais ou do casal: soma atômica (os dois ao mesmo tempo), ritmo por semana até o prazo, +50 pontos ao bater | testado com 2 usuários | unidade + SQL + E2E |
 | Finanças 2: recorrentes (salário, aluguel, assinaturas) que entram sozinhos como previsto, relatório de 6 meses e categorias vs. mês anterior, exportação CSV para Excel | testado | unidade + SQL + E2E |
 | Assistente Finch (aba do passarinho, D-051): as 74 ferramentas do conector, **voz** (grava com onda na tela e cronômetro, transcreve e envia; precisa de `TRANSCRIBE_API_KEY`), **anexos** (foto, PDF, CSV/OFX/TXT → lê e age, ex.: comprovante vira lançamento); excluir e dinheiro só com cartão "Confirmar"; cota diária por pessoa; **falta a chave de IA (`AI_API_KEY` na Vercel)** | testado com API falsa local (laço completo até o banco) | unidade + SQL + E2E `assistant.e2e.mjs` (12, com microfone simulado) |
@@ -43,8 +47,8 @@ _Atualizado em 2026-11-26. Status: `implementado` · `testado (unidade/banco/E2E
 | **Conector completo** (D-050): 74 ferramentas — tarefas (concluir, editar, adiar, excluir, subtarefas), agenda (editar, excluir), água (desfazer), hábitos (marcar, criar, arquivar), mercado (marcar, tirar, outras listas, finalizar compra), finanças (detalhe do mês, lançamento completo, confirmar previsto, cancelar, acerto do casal, orçamento, contas), saúde, treino (começar, séries, terminar), Nós, metas, cozinha (despensa, receitas, cardápio → lista) e casa; excluir e dinheiro só com `confirm: true` | testado | unidade + SQL + E2E `mcp.e2e.mjs` (10, contra o Supabase de produção) |
 
 ## Números (26/11)
-- `npm test`: **82** testes de unidade passando.
-- `npm run test:db`: **16** suítes SQL passando (+ fotos de perfil/casal e MCP/OAuth), cada uma em banco limpo.
+- `npm test`: **87** testes de unidade passando.
+- `npm run test:db`: **17** suítes SQL passando (+ fotos de perfil/casal e MCP/OAuth), cada uma em banco limpo.
 - `npm run test:e2e`: **123** testes em 20 suítes passando (iPhone 13/15 simulado, 2 usuários de teste, Supabase de produção).
 - `lint`, `typecheck`, `build`: passando.
 

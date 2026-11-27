@@ -44,19 +44,24 @@ export function Chat() {
   const [, start] = useTransition();
   const end = useRef<HTMLDivElement>(null);
   const [files, setFiles] = useState<Attachment[]>([]);
+  const [reading, setReading] = useState(0); // anexos ainda sendo lidos: enviar antes mandaria a mensagem sem a foto
   const picker = useRef<HTMLInputElement>(null);
   const voice = useVoice((text) => void send(text));
 
   async function pick(list: FileList | null) {
-    for (const f of Array.from(list ?? []).slice(0, 3 - files.length)) {
+    const chosen = Array.from(list ?? []).slice(0, 3 - files.length);
+    if (picker.current) picker.current.value = "";
+    setReading((n) => n + chosen.length);
+    for (const f of chosen) {
       try {
         const a = await readAttachment(f);
         setFiles((x) => (x.reduce((n, y) => n + y.data.length, 0) + a.data.length > MAX_ATTACH_CHARS ? (toast("Anexos grandes demais para uma mensagem."), x) : [...x, a]));
       } catch (e) {
         toast(e instanceof Error ? e.message : "Não consegui ler o arquivo.");
+      } finally {
+        setReading((n) => n - 1);
       }
     }
-    if (picker.current) picker.current.value = "";
   }
 
   // conversa fica só nesta aba (conveniência); nada disso vai para o servidor além do que é enviado
@@ -75,7 +80,7 @@ export function Chat() {
   async function send(content: string) {
     const attached = files;
     const c = content.trim() || (attached.length ? "Veja o anexo." : "");
-    if (!c || busy) return;
+    if (!c || busy || reading > 0) return; // nunca envia com foto pela metade
     const next: Msg[] = [...msgs, { role: "user", content: c, ...(attached.length ? { files: attached.map((f) => f.name) } : {}) }];
     setMsgs(next);
     if (input.current) input.current.value = "";
@@ -147,8 +152,9 @@ export function Chat() {
               {SUGGESTIONS.map((s) => <button key={s} onClick={() => send(s)} className="press min-h-10 shrink-0 rounded-full bg-surface px-4 text-[14px] font-semibold shadow-sm">{s}</button>)}
             </div>
           )}
-          {files.length > 0 && (
+          {(files.length > 0 || reading > 0) && (
             <ul className="flex flex-wrap gap-2" aria-label="Anexos">
+              {reading > 0 && <li className="flex min-h-10 items-center gap-2 rounded-full bg-surface px-3 text-[13px] text-ink-3 shadow-sm" role="status">Preparando a foto…</li>}
               {files.map((f, k) => (
                 <li key={k} className="flex items-center gap-1 rounded-full bg-surface py-1 pl-3 pr-1 text-[13px] font-semibold shadow-sm">
                   <FileText className="size-3.5" /> <span className="max-w-40 truncate">{f.name}</span>
@@ -159,7 +165,7 @@ export function Chat() {
           )}
           <form onSubmit={(e) => { e.preventDefault(); void send(input.current?.value ?? ""); }} className="field-shell flex items-end gap-1 rounded-[24px] bg-surface p-2 pl-1 shadow-[var(--shadow-float)]">
             <input ref={picker} type="file" multiple accept="image/*,application/pdf,.csv,.txt,.ofx" className="hidden" onChange={(e) => void pick(e.currentTarget.files)} aria-label="Escolher arquivo" />
-            <button type="button" onClick={() => picker.current?.click()} disabled={files.length >= 3 || voice.state !== "idle"} aria-label="Anexar foto ou arquivo" className="press grid size-11 shrink-0 place-items-center rounded-full text-ink-3 disabled:opacity-40">
+            <button type="button" onClick={() => picker.current?.click()} disabled={files.length + reading >= 3 || voice.state !== "idle"} aria-label="Anexar foto ou arquivo" className="press grid size-11 shrink-0 place-items-center rounded-full text-ink-3 disabled:opacity-40">
               <Paperclip className="size-5" />
             </button>
             <label htmlFor="chat-input" className="sr-only">Mensagem para o Finch</label>
@@ -188,12 +194,12 @@ export function Chat() {
               <button type="button" onClick={voice.send} aria-label="Parar e enviar áudio" className="press grid size-11 shrink-0 place-items-center rounded-full bg-coral text-on-color">
                 <ArrowUp className="size-5" strokeWidth={2.6} />
               </button>
-            ) : !hasText && !files.length ? (
+            ) : !hasText && !files.length && !reading ? (
               <button type="button" onClick={() => void voice.start()} disabled={busy || voice.state !== "idle"} aria-label="Gravar áudio" className="press grid size-11 shrink-0 place-items-center rounded-full bg-coral text-on-color disabled:opacity-40">
                 <Mic className="size-5" />
               </button>
             ) : (
-              <button type="submit" disabled={busy} aria-label="Enviar" className="press grid size-11 shrink-0 place-items-center rounded-full bg-coral text-on-color disabled:opacity-40">
+              <button type="submit" disabled={busy || reading > 0} aria-label="Enviar" className="press grid size-11 shrink-0 place-items-center rounded-full bg-coral text-on-color disabled:opacity-40">
                 <ArrowUp className="size-5" strokeWidth={2.6} />
               </button>
             )}

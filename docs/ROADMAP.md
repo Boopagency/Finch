@@ -45,5 +45,20 @@ Metas vinculadas, viagens, memórias, datas, lugares, desejos, conquistas, desaf
 ## Etapa 7 — IA ✅ (assistente com ferramentas; falta a chave; fotos de comprovante e relatório automático depois)
 Assistente com ferramentas, imagens/comprovantes, relatórios automáticos, sugestões proativas. Conector MCP para o Claude (D-043) ✅.
 
+## Etapa 9 — Vida a dois, parte 2 (27/11) ✅
+Recados do casal (D-052), bichinho que vocês cuidam juntos (D-053), edição do que já foi criado (D-054) e anexo do assistente virando foto de verdade (D-055).
+
+### Sugestões para depois (ainda não decididas com o Jabez)
+1. **Reagir ao recado com um emoji** e responder citando — conversa fica mais rápida que escrever "sobre o que você falou…".
+2. **Recado que vira tarefa ou compromisso** num toque (o Boop Admin já faz isso com mensagem; aqui encaixa igual).
+3. **Bichinho rendendo figurinha** no álbum a cada nível, e **cuidado automático** quando o casal cumpre a rotina do dia (hoje só o toque conta).
+4. **Lembrete gentil do bichinho**: um push por semana, só quando está com saudade, respeitando o horário silencioso.
+5. **Histórico de edição** nos itens editáveis (quem mudou e quando) — hoje a edição sobrescreve sem deixar rastro.
+6. **Desfazer nas edições**, como já existe no excluir em dois toques.
+7. **Assistente proativo**: resumo da semana no domingo e aviso quando o orçamento de uma categoria está perto do fim.
+8. **Busca** única (tarefas, memórias, recados, lugares) — hoje a busca existe só em tarefas.
+9. **Widget na tela de início do iPhone** com água, tarefas de hoje e o humor do bichinho.
+10. **Exportar as memórias** (PDF ou álbum impresso) — as fotos já estão no bucket com data e título.
+
 ## Etapa 8 — Refinamento (em andamento: lote de fluidez de 26/11 — D-038 a D-042)
 Revisão de UX, animações, performance, acessibilidade, segurança, validação em aparelhos.
