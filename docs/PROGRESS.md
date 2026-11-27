@@ -1,6 +1,6 @@
 # Progresso
 
-_Atualizado em 2026-11-26. Status: `implementado` · `testado (unidade/banco/E2E)` · `validado no iPhone`._
+_Atualizado em 2026-11-27. Status: `implementado` · `testado (unidade/banco/E2E)` · `validado no iPhone`._
 
 **No ar:** https://finch-ecru.vercel.app · branch `claude/lucid-rubin-r0jdza` (produção da Vercel).
 **O que depende do Jabez:** [PENDENCIAS_JABEZ.md](PENDENCIAS_JABEZ.md) · **Roteiro no iPhone:** [TESTES_IPHONE.md](TESTES_IPHONE.md)
@@ -49,7 +49,7 @@ _Atualizado em 2026-11-26. Status: `implementado` · `testado (unidade/banco/E2E
 ## Números (26/11)
 - `npm test`: **87** testes de unidade passando.
 - `npm run test:db`: **17** suítes SQL passando (+ fotos de perfil/casal e MCP/OAuth), cada uma em banco limpo.
-- `npm run test:e2e`: **123** testes em 20 suítes passando (iPhone 13/15 simulado, 2 usuários de teste, Supabase de produção).
+- `npm run test:e2e`: **149** testes em 21 suítes passando (iPhone 13/15 simulado, 2 usuários de teste, Supabase de produção).
 - `lint`, `typecheck`, `build`: passando.
 
 ## Desempenho (25/11, medido no site publicado, iPhone 15 simulado)
