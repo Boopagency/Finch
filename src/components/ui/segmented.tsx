@@ -29,7 +29,7 @@ export function Segmented<T extends string>({ options, value, onChange, label, s
   // com cinco ou mais, nada cabe num iPhone: a faixa rola e o ativo vira pílula (sem o destaque que desliza)
   if (n > 4) {
     return (
-      <div role="radiogroup" aria-label={label} className={`flex gap-1 overflow-x-auto rounded-full bg-surface-2 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}>
+      <div role="radiogroup" aria-label={label} data-scroll-x className={`flex gap-1 overflow-x-auto rounded-full bg-surface-2 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}>
         {options.map((o, i) => {
           const active = i === idx;
           return (

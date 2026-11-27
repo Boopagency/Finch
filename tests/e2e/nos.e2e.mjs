@@ -43,6 +43,8 @@ await test("Recado com foto", async () => {
 });
 
 await test("Recado por ler aparece no Hoje", async () => {
+  // com a tela de recados aberta o app já marca como lido, então A sai dela antes
+  await a.goto(`${BASE}/vida/metas`);
   await b.getByLabel("Escreva um recado").fill(`não esquece o bolo ${run}`);
   await b.getByRole("button", { name: "Enviar recado" }).click();
   await balao(b, `não esquece o bolo ${run}`).waitFor();
@@ -52,6 +54,7 @@ await test("Recado por ler aparece no Hoje", async () => {
 
 await test("Apagar recado some para os dois", async () => {
   await recados(a);
+  await balao(a, `não esquece o bolo ${run}`).waitFor();
   await confirmTap(a, balao(a, `passa na farmácia? ${run}`).getByLabel("Apagar recado"));
   await balao(a, `passa na farmácia? ${run}`).waitFor({ state: "detached" });
   await b.reload();
@@ -124,6 +127,8 @@ await test("Editar memória: troca o texto e a foto", async () => {
   await a.getByRole("status").filter({ hasText: "Memória atualizada." }).waitFor();
   const card = a.locator("li").filter({ hasText: `Piquenique no parque ${run}` }).first();
   await card.getByText("foi ótimo, levamos o bolo").waitFor();
+  // a foto é lazy: com muitas memórias o card nasce fora da tela
+  await card.locator("img").scrollIntoViewIfNeeded();
   await card.locator("img").waitFor();
   await b.goto(`${BASE}/vida/nos?v=memorias`);
   await b.getByText(`Piquenique no parque ${run}`).waitFor();
